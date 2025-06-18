@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,10 +31,7 @@ import com.sultonuzdev.netspeed.presentation.components.BottomNavigation
 import com.sultonuzdev.netspeed.presentation.screens.settings.SettingsScreen
 import com.sultonuzdev.netspeed.presentation.screens.speed.SpeedScreen
 import com.sultonuzdev.netspeed.presentation.screens.usage.UsageScreen
-import com.sultonuzdev.netspeed.presentation.theme.Background
-import com.sultonuzdev.netspeed.presentation.theme.BackgroundVariant
-import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
-import com.sultonuzdev.netspeed.presentation.theme.Surface
+import com.sultonuzdev.netspeed.presentation.theme.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +51,6 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // FIXED: Enable edge-to-edge display
         enableEdgeToEdge()
 
         splashScreen.setKeepOnScreenCondition {
@@ -77,7 +74,8 @@ class MainActivity : ComponentActivity() {
             NetSpeedTheme(darkTheme = isDarkTheme) {
                 NetSpeedApp(
                     currentPage = currentPage,
-                    onPageSelected = mainViewModel::setCurrentPage
+                    onPageSelected = mainViewModel::setCurrentPage,
+                    isDarkTheme = isDarkTheme
                 )
             }
         }
@@ -115,34 +113,42 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NetSpeedApp(
     currentPage: Int,
-    onPageSelected: (Int) -> Unit
+    onPageSelected: (Int) -> Unit,
+    isDarkTheme: Boolean
 ) {
+    // Get theme-appropriate colors
+    val backgroundColors = if (isDarkTheme) {
+        listOf(DarkBackground, DarkBackgroundVariant, DarkSurface)
+    } else {
+        listOf(LightBackground, LightBackgroundVariant, LightSurface)
+    }
+
+    val bottomNavBackground = if (isDarkTheme) {
+        DarkBackground.copy(alpha = 0.95f)
+    } else {
+        LightBackground.copy(alpha = 0.95f)
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.radialGradient(
-                    colors = listOf(
-                        Background,
-                        BackgroundVariant,
-                        Surface
-                    ),
+                    colors = backgroundColors,
                     radius = 1000f
                 )
             ),
         bottomBar = {
-            // FIXED: Better bottom navigation handling
             Box(
                 modifier = Modifier
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
                                 androidx.compose.ui.graphics.Color.Transparent,
-                                Background.copy(alpha = 0.95f)
+                                bottomNavBackground
                             )
                         )
                     )
-                    // Add proper padding for system navigation
                     .padding(
                         bottom = WindowInsets.navigationBars.asPaddingValues()
                             .calculateBottomPadding()
@@ -155,14 +161,12 @@ fun NetSpeedApp(
             }
         },
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
-        // FIXED: Handle system bars properly
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                // Add status bar padding
                 .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
         ) {
             when (currentPage) {

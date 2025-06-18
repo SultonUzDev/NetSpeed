@@ -1,20 +1,30 @@
 package com.sultonuzdev.netspeed.presentation.screens.settings
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.netspeed.presentation.components.SettingItem
 import com.sultonuzdev.netspeed.presentation.components.SelectionDialog
-import com.sultonuzdev.netspeed.presentation.theme.*
+import com.sultonuzdev.netspeed.presentation.components.SettingItem
 import org.koin.androidx.compose.koinViewModel
+
+
+
 
 @Composable
 fun SettingsScreen(
@@ -37,19 +47,19 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, bottom = 30.dp),
+                .padding(horizontal = 8.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Settings",
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = PrimaryVariant
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Customize your monitoring preferences",
                 fontSize = 14.sp,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -127,15 +137,6 @@ fun SettingsScreen(
                     onToggleChange = { viewModel.updateDataLimitAlert(it) }
                 )
 
-                SettingItem(
-                    label = "Export Usage Data",
-                    description = "Export your usage history",
-                    value = "Export",
-                    onValueClick = {
-                        // TODO: Implement export functionality
-                        // This could open a file picker or sharing dialog
-                    }
-                )
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -245,6 +246,8 @@ fun SettingsScreen(
     }
 }
 
+
+
 @Composable
 private fun SettingsSection(
     title: String,
@@ -255,7 +258,7 @@ private fun SettingsSection(
             text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
-            color = PrimaryVariant,
+            color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.sp,
             modifier = Modifier.padding(bottom = 20.dp)
         )

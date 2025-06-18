@@ -22,14 +22,14 @@ fun StatCard(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
-    valueColor: Color = PrimaryVariant
+    valueColor: Color = MaterialTheme.colorScheme.primaryContainer
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(CardBackground)
-            .border(1.dp, CardBorder, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.netSpeedColors.cardBackground)
+            .border(1.dp, MaterialTheme.netSpeedColors.cardBorder, RoundedCornerShape(12.dp))
             .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -39,7 +39,7 @@ fun StatCard(
             Text(
                 text = label.uppercase(),
                 fontSize = 12.sp,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.5.sp
             )
             Spacer(modifier = Modifier.height(8.dp))

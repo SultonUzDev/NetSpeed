@@ -1,14 +1,30 @@
 package com.sultonuzdev.netspeed.presentation.components
 
 
-import androidx.compose.animation.core.*
+import android.annotation.SuppressLint
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,16 +33,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
-import com.sultonuzdev.netspeed.presentation.theme.Primary
-import com.sultonuzdev.netspeed.presentation.theme.Secondary
-import com.sultonuzdev.netspeed.presentation.theme.PrimaryVariant
-import com.sultonuzdev.netspeed.presentation.theme.TextSecondary
 
 @Preview
 @Composable
@@ -79,6 +90,12 @@ fun UsageChart(
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0x0A000000))
         ) {
+            val colors = listOf(
+                MaterialTheme.colorScheme.primaryContainer,
+                MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
@@ -95,10 +112,7 @@ fun UsageChart(
                     // Draw bar with gradient
                     drawRoundRect(
                         brush = Brush.verticalGradient(
-                            colors = listOf(
-                                PrimaryVariant,
-                                Secondary
-                            ),
+                            colors =colors,
                             startY = y,
                             endY = size.height
                         ),
@@ -121,7 +135,7 @@ fun UsageChart(
                 Text(
                     text = day,
                     fontSize = 10.sp,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -130,12 +144,13 @@ fun UsageChart(
 }
 
 // Alternative implementation with more detailed chart
+@SuppressLint("DefaultLocale")
 @Composable
 fun DetailedUsageChart(
+    modifier: Modifier = Modifier,
     data: List<Float>,
     labels: List<String> = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
-    maxValue: Float = 5f, // 5GB max
-    modifier: Modifier = Modifier
+    maxValue: Float = 5f // 5GB max
 ) {
     var animatedValues by remember { mutableStateOf(List(7) { 0f }) }
 
@@ -180,6 +195,12 @@ fun DetailedUsageChart(
                 )
                 .padding(16.dp)
         ) {
+            val colors = listOf(
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+            )
+
             Canvas(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -204,11 +225,7 @@ fun DetailedUsageChart(
                     // Draw main bar
                     drawRoundRect(
                         brush = Brush.verticalGradient(
-                            colors = listOf(
-                                PrimaryVariant.copy(alpha = 0.9f),
-                                Primary.copy(alpha = 0.7f),
-                                Secondary.copy(alpha = 0.5f)
-                            ),
+                            colors =colors,
                             startY = y,
                             endY = size.height
                         ),
@@ -260,13 +277,13 @@ fun DetailedUsageChart(
                             String.format("%.1f", animatedValues[index])
                         } else "0.0",
                         fontSize = 10.sp,
-                        color = PrimaryVariant,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = label,
                         fontSize = 9.sp,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
                 }

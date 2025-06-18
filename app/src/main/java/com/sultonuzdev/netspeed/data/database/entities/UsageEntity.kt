@@ -3,7 +3,7 @@ package com.sultonuzdev.netspeed.data.database.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "usage_data")
+@Entity(tableName = "usage_table")
 data class UsageEntity(
     @PrimaryKey
     val date: String,

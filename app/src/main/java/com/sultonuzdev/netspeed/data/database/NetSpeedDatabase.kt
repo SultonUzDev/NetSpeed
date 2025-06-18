@@ -9,7 +9,7 @@ import com.sultonuzdev.netspeed.data.database.entities.UsageEntity
 
 @Database(
     entities = [UsageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class NetSpeedDatabase : RoomDatabase() {

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.*
+
 class UsageRepositoryImpl (
     private val usageDao: UsageDao,
     private val context: android.content.Context
@@ -48,7 +49,7 @@ class UsageRepositoryImpl (
                     totalUsage = entity.totalUsage,
                     sessionTime = entity.sessionTime
                 )
-            }
+            }.sortedByDescending { it.date } // Sort by date descending (newest first)
         }
     }
 
@@ -102,5 +103,36 @@ class UsageRepositoryImpl (
 
     override suspend fun getMonthlyTotal(monthYear: String): Long {
         return usageDao.getMonthlyUsage(monthYear) ?: 0L
+    }
+
+    // New implementations for daily history
+    override fun getUsageByDateRange(startDate: String, endDate: String): Flow<List<UsageData>> {
+        return usageDao.getUsageByDateRange(startDate, endDate).map { entities ->
+            entities.map { entity ->
+                UsageData(
+                    date = entity.date,
+                    wifiUsage = entity.wifiUsage,
+                    mobileUsage = entity.mobileUsage,
+                    totalUsage = entity.totalUsage,
+                    sessionTime = entity.sessionTime
+                )
+            }.sortedByDescending { it.date }
+        }
+    }
+
+    override fun getMultipleMonthsUsage(months: List<String>): Flow<List<UsageData>> {
+        return usageDao.getAllUsage().map { entities ->
+            entities.filter { entity ->
+                months.any { month -> entity.date.startsWith(month) }
+            }.map { entity ->
+                UsageData(
+                    date = entity.date,
+                    wifiUsage = entity.wifiUsage,
+                    mobileUsage = entity.mobileUsage,
+                    totalUsage = entity.totalUsage,
+                    sessionTime = entity.sessionTime
+                )
+            }.sortedByDescending { it.date }
+        }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,24 +44,25 @@ fun SpeedScreen(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Primary.copy(alpha = 0.1f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                             androidx.compose.ui.graphics.Color.Transparent
                         )
                     )
                 )
-                .padding(top = 60.dp, bottom = 20.dp),
+                .padding(horizontal = 8.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Net Speed",
-                fontSize = 28.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Primary
+                color = MaterialTheme.colorScheme.onSurface
+
             )
             Text(
                 text = "Real-time Internet Monitor",
                 fontSize = 14.sp,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Light
             )
         }
@@ -125,8 +127,8 @@ fun SpeedScreen(
                 .fillMaxWidth()
                 .padding(20.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Primary.copy(alpha = 0.1f))
-                .border(1.dp, Primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                 .padding(15.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -140,7 +142,7 @@ fun SpeedScreen(
                 text = "${uiState.networkName} Connected",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = PrimaryVariant
+                color = MaterialTheme.colorScheme.primaryContainer
             )
             Spacer(modifier = Modifier.width(10.dp))
             repeat(4) { index ->
@@ -149,7 +151,7 @@ fun SpeedScreen(
                         .width(3.dp)
                         .height((6 + index * 4).dp)
                         .background(
-                            if (index < uiState.signalStrength) Primary else Primary.copy(alpha = 0.3f),
+                            if (index < uiState.signalStrength) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                             RoundedCornerShape(1.dp)
                         )
                 )
@@ -163,15 +165,15 @@ fun SpeedScreen(
                 .fillMaxWidth()
                 .padding(20.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Error.copy(alpha = 0.1f))
-                .border(1.dp, Error.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
+                .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                 .padding(20.dp)
         ) {
             Column {
                 Text(
                     text = "DATA USAGE TODAY",
                     fontSize = 16.sp,
-                    color = Error,
+                    color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
                     modifier = Modifier.fillMaxWidth()
@@ -219,14 +221,14 @@ private fun UsageItem(
             Text(
                 text = label,
                 fontSize = 14.sp,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             )
             Text(
                 text = amount,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Error
+                color = MaterialTheme.colorScheme.error
             )
         }
 
@@ -235,7 +237,7 @@ private fun UsageItem(
                 .width(100.dp)
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp))
-                .background(Error.copy(alpha = 0.2f))
+                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2f))
         ) {
             Box(
                 modifier = Modifier
@@ -244,7 +246,7 @@ private fun UsageItem(
                     .clip(RoundedCornerShape(3.dp))
                     .background(
                         Brush.horizontalGradient(
-                            colors = listOf(Error, Error.copy(alpha = 0.8f))
+                            colors = listOf(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.error.copy(alpha = 0.8f))
                         )
                     )
             )

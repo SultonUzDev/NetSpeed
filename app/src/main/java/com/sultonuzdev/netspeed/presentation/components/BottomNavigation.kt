@@ -1,6 +1,5 @@
 package com.sultonuzdev.netspeed.presentation.components
 
-
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -11,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sultonuzdev.netspeed.presentation.theme.*
 
 @Composable
 fun BottomNavigation(
@@ -34,7 +33,7 @@ fun BottomNavigation(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.Transparent)
-            .padding(15.dp),
+            .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -69,14 +68,39 @@ private fun BottomNavItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val animatedColor by animateColorAsState(
-        targetValue = if (isSelected) PrimaryVariant else TextSecondary,
+    // Fixed: Use proper theme-aware colors
+    val animatedIconColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
         animationSpec = tween(300),
-        label = "nav_color"
+        label = "nav_icon_color"
+    )
+
+    val animatedTextColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        animationSpec = tween(300),
+        label = "nav_text_color"
+    )
+
+    val animatedBackgroundColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+        } else {
+            Color.Transparent
+        },
+        animationSpec = tween(300),
+        label = "nav_background_color"
     )
 
     val animatedScale by animateFloatAsState(
-        targetValue = if (isSelected) 1.0f else 0.9f,
+        targetValue = if (isSelected) 1.05f else 1.0f,
         animationSpec = tween(300),
         label = "nav_scale"
     )
@@ -84,29 +108,27 @@ private fun BottomNavItem(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(
-                if (isSelected) CardBackground else Color.Transparent
-            )
+            .background(animatedBackgroundColor)
             .clickable { onClick() }
-            .padding(horizontal = 15.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
             .scale(animatedScale),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = animatedColor,
-            modifier = Modifier.size(22.dp)
+            tint = animatedIconColor,
+            modifier = Modifier.size(24.dp)
         )
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = label.uppercase(),
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Medium,
-            color = animatedColor,
-            letterSpacing = 0.5.sp
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+            color = animatedTextColor,
+            letterSpacing = 0.3.sp
         )
     }
 }

@@ -1,6 +1,6 @@
 package com.sultonuzdev.netspeed.presentation.components
 
-
+import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.tween
@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,20 +19,37 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sultonuzdev.netspeed.presentation.theme.*
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+private fun SettingItemPreview() {
+    NetSpeedTheme {
+        SettingItem(
+            label = "Notification Style",
+            description = "Choose compact or detailed view",
+            value = "Compact",
+            isToggle = true,
+            isEnabled = true,
+            onToggleChange = {},
+            onValueClick = {}
+        )
+    }
+}
+
 @Composable
 fun SettingItem(
+    modifier: Modifier = Modifier,
     label: String,
     description: String,
     isToggle: Boolean = false,
     isEnabled: Boolean = false,
     value: String = "",
     onToggleChange: ((Boolean) -> Unit)? = null,
-    onValueClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onValueClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -47,12 +65,12 @@ fun SettingItem(
                 text = label,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = description,
                 fontSize = 14.sp,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
@@ -67,11 +85,15 @@ fun SettingItem(
                 text = value,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = PrimaryVariant,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(CardBackground)
-                    .border(1.dp, CardBorder, RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        RoundedCornerShape(8.dp)
+                    )
                     .clickable { onValueClick?.invoke() }
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             )
@@ -79,21 +101,29 @@ fun SettingItem(
     }
 }
 
-
 @Composable
 private fun ToggleSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Theme-aware colors for the toggle switch
     val backgroundColor by animateColorAsState(
-        targetValue = if (checked) PrimaryVariant else Color(0x33FFFFFF),
-        animationSpec = tween(300)
+        targetValue = if (checked) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        },
+        animationSpec = tween(300),
+        label = "backgroundColor"
     )
+
+
 
     val thumbOffset by animateOffsetAsState(
         targetValue = if (checked) Offset(24f, 0f) else Offset(0f, 0f),
-        animationSpec = tween(300)
+        animationSpec = tween(300),
+        label = "thumbOffset"
     )
 
     Box(
@@ -110,7 +140,8 @@ private fun ToggleSwitch(
                 .size(24.dp)
                 .offset(thumbOffset.x.dp, thumbOffset.y.dp)
                 .clip(CircleShape)
-                .background(Color.White)
+                .background(            MaterialTheme.colorScheme.onSurface
+                )
         )
     }
 }

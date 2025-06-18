@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -47,8 +48,8 @@ fun UsageCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(CardBackground)
-            .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.netSpeedColors.cardBackground)
+            .border(1.dp, MaterialTheme.netSpeedColors.cardBorder, RoundedCornerShape(16.dp))
             .padding(25.dp)
     ) {
         Column {
@@ -61,7 +62,7 @@ fun UsageCard(
                     text = title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = icon,
@@ -76,14 +77,14 @@ fun UsageCard(
                     text = amount,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryVariant
+                    color = MaterialTheme.colorScheme.primaryContainer
                 )
 
                 if (description.isNotEmpty()) {
                     Text(
                         text = description,
                         fontSize = 14.sp,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 5.dp)
                     )
                 }
@@ -96,7 +97,7 @@ fun UsageCard(
                             .fillMaxWidth()
                             .height(8.dp)
                             .clip(RoundedCornerShape(4.dp)),
-                        color = PrimaryVariant,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         trackColor = Color(0x33FFFFFF)
                     )
                 }

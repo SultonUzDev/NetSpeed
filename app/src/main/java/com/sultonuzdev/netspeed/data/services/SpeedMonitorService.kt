@@ -1,4 +1,4 @@
-// Working SpeedMonitorService.kt - Shows speed text in status bar
+// Fixed SpeedMonitorService.kt - Now respects notification style preference
 package com.sultonuzdev.netspeed.data.services
 
 import android.annotation.SuppressLint
@@ -21,6 +21,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.sultonuzdev.netspeed.R
+import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.presentation.MainActivity
 import com.sultonuzdev.netspeed.utils.NetworkUtils.formatSpeedImproved
 import kotlinx.coroutines.CoroutineScope
@@ -28,12 +29,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class SpeedMonitorService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var isMonitoring = false
+
+    // Inject PreferencesManager
+    private val preferencesManager: PreferencesManager by inject()
+
+    // Cache for preferences to avoid frequent reads
+    private var notificationStyle = "detailed"
+    private var updateFrequency = 1000L
 
     // Real network monitoring variables
     private var lastTotalRxBytes = 0L
@@ -64,13 +74,14 @@ class SpeedMonitorService : Service() {
         const val ACTION_START_MONITORING = "START_MONITORING"
         const val ACTION_STOP_MONITORING = "STOP_MONITORING"
 
-        // Update interval in milliseconds
-        const val UPDATE_INTERVAL = 1000L
+        // Default update interval in milliseconds
+        const val DEFAULT_UPDATE_INTERVAL = 1000L
     }
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        loadPreferences()
         initializeMonitoring()
     }
 
@@ -82,6 +93,21 @@ class SpeedMonitorService : Service() {
             ACTION_STOP_MONITORING -> stopMonitoring()
         }
         return START_STICKY
+    }
+
+    private fun loadPreferences() {
+        serviceScope.launch {
+            try {
+                // Load preferences and cache them
+                notificationStyle = preferencesManager.notificationStyle.first()
+                val frequencySeconds = preferencesManager.updateFrequency.first()
+                updateFrequency = (frequencySeconds * 1000L)
+            } catch (e: Exception) {
+                // Use defaults if preferences can't be loaded
+                notificationStyle = "detailed"
+                updateFrequency = DEFAULT_UPDATE_INTERVAL
+            }
+        }
     }
 
     private fun initializeMonitoring() {
@@ -107,8 +133,14 @@ class SpeedMonitorService : Service() {
                 try {
                     updateNetworkSpeed()
                     updateNetworkInfo()
+
+                    // Reload preferences periodically to pick up changes
+                    if (System.currentTimeMillis() % 10000 < updateFrequency) {
+                        loadPreferences()
+                    }
+
                     updateNotification()
-                    delay(UPDATE_INTERVAL)
+                    delay(updateFrequency)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -262,24 +294,61 @@ class SpeedMonitorService : Service() {
 
         // Format current speed
         val speedText = formatSpeedImproved(currentDownloadSpeed)
+        val uploadText = formatSpeedImproved(currentUploadSpeed)
 
+        // Create dynamic speed icon for status bar
+        val speedIcon = createTextBasedIcon(speedText)
+
+        // Build notification based on style preference
+        return if (notificationStyle.lowercase() == "compact") {
+            createCompactNotification(pendingIntent, speedIcon, speedText, uploadText)
+        } else {
+            createDetailedNotification(pendingIntent, speedIcon, speedText, uploadText)
+        }
+    }
+
+    private fun createCompactNotification(
+        pendingIntent: PendingIntent,
+        speedIcon: Bitmap,
+        speedText: String,
+        uploadText: String
+    ): Notification {
+        val title = "Net Speed: $speedText"
+        val content = "↑$uploadText | $networkType"
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(IconCompat.createWithBitmap(speedIcon))
+            .setContentTitle(title)
+            .setContentText(content)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .setSilent(true)
+            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setColor(0xFF2196F3.toInt())
+            .build()
+    }
+
+    private fun createDetailedNotification(
+        pendingIntent: PendingIntent,
+        speedIcon: Bitmap,
+        speedText: String,
+        uploadText: String
+    ): Notification {
         // Format data usage
         val mobileDataMB = (mobileDataUsed / (1024.0 * 1024.0))
         val wifiDataMB = (wifiDataUsed / (1024.0 * 1024.0))
 
-        // Create notification content
         val title = "Net Speed: $speedText"
-        val content = "↑${formatSpeedImproved(currentUploadSpeed)} | Signal: $signalStrength% | $networkType"
+        val content = "↑$uploadText | Signal: $signalStrength% | $networkType"
         val bigText = buildString {
             append("Download: $speedText\n")
-            append("Upload: ${formatSpeedImproved(currentUploadSpeed)}\n")
+            append("Upload: $uploadText\n")
             append("Signal: $signalStrength% ($networkType)\n")
             append("Mobile Data: ${String.format("%.1f", mobileDataMB)} MB\n")
             append("WiFi Data: ${String.format("%.1f", wifiDataMB)} MB")
         }
-
-        // Create dynamic speed icon for status bar that actually shows as text
-        val speedIcon = createTextBasedIcon(speedText)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(IconCompat.createWithBitmap(speedIcon))

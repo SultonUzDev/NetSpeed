@@ -1,5 +1,7 @@
 package com.sultonuzdev.netspeed.presentation.screens.usage
 
+import com.sultonuzdev.netspeed.domain.models.DailyUsageData
+
 data class UsageUiState(
     val todayWifi: String = "0 B",
     val todayMobile: String = "0 B",
@@ -12,5 +14,9 @@ data class UsageUiState(
     val sessionUnit: String = "B",
     val sessionTime: String = "0s",
     val chartData: List<Float> = emptyList(),
-    val isLoading: Boolean = false
+    val dailyUsageHistory: List<DailyUsageData> = emptyList(),
+    val last7DaysUsage: DailyUsageData = DailyUsageData("Last 7 days"),
+    val last30DaysUsage: DailyUsageData = DailyUsageData("Last 30 days¬"),
+    val isLoading: Boolean = false,
+    val error: String? = null
 )

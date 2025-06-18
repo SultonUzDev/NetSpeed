@@ -10,4 +10,9 @@ interface UsageRepository {
     suspend fun saveUsageData(usageData: UsageData)
     suspend fun updateUsageData(usageData: UsageData)
     suspend fun getMonthlyTotal(monthYear: String): Long
+
+
+    // New methods for daily history
+    fun getUsageByDateRange(startDate: String, endDate: String): Flow<List<UsageData>>
+    fun getMultipleMonthsUsage(months: List<String>): Flow<List<UsageData>>
 }

@@ -41,7 +41,7 @@ fun SelectionDialog(
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Surface
+                containerColor = MaterialTheme.colorScheme.surface
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 8.dp
@@ -55,7 +55,7 @@ fun SelectionDialog(
                     text = title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryVariant,
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
@@ -76,7 +76,7 @@ fun SelectionDialog(
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 4.dp),
                                 thickness = 1.dp,
-                                color = CardBorder
+                                color = MaterialTheme.netSpeedColors.cardBorder
                             )
                         }
                     }
@@ -92,7 +92,7 @@ fun SelectionDialog(
                     TextButton(
                         onClick = onDismiss,
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = TextSecondary
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     ) {
                         Text(
@@ -120,7 +120,7 @@ private fun DialogOption(
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .background(
-                if (isSelected) CardBackground else Color.Transparent
+                if (isSelected) MaterialTheme.netSpeedColors.cardBorder else Color.Transparent
             )
             .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -129,7 +129,7 @@ private fun DialogOption(
             text = text,
             fontSize = 16.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected) PrimaryVariant else TextPrimary,
+            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -138,7 +138,7 @@ private fun DialogOption(
                 modifier = Modifier
                     .size(8.dp)
                     .background(
-                        color = PrimaryVariant,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         shape = RoundedCornerShape(4.dp)
                     )
             )

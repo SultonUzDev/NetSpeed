@@ -10,19 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sultonuzdev.netspeed.presentation.theme.Primary
-import com.sultonuzdev.netspeed.presentation.theme.Error
-import com.sultonuzdev.netspeed.presentation.theme.TextSecondary
-import com.sultonuzdev.netspeed.presentation.theme.PrimaryVariant
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 @Composable
 fun SpeedCircle(
@@ -54,6 +45,12 @@ fun SpeedCircle(
         modifier = modifier.size(250.dp),
         contentAlignment = Alignment.Center
     ) {
+        val colors= listOf(
+            Color.Transparent,
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.error,
+            Color.Transparent
+        )
         // Rotating gradient border
         Canvas(
             modifier = Modifier
@@ -62,12 +59,7 @@ fun SpeedCircle(
         ) {
             drawCircle(
                 brush = Brush.sweepGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Primary,
-                        Error,
-                        Color.Transparent
-                    )
+                    colors =colors
                 ),
                 radius = size.width / 2,
                 center = center
@@ -97,18 +89,18 @@ fun SpeedCircle(
                 text = speed,
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Bold,
-                color = Primary
+                color = MaterialTheme.colorScheme.primaryContainer
             )
             Text(
                 text = unit,
                 fontSize = 18.sp,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = type.uppercase(),
                 fontSize = 14.sp,
-                color = PrimaryVariant,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 letterSpacing = 1.sp
             )
         }
