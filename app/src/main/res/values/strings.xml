@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Net Speed</string>
+    <string name="app_description">Real-time Internet Speed Monitor</string>
+
+    <!-- Speed Screen -->
+    <string name="speed_screen_title">Net Speed</string>
+    <string name="speed_screen_subtitle">Real-time Internet Monitor</string>
+    <string name="download_speed">Download</string>
+    <string name="upload_speed">Upload</string>
+    <string name="ping_label">Ping</string>
+    <string name="peak_download">Peak Download</string>
+    <string name="session_time">Session Time</string>
+    <string name="wifi_connected">WiFi Connected</string>
+    <string name="mobile_connected">Mobile Connected</string>
+    <string name="no_connection">No Connection</string>
+    <string name="data_usage_today">Data Usage Today</string>
+    <string name="wifi_usage">WiFi</string>
+    <string name="mobile_usage">Mobile</string>
+    <string name="total_usage">Total</string>
+
+    <!-- Usage Screen -->
+    <string name="usage_screen_title">Data Usage</string>
+    <string name="usage_screen_subtitle">Monitor your daily and monthly consumption</string>
+    <string name="today_usage">Today\'s Usage</string>
+    <string name="monthly_usage">This Month</string>
+    <string name="session_usage">Session Usage</string>
+    <string name="weekly_overview">Weekly Overview</string>
+    <string name="data_limit">of 25 GB limit</string>
+    <string name="current_session">Current session</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">Settings</string>
+    <string name="settings_screen_subtitle">Customize your monitoring preferences</string>
+
+    <!-- Notification Settings -->
+    <string name="notification_section">Notification</string>
+    <string name="show_speed_notification">Show Speed Notification</string>
+    <string name="show_speed_notification_desc">Display real-time speed in notification bar</string>
+    <string name="update_frequency">Update Frequency</string>
+    <string name="update_frequency_desc">How often to refresh speed data</string>
+    <string name="notification_style">Notification Style</string>
+    <string name="notification_style_desc">Choose compact or detailed view</string>
+
+    <!-- Monitoring Settings -->
+    <string name="monitoring_section">Monitoring</string>
+    <string name="monitor_wifi">Monitor WiFi</string>
+    <string name="monitor_wifi_desc">Track WiFi speed and usage</string>
+    <string name="monitor_mobile">Monitor Mobile Data</string>
+    <string name="monitor_mobile_desc">Track mobile data speed and usage</string>
+    <string name="background_monitoring">Background Monitoring</string>
+    <string name="background_monitoring_desc">Continue monitoring when app is closed</string>
+
+    <!-- Data & Privacy Settings -->
+    <string name="data_privacy_section">Data &amp; Privacy</string>
+    <string name="monthly_reset_date">Monthly Reset Date</string>
+    <string name="monthly_reset_date_desc">When to reset monthly usage counter</string>
+    <string name="data_limit_alert">Data Limit Alert</string>
+    <string name="data_limit_alert_desc">Warn when approaching data limit</string>
+    <string name="export_usage_data">Export Usage Data</string>
+    <string name="export_usage_data_desc">Export your usage history</string>
+
+    <!-- Appearance Settings -->
+    <string name="appearance_section">Appearance</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="dark_theme_desc">Use dark theme throughout the app</string>
+    <string name="speed_units">Speed Units</string>
+    <string name="speed_units_desc">Choose preferred speed units</string>
+
+    <!-- Navigation -->
+    <string name="nav_speed">Speed</string>
+    <string name="nav_usage">Usage</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">Speed Monitor</string>
+    <string name="notification_channel_desc">Shows real-time internet speed</string>
+    <string name="notification_title">Net Speed</string>
+    <string name="notification_stop">Stop</string>
+
+    <!-- Units -->
+    <string name="unit_bps">B/s</string>
+    <string name="unit_kbps">KB/s</string>
+    <string name="unit_mbps">MB/s</string>
+    <string name="unit_gbps">GB/s</string>
+    <string name="unit_bytes">B</string>
+    <string name="unit_kb">KB</string>
+    <string name="unit_mb">MB</string>
+    <string name="unit_gb">GB</string>
+    <string name="unit_ms">ms</string>
+
+    <!-- Time -->
+    <string name="time_seconds">s</string>
+    <string name="time_minutes">m</string>
+    <string name="time_hours">h</string>
+
+    <!-- Values -->
+    <string name="value_auto">Auto</string>
+    <string name="value_detailed">Detailed</string>
+    <string name="value_compact">Compact</string>
+    <string name="value_export">Export</string>
+    <string name="value_1st">1st</string>
+    <string name="value_1_second">1 second</string>
+</resources>
