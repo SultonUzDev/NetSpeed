@@ -1,4 +1,3 @@
-// Fixed SpeedMonitorService.kt - Now respects notification style preference
 package com.sultonuzdev.netspeed.data.services
 
 import android.annotation.SuppressLint
@@ -9,21 +8,30 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.telephony.TelephonyManager
-import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
-import com.sultonuzdev.netspeed.R
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.presentation.MainActivity
+import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
+import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
+import com.sultonuzdev.netspeed.utils.Constants.CHANNEL_ID
+import com.sultonuzdev.netspeed.utils.Constants.DEFAULT_UPDATE_INTERVAL
+import com.sultonuzdev.netspeed.utils.Constants.NOTIFICATION_ID
 import com.sultonuzdev.netspeed.utils.NetworkUtils.formatSpeedImproved
+import com.sultonuzdev.netspeed.utils.NotificationStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -40,10 +48,11 @@ class SpeedMonitorService : Service() {
 
     // Inject PreferencesManager
     private val preferencesManager: PreferencesManager by inject()
+    private var updateFrequency = 1000L
+
 
     // Cache for preferences to avoid frequent reads
-    private var notificationStyle = "detailed"
-    private var updateFrequency = 1000L
+    private var notificationStyle = NotificationStyle.DETAILED
 
     // Real network monitoring variables
     private var lastTotalRxBytes = 0L
@@ -68,31 +77,13 @@ class SpeedMonitorService : Service() {
     private var networkType = "Unknown"
     private var isWifiConnected = false
 
-    companion object {
-        const val CHANNEL_ID = "speed_monitor_channel"
-        const val NOTIFICATION_ID = 1001
-        const val ACTION_START_MONITORING = "START_MONITORING"
-        const val ACTION_STOP_MONITORING = "STOP_MONITORING"
-
-        // Default update interval in milliseconds
-        const val DEFAULT_UPDATE_INTERVAL = 1000L
-    }
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         loadPreferences()
         initializeMonitoring()
-    }
 
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            ACTION_START_MONITORING -> startMonitoring()
-            ACTION_STOP_MONITORING -> stopMonitoring()
-        }
-        return START_STICKY
     }
 
     private fun loadPreferences() {
@@ -104,10 +95,20 @@ class SpeedMonitorService : Service() {
                 updateFrequency = (frequencySeconds * 1000L)
             } catch (e: Exception) {
                 // Use defaults if preferences can't be loaded
-                notificationStyle = "detailed"
+                notificationStyle = NotificationStyle.DETAILED
                 updateFrequency = DEFAULT_UPDATE_INTERVAL
             }
         }
+    }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_START_MONITORING -> startMonitoring()
+            ACTION_STOP_MONITORING -> stopMonitoring()
+        }
+        return START_STICKY
     }
 
     private fun initializeMonitoring() {
@@ -294,42 +295,30 @@ class SpeedMonitorService : Service() {
 
         // Format current speed
         val speedText = formatSpeedImproved(currentDownloadSpeed)
-        val uploadText = formatSpeedImproved(currentUploadSpeed)
 
-        // Create dynamic speed icon for status bar
+        // Create dynamic speed icon for status bar that actually shows as text
         val speedIcon = createTextBasedIcon(speedText)
 
+
         // Build notification based on style preference
-        return if (notificationStyle.lowercase() == "compact") {
-            createCompactNotification(pendingIntent, speedIcon, speedText, uploadText)
+        return if (notificationStyle == NotificationStyle.COMPACT) {
+            createCompactNotification(
+                pendingIntent,
+                speedIcon,
+                speedText,
+                formatSpeedImproved(currentUploadSpeed)
+            )
         } else {
-            createDetailedNotification(pendingIntent, speedIcon, speedText, uploadText)
+            createDetailedNotification(
+                pendingIntent,
+                speedIcon,
+                speedText,
+                formatSpeedImproved(currentUploadSpeed)
+            )
         }
     }
 
-    private fun createCompactNotification(
-        pendingIntent: PendingIntent,
-        speedIcon: Bitmap,
-        speedText: String,
-        uploadText: String
-    ): Notification {
-        val title = "Net Speed: $speedText"
-        val content = "↑$uploadText | $networkType"
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(IconCompat.createWithBitmap(speedIcon))
-            .setContentTitle(title)
-            .setContentText(content)
-            .setContentIntent(pendingIntent)
-            .setOngoing(true)
-            .setSilent(true)
-            .setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setColor(0xFF2196F3.toInt())
-            .build()
-    }
-
+    @SuppressLint("DefaultLocale")
     private fun createDetailedNotification(
         pendingIntent: PendingIntent,
         speedIcon: Bitmap,
@@ -370,11 +359,36 @@ class SpeedMonitorService : Service() {
             .build()
     }
 
+
+    private fun createCompactNotification(
+        pendingIntent: PendingIntent,
+        speedIcon: Bitmap,
+        speedText: String,
+        uploadText: String
+    ): Notification {
+        val title = "Net Speed: $speedText"
+        val content = "↑$uploadText | $networkType"
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(IconCompat.createWithBitmap(speedIcon))
+            .setContentTitle(title)
+            .setContentText(content)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .setSilent(true)
+            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setColor(0xFF2196F3.toInt())
+            .build()
+    }
+
+
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Net Speed Monitor",
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = "Shows real-time internet speed and data usage"
             setShowBadge(false)
@@ -393,14 +407,13 @@ class SpeedMonitorService : Service() {
         serviceScope.cancel()
     }
 
-    /**
-     * Creates a status bar icon with speed number on top and unit below
-     * Large number with smaller unit underneath
-     */
     private fun createTextBasedIcon(speedText: String): Bitmap {
-        // Dimensions optimized for two-line text
-        val width = 120
-        val height = 64
+        // Get status bar text size dynamically
+        val statusBarTextSize = getStatusBarTextSize()
+
+        // Optimized dimensions for status bar compatibility
+        val width = 96  // Reduced width for better status bar fit
+        val height = getStatusBarHeight(this) // Reduced height to match status bar
 
         val bitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
@@ -410,41 +423,94 @@ class SpeedMonitorService : Service() {
 
         // Parse speed text into number and unit
         val (speedNumber, speedUnit) = parseSpeedForTwoLines(speedText)
-
         val centerX = width / 2f
 
-        // Paint for the main speed number (larger)
+        // Paint for the main speed number (matches status bar clock size)
         val numberPaint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            textSize = 44.sp.value  // Large text for speed number
-            setShadowLayer(3f, 1f, 1f, Color.BLACK)
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD) // System UI font
+            textSize = statusBarTextSize * 0.9f // Slightly smaller than clock
+            setShadowLayer(2f, 0.5f, 0.5f, Color.parseColor("#80000000")) // Subtle shadow
         }
 
-        // Paint for the unit (smaller)
+        // Paint for the unit (smaller, like status bar indicators)
         val unitPaint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            textSize = 20.sp.value  // Smaller text for unit
-            setShadowLayer(2f, 1f, 1f, Color.BLACK)
+            typeface = Typeface.create("sans-serif", Typeface.NORMAL) // Regular weight
+            textSize = statusBarTextSize * 0.6f // Much smaller for unit
+            setShadowLayer(1f, 0.5f, 0.5f, Color.parseColor("#80000000"))
         }
 
-        // Calculate positions for two-line layout
-        val numberY = height * 0.5f  // Upper portion for number
-        val unitY = height * 1f   // Lower portion for unit
+        // Calculate text metrics for perfect positioning
+        val numberBounds = android.graphics.Rect()
+        numberPaint.getTextBounds(speedNumber, 0, speedNumber.length, numberBounds)
 
-        // Draw the speed number (larger, on top)
-        canvas.drawText(speedNumber, centerX, numberY, numberPaint)
+        val unitBounds = android.graphics.Rect()
+        unitPaint.getTextBounds(speedUnit, 0, speedUnit.length, unitBounds)
 
-        // Draw the unit (smaller, below)
-        canvas.drawText(speedUnit, centerX, unitY, unitPaint)
+        // Position text to center vertically in the available space
+        val totalTextHeight = numberBounds.height() + unitBounds.height() + 2 // 2px spacing
+        val startY = (height - totalTextHeight) / 2f + numberBounds.height()
+
+        // Draw the speed number (main text)
+        canvas.drawText(speedNumber, centerX, startY, numberPaint)
+
+        // Draw the unit (smaller text below)
+        canvas.drawText(speedUnit, centerX, startY + unitBounds.height() + 4, unitPaint)
 
         return bitmap
     }
+
+
+    private fun getStatusBarTextSize(): Float {
+        return try {
+            // Method 1: Try to get from system resources
+            val context = this // Your context
+            val resourceId = context.resources.getIdentifier(
+                "status_bar_clock_size", "dimen", "android"
+            )
+
+            if (resourceId != 0) {
+                context.resources.getDimension(resourceId)
+            } else {
+                // Method 2: Calculate based on status bar height
+                getStatusBarClockSizeFromHeight(context)
+            }
+        } catch (e: Exception) {
+            // Fallback to reasonable default (14sp converted to px)
+            14 * this.resources.displayMetrics.scaledDensity
+        }
+    }
+
+    private fun getStatusBarClockSizeFromHeight(context: Context): Float {
+        val statusBarHeight = getStatusBarHeight(context)
+
+        // Status bar clock is typically 70-80% of status bar height
+        return when {
+            statusBarHeight <= 0 -> 14 * context.resources.displayMetrics.scaledDensity // Fallback
+            statusBarHeight < 60 -> statusBarHeight * 0.6f  // Compact
+            statusBarHeight < 80 -> statusBarHeight * 0.65f // Normal
+            else -> statusBarHeight * 0.7f // Large
+        }
+    }
+
+    @SuppressLint("InternalInsetResource")
+    private fun getStatusBarHeight(context: Context): Int {
+        val resourceId = context.resources.getIdentifier(
+            "status_bar_height", "dimen", "android"
+        )
+        return if (resourceId > 0) {
+            context.resources.getDimensionPixelSize(resourceId)
+        } else {
+            // Fallback calculation based on density
+            (24 * context.resources.displayMetrics.density).toInt()
+        }
+    }
+
 
     /**
      * Parses speed text into number and unit for two-line display

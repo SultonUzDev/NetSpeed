@@ -3,7 +3,11 @@ package com.sultonuzdev.netspeed.presentation.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
-import kotlinx.coroutines.flow.*
+import com.sultonuzdev.netspeed.utils.NotificationStyle
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -28,7 +32,7 @@ class SettingsViewModel(
 
     // Available options
     val frequencyOptions = listOf(1, 2, 3, 5, 10)
-    val styleOptions = listOf("compact", "detailed")
+    val styleOptions = listOf(NotificationStyle.COMPACT, NotificationStyle.DETAILED)
     val unitsOptions = listOf("auto", "mbps", "kbps", "mb/s", "kb/s")
     val dateOptions = (1..28).toList()
 
@@ -53,7 +57,7 @@ class SettingsViewModel(
                 SettingsUiState(
                     speedNotificationEnabled = values[0] as Boolean,
                     updateFrequency = formatFrequencyText(values[1] as Int),
-                    notificationStyle = formatStyleText(values[2] as String),
+                    notificationStyle = values[2] as NotificationStyle,
                     monitorWifi = values[3] as Boolean,
                     monitorMobile = values[4] as Boolean,
                     backgroundMonitoring = values[5] as Boolean,
@@ -69,17 +73,37 @@ class SettingsViewModel(
     }
 
     // Dialog control functions
-    fun showFrequencyDialog() { _showFrequencyDialog.value = true }
-    fun hideFrequencyDialog() { _showFrequencyDialog.value = false }
+    fun showFrequencyDialog() {
+        _showFrequencyDialog.value = true
+    }
 
-    fun showStyleDialog() { _showStyleDialog.value = true }
-    fun hideStyleDialog() { _showStyleDialog.value = false }
+    fun hideFrequencyDialog() {
+        _showFrequencyDialog.value = false
+    }
 
-    fun showUnitsDialog() { _showUnitsDialog.value = true }
-    fun hideUnitsDialog() { _showUnitsDialog.value = false }
+    fun showStyleDialog() {
+        _showStyleDialog.value = true
+    }
 
-    fun showDateDialog() { _showDateDialog.value = true }
-    fun hideDateDialog() { _showDateDialog.value = false }
+    fun hideStyleDialog() {
+        _showStyleDialog.value = false
+    }
+
+    fun showUnitsDialog() {
+        _showUnitsDialog.value = true
+    }
+
+    fun hideUnitsDialog() {
+        _showUnitsDialog.value = false
+    }
+
+    fun showDateDialog() {
+        _showDateDialog.value = true
+    }
+
+    fun hideDateDialog() {
+        _showDateDialog.value = false
+    }
 
     // Update functions
     fun updateSpeedNotification(enabled: Boolean) {
@@ -125,9 +149,9 @@ class SettingsViewModel(
         }
     }
 
-    fun updateNotificationStyle(style: String) {
+    fun updateNotificationStyle(style: NotificationStyle) {
         viewModelScope.launch {
-            preferencesManager.updateNotificationStyle(style.lowercase())
+            preferencesManager.updateNotificationStyle(style)
             hideStyleDialog()
         }
     }
@@ -151,9 +175,6 @@ class SettingsViewModel(
         return if (frequency == 1) "1 second" else "$frequency seconds"
     }
 
-    private fun formatStyleText(style: String): String {
-        return style.replaceFirstChar { it.uppercase() }
-    }
 
     private fun formatUnitsText(units: String): String {
         return when (units.lowercase()) {

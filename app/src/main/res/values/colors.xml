@@ -37,6 +37,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
 
+    <!-- New light theme colors -->
+    <color name="light_background">#FFFFFF</color>
+    <color name="light_on_background">#000000</color>
+    <color name="light_text_secondary">#666666</color>
+    <color name="light_text_hint">#999999</color>
+
     <!-- Material 3 required colors -->
     <color name="md_theme_primary">#00FFFF</color>
     <color name="md_theme_on_primary">#000000</color>

@@ -3,6 +3,7 @@ package com.sultonuzdev.netspeed.di
 import androidx.room.Room
 import com.sultonuzdev.netspeed.data.database.NetSpeedDatabase
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.utils.Constants
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -11,7 +12,7 @@ val databaseModule = module {
         Room.databaseBuilder(
             androidContext(),
             NetSpeedDatabase::class.java,
-            "net_speed_database"
+            Constants.DB_NAME
         )
             .fallbackToDestructiveMigration()
             .build()

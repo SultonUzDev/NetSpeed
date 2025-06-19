@@ -176,11 +176,7 @@ private fun UsageDataRow(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (dailyData.isToday) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            } else {
-                MaterialTheme.colorScheme.surface
-            }
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
@@ -250,6 +246,7 @@ private fun MonthlyTotalRow(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -260,8 +257,9 @@ private fun MonthlyTotalRow(
             Text(
                 text = monthlyData.title,
                 modifier = Modifier.weight(2f),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 textAlign = TextAlign.Start
             )
@@ -269,8 +267,9 @@ private fun MonthlyTotalRow(
             Text(
                 text = monthlyData.mobileUsage,
                 modifier = Modifier.weight(1.5f),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 textAlign = TextAlign.Center
             )
@@ -278,8 +277,9 @@ private fun MonthlyTotalRow(
             Text(
                 text = monthlyData.wifiUsage,
                 modifier = Modifier.weight(1.5f),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 textAlign = TextAlign.Center
             )
@@ -287,13 +287,14 @@ private fun MonthlyTotalRow(
             Text(
                 text = monthlyData.totalUsage,
                 modifier = Modifier.weight(1.5f),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center
             )
         }
     }
+
+
 }
 
 // Helper function to calculate monthly totals

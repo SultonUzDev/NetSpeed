@@ -24,8 +24,6 @@ import com.sultonuzdev.netspeed.presentation.components.SettingItem
 import org.koin.androidx.compose.koinViewModel
 
 
-
-
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -84,7 +82,7 @@ fun SettingsScreen(
                 SettingItem(
                     label = "Notification Style",
                     description = "Choose compact or detailed view",
-                    value = uiState.notificationStyle,
+                    value = uiState.notificationStyle.styleName,
                     onValueClick = { viewModel.showStyleDialog() }
                 )
             }
@@ -182,10 +180,8 @@ fun SettingsScreen(
     if (showStyleDialog) {
         SelectionDialog(
             title = "Notification Style",
-            options = viewModel.styleOptions.map { it.replaceFirstChar { char -> char.uppercase() } },
-            selectedIndex = viewModel.styleOptions.indexOf(
-                uiState.notificationStyle.lowercase()
-            ),
+            options = viewModel.styleOptions.map { it.styleName.replaceFirstChar { char -> char.uppercase() } },
+            selectedIndex = viewModel.styleOptions.indexOf(uiState.notificationStyle),
             onOptionSelected = { index ->
                 viewModel.updateNotificationStyle(viewModel.styleOptions[index])
             },
@@ -245,7 +241,6 @@ fun SettingsScreen(
         )
     }
 }
-
 
 
 @Composable

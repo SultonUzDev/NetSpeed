@@ -3,8 +3,14 @@ package com.sultonuzdev.netspeed.data.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.sultonuzdev.netspeed.utils.NotificationStyle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -28,40 +34,50 @@ class PreferencesManager(private val context: Context) {
     }
 
     val speedNotificationEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[SPEED_NOTIFICATION_ENABLED] ?: true }
+        .map { preferences -> preferences[SPEED_NOTIFICATION_ENABLED] == true }
 
     val updateFrequency: Flow<Int> = context.dataStore.data
         .map { preferences -> preferences[UPDATE_FREQUENCY] ?: 1 }
 
-    val notificationStyle: Flow<String> = context.dataStore.data
-        .map { preferences -> preferences[NOTIFICATION_STYLE] ?: "detailed" }
+    val notificationStyle: Flow<NotificationStyle> = context.dataStore.data
+        .map { preferences ->
+                val result = preferences[NOTIFICATION_STYLE] ?: NotificationStyle.DETAILED.styleName
+
+            val notificationStyle = if (result == NotificationStyle.COMPACT.styleName) {
+                NotificationStyle.COMPACT
+            } else {
+                NotificationStyle.DETAILED
+
+            }
+            notificationStyle
+        }
 
     val monitorWifi: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[MONITOR_WIFI] ?: true }
+        .map { preferences -> preferences[MONITOR_WIFI] != false }
 
     val monitorMobile: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[MONITOR_MOBILE] ?: true }
+        .map { preferences -> preferences[MONITOR_MOBILE] != false }
 
     val backgroundMonitoring: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[BACKGROUND_MONITORING] ?: true }
+        .map { preferences -> preferences[BACKGROUND_MONITORING] != false }
 
     val monthlyResetDate: Flow<Int> = context.dataStore.data
         .map { preferences -> preferences[MONTHLY_RESET_DATE] ?: 1 }
 
     val dataLimitAlert: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[DATA_LIMIT_ALERT] ?: false }
+        .map { preferences -> preferences[DATA_LIMIT_ALERT] == true }
 
     val dataLimit: Flow<Long> = context.dataStore.data
-        .map { preferences -> preferences[DATA_LIMIT] ?: 25L * 1024 * 1024 * 1024 } // 25GB
+        .map { preferences -> preferences[DATA_LIMIT] ?: (25L * 1024 * 1024 * 1024) } // 25GB
 
     val darkTheme: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[DARK_THEME] ?: true }
+        .map { preferences -> preferences[DARK_THEME] != false }
 
     val speedUnits: Flow<String> = context.dataStore.data
         .map { preferences -> preferences[SPEED_UNITS] ?: "auto" }
 
     val isFirstLaunch: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[IS_FIRST_LAUNCH] ?: true }
+        .map { preferences -> preferences[IS_FIRST_LAUNCH] != false }
 
     suspend fun updateSpeedNotificationEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
@@ -75,9 +91,9 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
-    suspend fun updateNotificationStyle(style: String) {
+    suspend fun updateNotificationStyle(style: NotificationStyle) {
         context.dataStore.edit { preferences ->
-            preferences[NOTIFICATION_STYLE] = style
+            preferences[NOTIFICATION_STYLE] = style.styleName
         }
     }
 

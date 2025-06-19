@@ -32,6 +32,7 @@ import com.sultonuzdev.netspeed.presentation.screens.settings.SettingsScreen
 import com.sultonuzdev.netspeed.presentation.screens.speed.SpeedScreen
 import com.sultonuzdev.netspeed.presentation.screens.usage.UsageScreen
 import com.sultonuzdev.netspeed.presentation.theme.*
+import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -103,7 +104,7 @@ class MainActivity : ComponentActivity() {
 
     private fun startSpeedMonitorService() {
         val intent = Intent(this, SpeedMonitorService::class.java).apply {
-            action = SpeedMonitorService.ACTION_START_MONITORING
+            action = ACTION_START_MONITORING
         }
 
         startForegroundService(intent)
