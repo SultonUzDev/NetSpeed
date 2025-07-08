@@ -17,13 +17,17 @@ import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
+import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.telephony.TelephonyManager
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.domain.models.UsageData
+import com.sultonuzdev.netspeed.domain.usecases.SaveUsageDataUseCase
 import com.sultonuzdev.netspeed.presentation.MainActivity
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
@@ -40,16 +44,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SpeedMonitorService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var isMonitoring = false
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var restartAttempts = 0
+    private val maxRestartAttempts = 3
 
-    // Inject PreferencesManager
+    // Inject PreferencesManager and SaveUsageDataUseCase
     private val preferencesManager: PreferencesManager by inject()
+    private val saveUsageDataUseCase: SaveUsageDataUseCase by inject()
     private var updateFrequency = 1000L
-
 
     // Cache for preferences to avoid frequent reads
     private var notificationStyle = NotificationStyle.DETAILED
@@ -77,11 +87,15 @@ class SpeedMonitorService : Service() {
     private var networkType = "Unknown"
     private var isWifiConnected = false
 
+    // Data save counter
+    private var saveCounter = 0
+    private val saveInterval = 10 // Save every 10 updates (about 10 seconds)
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         loadPreferences()
+        acquireWakeLock()
         initializeMonitoring()
 
     }
@@ -105,10 +119,13 @@ class SpeedMonitorService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_START_MONITORING -> startMonitoring()
+            ACTION_START_MONITORING -> {
+                restartAttempts = 0 // Reset restart attempts on new start
+                startMonitoring()
+            }
             ACTION_STOP_MONITORING -> stopMonitoring()
         }
-        return START_STICKY
+        return START_STICKY // Ensure service restarts if killed
     }
 
     private fun initializeMonitoring() {
@@ -134,6 +151,11 @@ class SpeedMonitorService : Service() {
                 try {
                     updateNetworkSpeed()
                     updateNetworkInfo()
+                    saveCounter++
+                    if (saveCounter >= saveInterval) {
+                        saveUsageData()
+                        saveCounter = 0
+                    }
 
                     // Reload preferences periodically to pick up changes
                     if (System.currentTimeMillis() % 10000 < updateFrequency) {
@@ -143,9 +165,29 @@ class SpeedMonitorService : Service() {
                     updateNotification()
                     delay(updateFrequency)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    if (restartAttempts < maxRestartAttempts) {
+                        restartAttempts++
+                        stopMonitoring()
+                        startMonitoring()
+                    } else {
+                        e.printStackTrace()
+                        stopMonitoring()
+                    }
                 }
             }
+        }
+    }
+
+    private fun saveUsageData() {
+        val usageData = UsageData(
+            date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            wifiUsage = wifiDataUsed,
+            mobileUsage = mobileDataUsed,
+            totalUsage = wifiDataUsed + mobileDataUsed,
+            sessionTime = (System.currentTimeMillis() - sessionStartTime) / 1000
+        )
+        serviceScope.launch {
+            saveUsageDataUseCase.updateUsage(usageData)
         }
     }
 
@@ -153,6 +195,7 @@ class SpeedMonitorService : Service() {
         isMonitoring = false
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+        releaseWakeLock()
     }
 
     private fun updateNetworkSpeed() {
@@ -395,16 +438,27 @@ class SpeedMonitorService : Service() {
             setSound(null, null)
             enableVibration(false)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            setBypassDnd(true) // Allow notifications even in Do Not Disturb mode
         }
 
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
+    private fun isIgnoringBatteryOptimizations(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            powerManager.isIgnoringBatteryOptimizations(packageName)
+        } else {
+            true
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         isMonitoring = false
         serviceScope.cancel()
+        releaseWakeLock()
     }
 
     private fun createTextBasedIcon(speedText: String): Bitmap {
@@ -580,5 +634,25 @@ class SpeedMonitorService : Service() {
                 result
             }
         }
+    }
+
+    private fun acquireWakeLock() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock =
+            powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SpeedMonitorService:WakeLock")
+        wakeLock?.acquire()
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.release()
+        wakeLock = null
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        // Restart the service if task is removed
+        val restartService = Intent(this, SpeedMonitorService::class.java)
+        restartService.action = ACTION_START_MONITORING
+        startService(restartService)
+        super.onTaskRemoved(rootIntent)
     }
 }

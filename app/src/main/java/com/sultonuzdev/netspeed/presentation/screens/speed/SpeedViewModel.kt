@@ -6,19 +6,25 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sultonuzdev.netspeed.domain.models.UsageData
 import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
 import com.sultonuzdev.netspeed.domain.usecases.GetNetworkSpeedUseCase
+import com.sultonuzdev.netspeed.domain.usecases.SaveUsageDataUseCase
 import com.sultonuzdev.netspeed.utils.DataUsageCalculator
 import com.sultonuzdev.netspeed.utils.NetworkUtils
 import com.sultonuzdev.netspeed.utils.NetworkUtils.formatBytes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SpeedViewModel(
     private val getNetworkSpeedUseCase: GetNetworkSpeedUseCase,
     private val networkRepository: NetworkRepository,
-    application: Application, // Use Application instead of Context
+    private val saveUsageDataUseCase: SaveUsageDataUseCase,
+    application: Application
 
 ) : AndroidViewModel(application) {
 
@@ -117,9 +123,19 @@ class SpeedViewModel(
                 totalProgress = totalProgress
             )
         }
+
+        // Save usage data to database
+        val usageData = UsageData(
+            date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            wifiUsage = todayUsage.wifiBytes,
+            mobileUsage = todayUsage.mobileBytes,
+            totalUsage = todayUsage.totalBytes,
+            sessionTime = System.currentTimeMillis() / 1000 - _uiState.value.sessionStartTime
+        )
+        viewModelScope.launch {
+            saveUsageDataUseCase.updateUsage(usageData)
+        }
     }
-
-
 
     fun resetTodayUsage() {
         DataUsageCalculator.resetTodayTracking()

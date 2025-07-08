@@ -10,7 +10,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     viewModel { MainViewModel(get()) }
-    viewModel { SpeedViewModel(get(), get(),androidApplication()) }
+    viewModel { SpeedViewModel(get(), get(), get(), androidApplication()) }
     viewModel { UsageViewModel(get()) }
     viewModel { SettingsViewModel(get()) }
 }

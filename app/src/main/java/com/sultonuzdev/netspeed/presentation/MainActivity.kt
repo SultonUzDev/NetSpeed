@@ -1,12 +1,14 @@
 package com.sultonuzdev.netspeed.presentation
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,6 +34,7 @@ import com.sultonuzdev.netspeed.presentation.screens.settings.SettingsScreen
 import com.sultonuzdev.netspeed.presentation.screens.speed.SpeedScreen
 import com.sultonuzdev.netspeed.presentation.screens.usage.UsageScreen
 import com.sultonuzdev.netspeed.presentation.theme.*
+import com.sultonuzdev.netspeed.utils.BatteryOptimizationHelper
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -44,8 +47,15 @@ class MainActivity : ComponentActivity() {
     ) { permissions ->
         val allGranted = permissions.values.all { it }
         if (allGranted) {
-            startSpeedMonitorService()
+            requestBatteryOptimizationIfNeeded()
         }
+    }
+
+    private val batteryOptimizationLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        startSpeedMonitorService()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +108,15 @@ class MainActivity : ComponentActivity() {
         if (permissions.isNotEmpty()) {
             permissionLauncher.launch(permissions.toTypedArray())
         } else {
+            requestBatteryOptimizationIfNeeded()
+        }
+    }
+
+    private fun requestBatteryOptimizationIfNeeded() {
+        BatteryOptimizationHelper.requestBatteryOptimizationPermission(
+            this,
+            batteryOptimizationLauncher
+        ) {
             startSpeedMonitorService()
         }
     }

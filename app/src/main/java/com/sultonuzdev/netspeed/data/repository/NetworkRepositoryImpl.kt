@@ -1,12 +1,14 @@
 package com.sultonuzdev.netspeed.data.repository
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.TrafficStats
 import android.net.wifi.WifiManager
 import android.telephony.TelephonyManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.sultonuzdev.netspeed.domain.models.NetworkInfo
 import com.sultonuzdev.netspeed.domain.models.NetworkSpeed
 import com.sultonuzdev.netspeed.domain.models.NetworkType
@@ -171,21 +173,59 @@ class NetworkRepositoryImpl(
     }
 
     private fun getNetworkName(): String {
-        return try {
+        try {
             if (isConnectedToWiFi()) {
+                // Check if location permission is granted (required for SSID since Android 8.1/O)
+                val fineLocationGranted = ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+                val coarseLocationGranted = ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
                 val wifiManager =
                     context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
                 val wifiInfo = wifiManager.connectionInfo
-                Log.d("mlog", "SSID: ${wifiInfo.ssid}  $${wifiInfo.hiddenSSID}")
-                wifiInfo.ssid?.replace("\"", "") ?: "WiFi"
+                val isLocationPermissionGranted = fineLocationGranted || coarseLocationGranted
+
+                // Some devices require that location services be enabled too
+                val isLocationEnabled = try {
+                    val locationManager =
+                        context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+                    locationManager?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) == true ||
+                            locationManager?.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) == true
+                } catch (e: Exception) {
+                    true // Default to true if unable to check
+                }
+
+                val ssid =
+                    if (isLocationPermissionGranted && isLocationEnabled && wifiInfo != null && wifiInfo.supplicantState == android.net.wifi.SupplicantState.COMPLETED) {
+                        // Sometimes SSID might be "<unknown ssid>" if permissions are lacking or location is off
+                        val rawSsid = wifiInfo.ssid ?: ""
+                        val valid = rawSsid.isNotBlank() && rawSsid != "<unknown ssid>"
+                        Log.d(
+                            "mlog",
+                            "SSID: $rawSsid  hidden: ${wifiInfo.hiddenSSID} (perm=$isLocationPermissionGranted, location=$isLocationEnabled)"
+                        )
+                        if (valid) rawSsid.replace("\"", "") else "WiFi"
+                    } else if (!isLocationPermissionGranted) {
+                        "Enable Location Permission"
+                    } else if (!isLocationEnabled) {
+                        "Enable Location Services"
+                    } else {
+                        "WiFi"
+                    }
+                return ssid
             } else {
                 val telephonyManager =
                     context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                telephonyManager.networkOperatorName ?: "Mobile"
+                return telephonyManager.networkOperatorName ?: "Mobile"
             }
         } catch (e: Exception) {
             Log.e("mlog", "getNetworkName: ${e.message}")
-            "Unknown"
+            return "Unknown"
         }
     }
 
