@@ -175,63 +175,36 @@ class NetworkRepositoryImpl(
         }
     }
 
+    /**
+     * A display name for the active connection.
+     *
+     * The SSID needs location permission, which this app never requests. Earlier versions put
+     * "Enable Location Permission" / "Enable Location Services" in this field -- a diagnostic
+     * message rendered where a network name belongs, and one the user could not act on without
+     * a permission prompt the app does not show. It falls back to the plain transport name now.
+     */
     private fun getNetworkName(): String {
-        try {
+        return try {
             if (isConnectedToWiFi()) {
-                // Check if location permission is granted (required for SSID since Android 8.1/O)
-                val fineLocationGranted = ContextCompat.checkSelfPermission(
-                    context,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-                val coarseLocationGranted = ContextCompat.checkSelfPermission(
-                    context,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
+                val wifiManager = context.applicationContext
+                    .getSystemService(Context.WIFI_SERVICE) as WifiManager
 
-                val wifiManager =
-                    context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                val wifiInfo = wifiManager.connectionInfo
-                val isLocationPermissionGranted = fineLocationGranted || coarseLocationGranted
+                @Suppress("DEPRECATION")
+                val rawSsid = wifiManager.connectionInfo?.ssid.orEmpty()
+                val readable = rawSsid.replace("\"", "").trim()
 
-                // Some devices require that location services be enabled too
-                val isLocationEnabled = try {
-                    val locationManager =
-                        context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
-                    locationManager?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) == true ||
-                            locationManager?.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) == true
-                } catch (e: Exception) {
-                    true // Default to true if unable to check
-                }
-
-                val ssid =
-                    if (isLocationPermissionGranted && isLocationEnabled && wifiInfo != null && wifiInfo.supplicantState == android.net.wifi.SupplicantState.COMPLETED) {
-                        // Sometimes SSID might be "<unknown ssid>" if permissions are lacking or location is off
-                        val rawSsid = wifiInfo.ssid ?: ""
-                        val valid = rawSsid.isNotBlank() && rawSsid != "<unknown ssid>"
-                        Log.d(
-                            "mlog",
-                            "SSID: $rawSsid  hidden: ${wifiInfo.hiddenSSID} (perm=$isLocationPermissionGranted, location=$isLocationEnabled)"
-                        )
-                        if (valid) rawSsid.replace("\"", "") else "WiFi"
-                    } else if (!isLocationPermissionGranted) {
-                        "Enable Location Permission"
-                    } else if (!isLocationEnabled) {
-                        "Enable Location Services"
-                    } else {
-                        "WiFi"
-                    }
-                return ssid
+                // Redacted without location permission; the platform returns this placeholder.
+                if (readable.isNotBlank() && readable != "<unknown ssid>") readable else "Wi-Fi"
             } else {
                 val telephonyManager =
                     context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                return telephonyManager.networkOperatorName ?: "Mobile"
+                telephonyManager.networkOperatorName?.takeIf { it.isNotBlank() } ?: "Mobile"
             }
         } catch (e: Exception) {
             Log.e("mlog", "getNetworkName: ${e.message}")
-            return "Unknown"
+            "Unknown"
         }
     }
-
 
     override fun getNetworkSpeed(): Flow<NetworkSpeed> = _networkSpeed
 

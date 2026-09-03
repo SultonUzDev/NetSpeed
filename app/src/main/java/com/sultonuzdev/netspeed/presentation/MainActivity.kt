@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -181,18 +182,6 @@ fun NetSpeedApp(
                     radius = 1000f
                 )
             ),
-        bottomBar = {
-            // The speed test is a full-screen mode with its own back button; the nav bar both
-            // covered its content and invited switching tabs mid-test.
-            if (!showSpeedTest) {
-                // NavigationBar applies the navigation-bar inset itself, so adding it here too
-                // would pad the bar down by the gesture bar's height twice.
-                BottomNavigation(
-                    currentPage = currentPage,
-                    onPageSelected = onPageSelected
-                )
-            }
-        },
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
@@ -212,6 +201,20 @@ fun NetSpeedApp(
                 1 -> UsageScreen()
                 2 -> HistoryScreen()
                 3 -> SettingsScreen()
+            }
+
+
+            Box(modifier = Modifier.align(Alignment.BottomCenter)){
+                // The speed test is a full-screen mode with its own back button; the nav bar both
+                // covered its content and invited switching tabs mid-test.
+                if (!showSpeedTest) {
+                    // NavigationBar applies the navigation-bar inset itself, so adding it here too
+                    // would pad the bar down by the gesture bar's height twice.
+                    BottomNavigation(
+                        currentPage = currentPage,
+                        onPageSelected = onPageSelected
+                    )
+                }
             }
         }
     }
