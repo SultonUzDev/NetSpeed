@@ -7,78 +7,88 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.domain.models.NetworkDetails
+import com.sultonuzdev.netspeed.presentation.components.NetworkDetailsSheet
+import com.sultonuzdev.netspeed.presentation.components.Sparkline
 import com.sultonuzdev.netspeed.presentation.components.SpeedCircle
 import com.sultonuzdev.netspeed.presentation.components.StatCard
 import com.sultonuzdev.netspeed.presentation.theme.*
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.SignalCellularAlt
+import androidx.compose.material.icons.filled.SignalWifiOff
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.Icon
+import androidx.compose.ui.platform.LocalContext
+import com.sultonuzdev.netspeed.utils.NetworkDetailsReader
 import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun SpeedScreen(
+    onRunSpeedTest: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SpeedViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    // Read on open rather than polled: these values barely change, and a dialog that is not
+    // showing should not be querying system services every second.
+    var networkDetails by remember { mutableStateOf<NetworkDetails?>(null) }
+
+    networkDetails?.let { details ->
+        NetworkDetailsSheet(details = details, onDismiss = { networkDetails = null })
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            // Fixed: Add proper bottom padding to avoid navigation overlap
-            .padding(bottom = 120.dp) // Increased from 100dp to 120dp
+            // Breathing room only. The host Scaffold already reserves the bottom bar's height
+            // (nav-bar inset included) via its content padding, so the 120dp that used to be
+            // here was a second reservation of space nothing occupies.
+            .padding(bottom = 24.dp)
     ) {
-        // Header
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            androidx.compose.ui.graphics.Color.Transparent
-                        )
-                    )
-                )
-                .padding(horizontal = 8.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Net Speed",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-
-            )
-            Text(
-                text = "Real-time Internet Monitor",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Light
-            )
-        }
-
         // Speed Display - FIXED: Proper centering
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 30.dp),
+                .padding(horizontal = 20.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center // This ensures proper centering
         ) {
             SpeedCircle(
-                speed = uiState.downloadSpeed,
-                unit = uiState.downloadUnit,
-                type = "Download"
+                speed = uiState.heroSpeed,
+                unit = uiState.heroUnit,
+                type = uiState.heroLabel,
+                secondary = uiState.heroSecondary
             )
+        }
+
+        // Live trace of the last minute, so a momentary number gains some context.
+        Sparkline(
+            samples = uiState.recentDownload,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+
+        OutlinedButton(
+            onClick = onRunSpeedTest,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp)
+        ) {
+            Text("Run speed test")
         }
 
         // Stats Grid
@@ -87,7 +97,7 @@ fun SpeedScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(15.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 StatCard(
                     label = "Ping",
@@ -102,16 +112,19 @@ fun SpeedScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(15.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 StatCard(
                     label = "Peak Download",
                     value = uiState.peakDownload,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    // resetPeakValues() existed on the view model with nothing able to call it;
+                    // a peak you cannot clear stops being useful after one spike.
+                    onClick = viewModel::resetPeakValues
                 )
                 StatCard(
                     label = "Session Time",
@@ -125,24 +138,46 @@ fun SpeedScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                .padding(15.dp),
-            horizontalArrangement = Arrangement.Center,
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                    RoundedCornerShape(12.dp)
+                )
+                .clickable { networkDetails = NetworkDetailsReader.read(context) }
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "📶",
-                fontSize = 20.sp
+            // A Material icon rather than the 📶 emoji: an emoji renders from the system
+            // emoji font at a fixed colour, ignores the theme, and always showed signal bars
+            // regardless of whether the connection was Wi-Fi or mobile.
+            Icon(
+                imageVector = when (uiState.networkType) {
+                    "WIFI" -> Icons.Default.Wifi
+                    "MOBILE" -> Icons.Default.SignalCellularAlt
+                    else -> Icons.Default.SignalWifiOff
+                },
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = "${uiState.networkName} Connected",
-                fontSize = 14.sp,
+                text = if (uiState.isConnected) {
+                    "${uiState.networkName} · ${connectionLabel(uiState.networkType)}"
+                } else {
+                    "No connection"
+                },
+                // Weighted and clipped: an unbounded name pushed the signal bars and the chevron
+                // off the end of the row.
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.width(10.dp))
             repeat(4) { index ->
@@ -157,100 +192,20 @@ fun SpeedScreen(
                 )
                 if (index < 3) Spacer(modifier = Modifier.width(2.dp))
             }
-        }
-
-        // Today's Usage Section
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
-                .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-                .padding(20.dp)
-        ) {
-            Column {
-                Text(
-                    text = "DATA USAGE TODAY",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Usage Items
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(15.dp)
-                ) {
-                    UsageItem(
-                        label = "WiFi",
-                        amount = uiState.todayWifiUsage,
-                        progress = uiState.wifiProgress
-                    )
-                    UsageItem(
-                        label = "Mobile",
-                        amount = uiState.todayMobileUsage,
-                        progress = uiState.mobileProgress
-                    )
-                    UsageItem(
-                        label = "Total",
-                        amount = uiState.todayTotalUsage,
-                        progress = uiState.totalProgress
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun UsageItem(
-    label: String,
-    amount: String,
-    progress: Float
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(
-                text = label,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = amount,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .width(100.dp)
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp))
-                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2f))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(progress)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.error.copy(alpha = 0.8f))
-                        )
-                    )
+            // Signals that the row opens something, rather than leaving the tap undiscoverable.
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Network details",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
 }
 
+/** Human-readable transport name; [uiState.networkType] carries the raw enum name. */
+private fun connectionLabel(networkType: String): String = when (networkType) {
+    "WIFI" -> "Wi-Fi"
+    "MOBILE" -> "Mobile data"
+    else -> "Offline"
+}

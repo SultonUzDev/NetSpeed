@@ -24,6 +24,44 @@ interface UsageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUsage(usage: UsageEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIfAbsent(usage: UsageEntity)
+
+    @Query(
+        """
+        UPDATE usage_table
+        SET wifiUsage = wifiUsage + :wifiDelta,
+            mobileUsage = mobileUsage + :mobileDelta,
+            totalUsage = totalUsage + :wifiDelta + :mobileDelta,
+            sessionTime = sessionTime + :sessionDelta
+        WHERE date = :date
+        """
+    )
+    suspend fun incrementUsage(
+        date: String,
+        wifiDelta: Long,
+        mobileDelta: Long,
+        sessionDelta: Long
+    )
+
+    /**
+     * Adds a delta onto a day's row, creating it first if the day has not been seen.
+     *
+     * Deltas rather than absolutes: a writer that restarts mid-day no longer rewrites the day's
+     * total downward from its own zeroed counters, and a process death only loses the unflushed
+     * tail instead of the whole day.
+     */
+    @Transaction
+    suspend fun addUsageDelta(
+        date: String,
+        wifiDelta: Long,
+        mobileDelta: Long,
+        sessionDelta: Long
+    ) {
+        insertIfAbsent(UsageEntity(date = date))
+        incrementUsage(date, wifiDelta, mobileDelta, sessionDelta)
+    }
+
     @Update
     suspend fun updateUsage(usage: UsageEntity)
 

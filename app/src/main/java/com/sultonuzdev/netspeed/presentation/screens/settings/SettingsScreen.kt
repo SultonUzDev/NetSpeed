@@ -15,12 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.presentation.components.SelectionDialog
 import com.sultonuzdev.netspeed.presentation.components.SettingItem
+import com.sultonuzdev.netspeed.utils.OverlayPermissionHelper
+import com.sultonuzdev.netspeed.presentation.theme.supportsDynamicColor
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -34,127 +37,180 @@ fun SettingsScreen(
     val showStyleDialog by viewModel.showStyleDialog.collectAsStateWithLifecycle()
     val showUnitsDialog by viewModel.showUnitsDialog.collectAsStateWithLifecycle()
     val showDateDialog by viewModel.showDateDialog.collectAsStateWithLifecycle()
+    val showLimitDialog by viewModel.showLimitDialog.collectAsStateWithLifecycle()
+    val showThresholdDialog by viewModel.showThresholdDialog.collectAsStateWithLifecycle()
+    val showDisplayModeDialog by viewModel.showDisplayModeDialog.collectAsStateWithLifecycle()
+    val showOverlaySizeDialog by viewModel.showOverlaySizeDialog.collectAsStateWithLifecycle()
+    val showOverlayColorDialog by viewModel.showOverlayColorDialog.collectAsStateWithLifecycle()
+    val showOverlayOpacityDialog by viewModel.showOverlayOpacityDialog.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(bottom = 100.dp)
+            // See SpeedScreen: the Scaffold's content padding already clears the bottom bar.
+            .padding(bottom = 24.dp)
     ) {
-        // Header
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Settings",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "Customize your monitoring preferences",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
         Column(modifier = Modifier.padding(20.dp)) {
             // Notification Section
             SettingsSection(title = "NOTIFICATION") {
                 SettingItem(
-                    label = "Show Speed Notification",
-                    description = "Display real-time speed in notification bar",
+                    label = "Show speed in notification bar",
                     isToggle = true,
                     isEnabled = uiState.speedNotificationEnabled,
                     onToggleChange = { viewModel.updateSpeedNotification(it) }
                 )
 
                 SettingItem(
-                    label = "Update Frequency",
-                    description = "How often to refresh speed data",
+                    label = "Update frequency",
                     value = uiState.updateFrequency,
                     onValueClick = { viewModel.showFrequencyDialog() }
                 )
 
                 SettingItem(
-                    label = "Notification Style",
-                    description = "Choose compact or detailed view",
+                    label = "Notification style",
                     value = uiState.notificationStyle.styleName,
                     onValueClick = { viewModel.showStyleDialog() }
                 )
+
+                SettingItem(
+                    label = "Status bar shows",
+                    value = uiState.speedDisplayMode.label,
+                    onValueClick = { viewModel.showDisplayModeDialog() }
+                )
+
+                SettingItem(
+                    label = "Speed units",
+                    value = uiState.speedUnits,
+                    onValueClick = { viewModel.showUnitsDialog() }
+                )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Monitoring Section
             SettingsSection(title = "MONITORING") {
                 SettingItem(
-                    label = "Monitor WiFi",
-                    description = "Track WiFi speed and usage",
+                    label = "Monitor Wi-Fi",
                     isToggle = true,
                     isEnabled = uiState.monitorWifi,
                     onToggleChange = { viewModel.updateMonitorWifi(it) }
                 )
 
                 SettingItem(
-                    label = "Monitor Mobile Data",
-                    description = "Track mobile data speed and usage",
+                    label = "Monitor mobile data",
                     isToggle = true,
                     isEnabled = uiState.monitorMobile,
                     onToggleChange = { viewModel.updateMonitorMobile(it) }
                 )
 
                 SettingItem(
-                    label = "Background Monitoring",
-                    description = "Continue monitoring when app is closed",
+                    label = "Keep monitoring in background",
                     isToggle = true,
                     isEnabled = uiState.backgroundMonitoring,
                     onToggleChange = { viewModel.updateBackgroundMonitoring(it) }
                 )
+
+                SettingItem(
+                    label = "Start after device restart",
+                    isToggle = true,
+                    isEnabled = uiState.startOnBoot,
+                    onToggleChange = { viewModel.updateStartOnBoot(it) }
+                )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Floating Overlay Section
+            SettingsSection(title = "FLOATING OVERLAY") {
+                SettingItem(
+                    label = "Show floating overlay",
+                    isToggle = true,
+                    isEnabled = uiState.overlayEnabled,
+                    onToggleChange = { wantsOverlay ->
+                        // "Draw over other apps" cannot be requested in-app; without it the
+                        // switch would flip on and nothing would appear, so send the user to
+                        // settings instead of storing a preference we cannot honour.
+                        if (wantsOverlay && !OverlayPermissionHelper.canDrawOverlays(context)) {
+                            openOverlaySettings(context)
+                        } else {
+                            viewModel.updateOverlayEnabled(wantsOverlay)
+                        }
+                    }
+                )
+
+                SettingItem(
+                    label = "Overlay text size",
+                    value = "${uiState.overlayTextSize} sp",
+                    onValueClick = { viewModel.showOverlaySizeDialog() }
+                )
+
+                SettingItem(
+                    label = "Overlay text colour",
+                    value = uiState.overlayColorName,
+                    onValueClick = { viewModel.showOverlayColorDialog() }
+                )
+
+                SettingItem(
+                    label = "Overlay background opacity",
+                    value = "${uiState.overlayOpacity}%",
+                    onValueClick = { viewModel.showOverlayOpacityDialog() }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Data & Privacy Section
             SettingsSection(title = "DATA & PRIVACY") {
                 SettingItem(
-                    label = "Monthly Reset Date",
-                    description = "When to reset monthly usage counter",
+                    label = "Billing cycle starts on",
                     value = uiState.monthlyResetDate,
                     onValueClick = { viewModel.showDateDialog() }
                 )
 
                 SettingItem(
-                    label = "Data Limit Alert",
-                    description = "Warn when approaching data limit",
+                    label = "Warn before data limit",
                     isToggle = true,
                     isEnabled = uiState.dataLimitAlert,
                     onToggleChange = { viewModel.updateDataLimitAlert(it) }
                 )
 
+                SettingItem(
+                    label = "Mobile data limit",
+                    value = uiState.dataLimit,
+                    onValueClick = { viewModel.showLimitDialog() }
+                )
+
+                SettingItem(
+                    label = "Warn at",
+                    value = uiState.warningThreshold,
+                    onValueClick = { viewModel.showThresholdDialog() }
+                )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Appearance Section
             SettingsSection(title = "APPEARANCE") {
                 SettingItem(
-                    label = "Dark Theme",
-                    description = "Use dark theme throughout the app",
+                    label = "Dark theme",
                     isToggle = true,
                     isEnabled = uiState.darkTheme,
                     onToggleChange = { viewModel.updateDarkTheme(it) }
                 )
 
-                SettingItem(
-                    label = "Speed Units",
-                    description = "Choose preferred speed units",
-                    value = uiState.speedUnits,
-                    onValueClick = { viewModel.showUnitsDialog() }
-                )
+                // Wallpaper-derived colour only exists from Android 12; on older devices the row
+                // would be a switch that does nothing, so it is not offered at all.
+                if (supportsDynamicColor) {
+                    SettingItem(
+                        label = "Match wallpaper colours",
+                        isToggle = true,
+                        isEnabled = uiState.dynamicColor,
+                        onToggleChange = { viewModel.updateDynamicColor(it) }
+                    )
+                }
+
             }
         }
     }
@@ -192,30 +248,88 @@ fun SettingsScreen(
     if (showUnitsDialog) {
         SelectionDialog(
             title = "Speed Units",
-            options = viewModel.unitsOptions.map { units ->
-                when (units) {
-                    "auto" -> "Auto"
-                    "mbps" -> "Mbps"
-                    "kbps" -> "Kbps"
-                    "mb/s" -> "MB/s"
-                    "kb/s" -> "KB/s"
-                    else -> units.replaceFirstChar { it.uppercase() }
-                }
-            },
-            selectedIndex = viewModel.unitsOptions.indexOf(
-                when (uiState.speedUnits.lowercase()) {
-                    "auto" -> "auto"
-                    "mbps" -> "mbps"
-                    "kbps" -> "kbps"
-                    "mb/s" -> "mb/s"
-                    "kb/s" -> "kb/s"
-                    else -> "auto"
-                }
-            ),
+            options = viewModel.unitsOptions.map { it.label },
+            selectedIndex = viewModel.unitsOptions.indexOf(uiState.speedUnit),
             onOptionSelected = { index ->
                 viewModel.updateSpeedUnits(viewModel.unitsOptions[index])
             },
             onDismiss = { viewModel.hideUnitsDialog() }
+        )
+    }
+
+    if (showDisplayModeDialog) {
+        SelectionDialog(
+            title = "Speed Display",
+            options = viewModel.displayModeOptions.map { it.label },
+            selectedIndex = viewModel.displayModeOptions.indexOf(uiState.speedDisplayMode),
+            onOptionSelected = { index ->
+                viewModel.updateSpeedDisplayMode(viewModel.displayModeOptions[index])
+            },
+            onDismiss = { viewModel.hideDisplayModeDialog() }
+        )
+    }
+
+    if (showOverlaySizeDialog) {
+        SelectionDialog(
+            title = "Overlay Size",
+            options = viewModel.overlaySizeOptions.map { "$it sp" },
+            selectedIndex = viewModel.overlaySizeOptions.indexOf(uiState.overlayTextSize),
+            onOptionSelected = { index ->
+                viewModel.updateOverlayTextSize(viewModel.overlaySizeOptions[index])
+            },
+            onDismiss = { viewModel.hideOverlaySizeDialog() }
+        )
+    }
+
+    if (showOverlayColorDialog) {
+        SelectionDialog(
+            title = "Overlay Color",
+            options = viewModel.overlayColorOptions.map { it.second },
+            selectedIndex = viewModel.overlayColorOptions.indexOfFirst {
+                it.first == uiState.overlayColor
+            },
+            onOptionSelected = { index ->
+                viewModel.updateOverlayColor(viewModel.overlayColorOptions[index].first)
+            },
+            onDismiss = { viewModel.hideOverlayColorDialog() }
+        )
+    }
+
+    if (showOverlayOpacityDialog) {
+        SelectionDialog(
+            title = "Overlay Transparency",
+            options = viewModel.overlayOpacityOptions.map { if (it == 0) "None" else "$it%" },
+            selectedIndex = viewModel.overlayOpacityOptions.indexOf(uiState.overlayOpacity),
+            onOptionSelected = { index ->
+                viewModel.updateOverlayOpacity(viewModel.overlayOpacityOptions[index])
+            },
+            onDismiss = { viewModel.hideOverlayOpacityDialog() }
+        )
+    }
+
+    if (showLimitDialog) {
+        SelectionDialog(
+            title = "Mobile Data Limit",
+            options = viewModel.limitOptionsGb.map { "$it GB" },
+            selectedIndex = viewModel.limitOptionsGb.indexOf(
+                (uiState.dataLimitBytes / (1024L * 1024 * 1024)).toInt()
+            ),
+            onOptionSelected = { index ->
+                viewModel.updateDataLimitGb(viewModel.limitOptionsGb[index])
+            },
+            onDismiss = { viewModel.hideLimitDialog() }
+        )
+    }
+
+    if (showThresholdDialog) {
+        SelectionDialog(
+            title = "Warn At",
+            options = viewModel.thresholdOptions.map { "$it% of limit" },
+            selectedIndex = viewModel.thresholdOptions.indexOf(uiState.warningThresholdPercent),
+            onOptionSelected = { index ->
+                viewModel.updateWarningThreshold(viewModel.thresholdOptions[index])
+            },
+            onDismiss = { viewModel.hideThresholdDialog() }
         )
     }
 
@@ -249,15 +363,30 @@ private fun SettingsSection(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column {
+        // An all-caps section label at headlineSmall (18sp) with wide tracking read as a page
+        // heading and competed with the setting names beneath it. Section labels are a small,
+        // quiet type role.
         Text(
             text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.sp,
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
         content()
+    }
+}
+
+private fun openOverlaySettings(context: android.content.Context) {
+    val launch = { intent: android.content.Intent ->
+        runCatching {
+            context.startActivity(
+                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.isSuccess
+    }
+    if (!launch(OverlayPermissionHelper.settingsIntent(context))) {
+        launch(OverlayPermissionHelper.settingsFallbackIntent())
     }
 }

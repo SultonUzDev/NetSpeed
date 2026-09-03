@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,7 +45,8 @@ private fun SettingItemPreview() {
 fun SettingItem(
     modifier: Modifier = Modifier,
     label: String,
-    description: String,
+    /** Optional. Most rows read fine from the label plus the value beside it. */
+    description: String = "",
     isToggle: Boolean = false,
     isEnabled: Boolean = false,
     value: String = "",
@@ -54,7 +56,7 @@ fun SettingItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 20.dp),
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -63,16 +65,18 @@ fun SettingItem(
         ) {
             Text(
                 text = label,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(
-                text = description,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
-            )
+            if (description.isNotEmpty()) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
 
         if (isToggle) {
@@ -83,10 +87,15 @@ fun SettingItem(
         } else {
             Text(
                 text = value,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
+                    // Values like "Download and upload" otherwise take half the row and force
+                    // the description beside them to wrap to three lines.
+                    .widthIn(max = 140.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .border(
@@ -108,14 +117,27 @@ private fun ToggleSwitch(
     modifier: Modifier = Modifier
 ) {
     // Theme-aware colors for the toggle switch
+    // Track and thumb follow Material's switch pairing. The thumb used to be onSurface, which
+    // is near-black in light mode -- a dark thumb on the dark-blue "on" track, effectively
+    // invisible. It only looked right in dark mode, where onSurface happens to be white.
     val backgroundColor by animateColorAsState(
         targetValue = if (checked) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            MaterialTheme.colorScheme.surfaceVariant
         },
         animationSpec = tween(300),
         label = "backgroundColor"
+    )
+
+    val thumbColor by animateColorAsState(
+        targetValue = if (checked) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.outline
+        },
+        animationSpec = tween(300),
+        label = "thumbColor"
     )
 
 
@@ -140,8 +162,7 @@ private fun ToggleSwitch(
                 .size(24.dp)
                 .offset(thumbOffset.x.dp, thumbOffset.y.dp)
                 .clip(CircleShape)
-                .background(            MaterialTheme.colorScheme.onSurface
-                )
+                .background(thumbColor)
         )
     }
 }

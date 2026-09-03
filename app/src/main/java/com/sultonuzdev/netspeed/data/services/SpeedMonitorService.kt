@@ -6,8 +6,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -23,19 +25,31 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.telephony.TelephonyManager
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
-import com.sultonuzdev.netspeed.domain.models.UsageData
+import com.sultonuzdev.netspeed.data.overlay.SpeedOverlayManager
+import com.sultonuzdev.netspeed.data.widget.SpeedWidgetProvider
+import com.sultonuzdev.netspeed.domain.usecases.CheckDataLimitUseCase
 import com.sultonuzdev.netspeed.domain.usecases.SaveUsageDataUseCase
 import com.sultonuzdev.netspeed.presentation.MainActivity
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.CHANNEL_ID
 import com.sultonuzdev.netspeed.utils.Constants.DEFAULT_UPDATE_INTERVAL
+import com.sultonuzdev.netspeed.utils.Constants.LEGACY_CHANNEL_ID
 import com.sultonuzdev.netspeed.utils.Constants.NOTIFICATION_ID
-import com.sultonuzdev.netspeed.utils.NetworkUtils.formatSpeedImproved
+import com.sultonuzdev.netspeed.utils.DataLimitNotifier
+import com.sultonuzdev.netspeed.utils.FormattedSpeed
+import com.sultonuzdev.netspeed.utils.NetworkUtils
+import com.sultonuzdev.netspeed.utils.PingCalculator
 import com.sultonuzdev.netspeed.utils.NotificationStyle
+import com.sultonuzdev.netspeed.utils.SpeedDisplayMode
+import com.sultonuzdev.netspeed.utils.SignalStrengthReader
+import com.sultonuzdev.netspeed.utils.SpeedFormatter
+import com.sultonuzdev.netspeed.utils.SpeedUnit
+import com.sultonuzdev.netspeed.utils.UsagePeriods
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -44,13 +58,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class SpeedMonitorService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    /**
+     * Room writes live on their own scope so a final flush still lands after [serviceScope] is
+     * torn down on stop.
+     */
+    private val persistenceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var isMonitoring = false
     private var wakeLock: PowerManager.WakeLock? = null
     private var restartAttempts = 0
@@ -59,10 +76,48 @@ class SpeedMonitorService : Service() {
     // Inject PreferencesManager and SaveUsageDataUseCase
     private val preferencesManager: PreferencesManager by inject()
     private val saveUsageDataUseCase: SaveUsageDataUseCase by inject()
+    private val checkDataLimitUseCase: CheckDataLimitUseCase by inject()
     private var updateFrequency = 1000L
 
     // Cache for preferences to avoid frequent reads
     private var notificationStyle = NotificationStyle.DETAILED
+    private var speedUnit = SpeedUnit.AUTO
+    private var displayMode = SpeedDisplayMode.DOWNLOAD
+
+    // Floating overlay
+    private var overlayEnabled = false
+    private var overlayTextSize = 12
+    private var overlayColor = PreferencesManager.OVERLAY_DEFAULT_COLOR
+    private var overlayOpacity = 55
+    private val overlayManager by lazy {
+        SpeedOverlayManager(
+            context = this,
+            onPositionChanged = { x, y ->
+                persistenceScope.launch {
+                    try {
+                        preferencesManager.updateOverlayPosition(x, y)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            },
+            onTap = {
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                try {
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        )
+    }
+
+    /** Latency shown on the overlay; the notification has no room for it. */
+    private var latencyMillis: Int? = null
+    private var latencyCounter = 0
+    private val latencyInterval = 10
 
     // Real network monitoring variables
     private var lastTotalRxBytes = 0L
@@ -73,29 +128,73 @@ class SpeedMonitorService : Service() {
     private var currentDownloadSpeed = 0.0
     private var currentUploadSpeed = 0.0
 
-    // Data usage tracking
+    // Session totals, shown in the notification. These are "since monitoring started", not
+    // "today" -- the day's real total lives in Room (and, with usage access, in NetworkStats).
     private var mobileDataUsed = 0L // bytes
     private var wifiDataUsed = 0L // bytes
+
+    // Bytes measured but not yet flushed to Room, and the local day they belong to. Flushing
+    // deltas keyed by day is what makes the stored total survive restarts and midnight.
+    private var pendingWifiBytes = 0L
+    private var pendingMobileBytes = 0L
+    private var pendingDayKey = UsagePeriods.dayKey()
+    private var lastFlushTime = System.currentTimeMillis()
 
     // Session tracking
     private var sessionStartTime = 0L
     private var sessionStartRxBytes = 0L
     private var sessionStartTxBytes = 0L
 
-    // Network info
-    private var signalStrength = 0
+    // Network info. Null signal means the platform would not tell us, which is shown as "--"
+    // rather than as a made-up percentage.
+    private var signalStrength: Int? = null
     private var networkType = "Unknown"
     private var isWifiConnected = false
+
+    /**
+     * Sampling and notification updates are throttled while the screen is off. Byte accounting is
+     * unaffected: TrafficStats counters are cumulative, so a slower sample rate still yields exact
+     * deltas -- only the live speed reading loses resolution, and nobody is looking at it.
+     */
+    @Volatile
+    private var isScreenOn = true
+
+    private val screenStateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                Intent.ACTION_SCREEN_ON -> isScreenOn = true
+                Intent.ACTION_SCREEN_OFF -> isScreenOn = false
+            }
+        }
+    }
 
     // Data save counter
     private var saveCounter = 0
     private val saveInterval = 10 // Save every 10 updates (about 10 seconds)
 
+    // Cap checks are cheaper than they look but still hit DataStore and NetworkStats, so they run
+    // on a slower cadence than the flush.
+    private var alertCounter = 0
+    private val alertInterval = 30
+
+    private var widgetCounter = 0
+    private val widgetInterval = 5
+
+    private var lastNotificationSignature: String? = null
+
+    private companion object {
+        /** Sampling cadence while the screen is off. */
+        const val SCREEN_OFF_INTERVAL = 15_000L
+
+        /** Usage is shown to one decimal of a MB, so finer changes need no repost. */
+        const val MB_IN_BYTES = 1024L * 1024
+    }
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         loadPreferences()
-        acquireWakeLock()
+        registerScreenStateReceiver()
         initializeMonitoring()
 
     }
@@ -105,11 +204,20 @@ class SpeedMonitorService : Service() {
             try {
                 // Load preferences and cache them
                 notificationStyle = preferencesManager.notificationStyle.first()
+                speedUnit = preferencesManager.speedUnit.first()
+                displayMode = preferencesManager.speedDisplayMode.first()
+                overlayEnabled = preferencesManager.overlayEnabled.first()
+                overlayTextSize = preferencesManager.overlayTextSize.first()
+                overlayColor = preferencesManager.overlayColor.first()
+                overlayOpacity = preferencesManager.overlayOpacity.first()
+                syncOverlay()
                 val frequencySeconds = preferencesManager.updateFrequency.first()
                 updateFrequency = (frequencySeconds * 1000L)
             } catch (e: Exception) {
                 // Use defaults if preferences can't be loaded
                 notificationStyle = NotificationStyle.DETAILED
+                speedUnit = SpeedUnit.AUTO
+                displayMode = SpeedDisplayMode.DOWNLOAD
                 updateFrequency = DEFAULT_UPDATE_INTERVAL
             }
         }
@@ -121,11 +229,34 @@ class SpeedMonitorService : Service() {
         when (intent?.action) {
             ACTION_START_MONITORING -> {
                 restartAttempts = 0 // Reset restart attempts on new start
+                setMonitoringEnabled(true)
                 startMonitoring()
             }
-            ACTION_STOP_MONITORING -> stopMonitoring()
+
+            ACTION_STOP_MONITORING -> {
+                // An explicit stop is a decision to remember: it is what stops us restarting
+                // after the next reboot.
+                setMonitoringEnabled(false)
+                stopMonitoring()
+            }
+
+            // START_STICKY revives the service with a null intent. Previously nothing matched, so
+            // the service came back, never called startForeground, and monitored nothing until
+            // the user reopened the app.
+            else -> startMonitoring()
         }
         return START_STICKY // Ensure service restarts if killed
+    }
+
+    /** Records whether monitoring should come back on its own; read by the boot receiver. */
+    private fun setMonitoringEnabled(enabled: Boolean) {
+        persistenceScope.launch {
+            try {
+                preferencesManager.updateMonitoringEnabled(enabled)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun initializeMonitoring() {
@@ -143,6 +274,14 @@ class SpeedMonitorService : Service() {
         if (isMonitoring) return
 
         isMonitoring = true
+        // The wake lock belongs to the monitoring loop, not to the service object: acquiring it
+        // in onCreate held the CPU awake even when nothing was being monitored.
+        acquireWakeLock()
+        syncOverlay()
+        // Anchor the flush window here, not at onCreate: otherwise the first row credits idle
+        // time between service creation and the user actually starting monitoring.
+        lastFlushTime = System.currentTimeMillis()
+        pendingDayKey = UsagePeriods.dayKey()
         startForeground(NOTIFICATION_ID, createSpeedNotification())
 
         // Start monitoring loop
@@ -151,10 +290,35 @@ class SpeedMonitorService : Service() {
                 try {
                     updateNetworkSpeed()
                     updateNetworkInfo()
+
+                    // Roll over first: bytes measured before midnight belong to the old day.
+                    val today = UsagePeriods.dayKey()
+                    if (today != pendingDayKey) {
+                        flushUsageDelta()
+                        pendingDayKey = today
+                        saveCounter = 0
+                    }
+
                     saveCounter++
                     if (saveCounter >= saveInterval) {
-                        saveUsageData()
+                        flushUsageDelta()
                         saveCounter = 0
+                    }
+
+                    alertCounter++
+                    if (alertCounter >= alertInterval) {
+                        checkDataLimit()
+                        alertCounter = 0
+                    }
+
+                    // Only measured while the overlay is up: it is the only surface that shows
+                    // it, and a network round trip every few seconds is not free.
+                    if (overlayEnabled && isScreenOn) {
+                        latencyCounter++
+                        if (latencyCounter >= latencyInterval) {
+                            measureLatency()
+                            latencyCounter = 0
+                        }
                     }
 
                     // Reload preferences periodically to pick up changes
@@ -162,8 +326,21 @@ class SpeedMonitorService : Service() {
                         loadPreferences()
                     }
 
-                    updateNotification()
-                    delay(updateFrequency)
+                    // Redrawing a notification nobody can see is pure battery cost. The same
+                    // goes for the overlay, which is drawn on the same screen.
+                    if (isScreenOn) {
+                        updateNotification()
+                        updateOverlay()
+
+                        // RemoteViews updates cross a binder and redraw the launcher, so the
+                        // widget runs at a slower cadence than the notification.
+                        widgetCounter++
+                        if (widgetCounter >= widgetInterval) {
+                            updateWidget()
+                            widgetCounter = 0
+                        }
+                    }
+                    delay(if (isScreenOn) updateFrequency else SCREEN_OFF_INTERVAL)
                 } catch (e: Exception) {
                     if (restartAttempts < maxRestartAttempts) {
                         restartAttempts++
@@ -178,21 +355,118 @@ class SpeedMonitorService : Service() {
         }
     }
 
-    private fun saveUsageData() {
-        val usageData = UsageData(
-            date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-            wifiUsage = wifiDataUsed,
-            mobileUsage = mobileDataUsed,
-            totalUsage = wifiDataUsed + mobileDataUsed,
-            sessionTime = (System.currentTimeMillis() - sessionStartTime) / 1000
-        )
-        serviceScope.launch {
-            saveUsageDataUseCase.updateUsage(usageData)
+    /**
+     * Writes the bytes measured since the last flush onto [pendingDayKey]'s row and clears the
+     * pending counters.
+     *
+     * Deltas, not absolutes: the previous version wrote its own in-memory running totals over the
+     * day's row, so every service restart reset the stored day to near zero, and a second writer
+     * in the UI layer raced it. Accumulating means neither can lose data the other recorded.
+     */
+    private fun flushUsageDelta() {
+        val wifiDelta = pendingWifiBytes
+        val mobileDelta = pendingMobileBytes
+        val now = System.currentTimeMillis()
+        val sessionDelta = ((now - lastFlushTime) / 1000).coerceAtLeast(0L)
+        val dayKey = pendingDayKey
+
+        if (wifiDelta <= 0L && mobileDelta <= 0L && sessionDelta <= 0L) return
+
+        pendingWifiBytes = 0L
+        pendingMobileBytes = 0L
+        lastFlushTime = now
+
+        persistenceScope.launch {
+            try {
+                saveUsageDataUseCase.addDelta(dayKey, wifiDelta, mobileDelta, sessionDelta)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
+    }
+
+    /**
+     * Notifies if mobile usage has newly crossed the warning threshold or the cap. The use case
+     * decides whether anything is actually due, so this can run on a timer without spamming.
+     */
+    private fun checkDataLimit() {
+        persistenceScope.launch {
+            try {
+                val alert = checkDataLimitUseCase.checkForAlert() ?: return@launch
+                DataLimitNotifier.notify(this@SpeedMonitorService, alert)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * Brings the overlay into line with the current preference. Must run on the main thread —
+     * WindowManager rejects view operations from anywhere else.
+     */
+    private fun syncOverlay() {
+        serviceScope.launch {
+            if (overlayEnabled && isMonitoring) {
+                if (overlayManager.isShowing) {
+                    overlayManager.restyle(overlayTextSize, overlayColor, overlayOpacity)
+                } else {
+                    val x = preferencesManager.overlayX.first()
+                    val y = preferencesManager.overlayY.first()
+                    overlayManager.show(x, y, overlayTextSize, overlayColor, overlayOpacity)
+                }
+            } else if (overlayManager.isShowing) {
+                overlayManager.hide()
+            }
+        }
+    }
+
+    private fun updateWidget() {
+        SpeedWidgetProvider.updateAll(
+            this,
+            SpeedFormatter.format(currentDownloadSpeed, speedUnit),
+            SpeedFormatter.format(currentUploadSpeed, speedUnit),
+            NetworkUtils.formatBytes(wifiDataUsed + mobileDataUsed)
+        )
+    }
+
+    private fun measureLatency() {
+        persistenceScope.launch {
+            latencyMillis = try {
+                PingCalculator.tcpLatencyMillis()
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    private fun updateOverlay() {
+        if (!overlayManager.isShowing) return
+        overlayManager.update(
+            download = SpeedFormatter.format(currentDownloadSpeed, speedUnit),
+            upload = SpeedFormatter.format(currentUploadSpeed, speedUnit),
+            mode = displayMode,
+            detailLine = overlayDetailLine()
+        )
+    }
+
+    /**
+     * The overlay's third line. Deliberately carries what the notification does not: latency,
+     * and how much this session has moved.
+     */
+    private fun overlayDetailLine(): String {
+        val sessionBytes = wifiDataUsed + mobileDataUsed
+        val parts = buildList {
+            latencyMillis?.let { add("${it} ms") }
+            add(networkType)
+            if (sessionBytes > 0L) add(NetworkUtils.formatBytes(sessionBytes))
+        }
+        return parts.joinToString(" · ")
     }
 
     private fun stopMonitoring() {
         isMonitoring = false
+        overlayManager.hide()
+        flushUsageDelta()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         releaseWakeLock()
@@ -208,8 +482,10 @@ class SpeedMonitorService : Service() {
 
             if (timeDiff > 0) {
                 // Calculate speed in bytes per second
-                val rxDiff = currentRxBytes - lastTotalRxBytes
-                val txDiff = currentTxBytes - lastTotalTxBytes
+                // TrafficStats counts from boot, so a reboot mid-session makes the raw diff
+                // negative. Treat that as "no traffic" rather than as a huge negative sample.
+                val rxDiff = (currentRxBytes - lastTotalRxBytes).coerceAtLeast(0L)
+                val txDiff = (currentTxBytes - lastTotalTxBytes).coerceAtLeast(0L)
 
                 currentDownloadSpeed = rxDiff / timeDiff
                 currentUploadSpeed = txDiff / timeDiff
@@ -243,11 +519,14 @@ class SpeedMonitorService : Service() {
 
     private fun updateDataUsage(rxBytes: Long, txBytes: Long) {
         val totalBytes = rxBytes + txBytes
+        if (totalBytes <= 0L) return
 
         if (isWifiConnected) {
             wifiDataUsed += totalBytes
+            pendingWifiBytes += totalBytes
         } else {
             mobileDataUsed += totalBytes
+            pendingMobileBytes += totalBytes
         }
     }
 
@@ -263,53 +542,19 @@ class SpeedMonitorService : Service() {
 
             if (isWifiConnected) {
                 networkType = "WiFi"
-                signalStrength = getWiFiSignalStrength()
+                signalStrength = SignalStrengthReader.percent(this, isWifi = true)
             } else if (capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true) {
                 networkType = "Mobile"
-                signalStrength = getMobileSignalStrength()
+                signalStrength = SignalStrengthReader.percent(this, isWifi = false)
             } else {
                 networkType = "Unknown"
-                signalStrength = 0
+                signalStrength = null
             }
         } catch (e: Exception) {
             e.printStackTrace()
             isWifiConnected = false
             networkType = "Unknown"
-            signalStrength = 0
-        }
-    }
-
-    private fun getWiFiSignalStrength(): Int {
-        return try {
-            val wifiManager =
-                applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val wifiInfo = wifiManager.connectionInfo
-            val rssi = wifiInfo.rssi
-
-            // Convert RSSI to percentage (typical WiFi range: -100 to -30 dBm)
-            when {
-                rssi >= -50 -> 100
-                rssi >= -60 -> 75
-                rssi >= -70 -> 50
-                rssi >= -80 -> 25
-                else -> 10
-            }
-        } catch (e: Exception) {
-            50 // Default value
-        }
-    }
-
-    private fun getMobileSignalStrength(): Int {
-        return try {
-            val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                75
-            } else {
-                75
-            }
-        } catch (e: Exception) {
-            50 // Default value
+            signalStrength = null
         }
     }
 
@@ -317,16 +562,29 @@ class SpeedMonitorService : Service() {
     private fun updateNotification() {
         if (!isMonitoring) return
 
+        // Re-posting identical content still rebuilds the icon bitmap and crosses a binder every
+        // second. While the connection is idle the text does not change at all, so skip it.
+        val signature = notificationSignature()
+        if (signature == lastNotificationSignature) return
+
         try {
             val notification = createSpeedNotification()
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(NOTIFICATION_ID, notification)
+            lastNotificationSignature = signature
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    @SuppressLint("DefaultLocale")
+    /** Everything the notification actually renders; equal signatures mean an identical post. */
+    private fun notificationSignature(): String {
+        val download = SpeedFormatter.format(currentDownloadSpeed, speedUnit)
+        val upload = SpeedFormatter.format(currentUploadSpeed, speedUnit)
+        return "$download|$upload|$networkType|$signalStrength|$displayMode|$notificationStyle|" +
+                "${mobileDataUsed / MB_IN_BYTES}|${wifiDataUsed / MB_IN_BYTES}"
+    }
+
     private fun createSpeedNotification(): Notification {
         val mainIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -336,91 +594,110 @@ class SpeedMonitorService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Format current speed
-        val speedText = formatSpeedImproved(currentDownloadSpeed)
+        val download = SpeedFormatter.format(currentDownloadSpeed, speedUnit)
+        val upload = SpeedFormatter.format(currentUploadSpeed, speedUnit)
+        val combined = SpeedFormatter.format(currentDownloadSpeed + currentUploadSpeed, speedUnit)
 
-        // Create dynamic speed icon for status bar that actually shows as text
-        val speedIcon = createTextBasedIcon(speedText)
-
-
-        // Build notification based on style preference
-        return if (notificationStyle == NotificationStyle.COMPACT) {
-            createCompactNotification(
-                pendingIntent,
-                speedIcon,
-                speedText,
-                formatSpeedImproved(currentUploadSpeed)
+        // The icon is ~96px wide, so it gets the number on one line and either the unit or the
+        // other direction's number on the second -- never both a unit and two speeds.
+        val speedIcon = when (displayMode) {
+            SpeedDisplayMode.BOTH -> createTextBasedIcon(
+                "\u2193${download.value}",
+                "\u2191${upload.value}"
             )
+
+            SpeedDisplayMode.UPLOAD -> createTextBasedIcon(upload.value, upload.unit)
+            SpeedDisplayMode.COMBINED -> createTextBasedIcon(combined.value, combined.unit)
+            SpeedDisplayMode.DOWNLOAD -> createTextBasedIcon(download.value, download.unit)
+        }
+
+        val title = when (displayMode) {
+            SpeedDisplayMode.DOWNLOAD -> "\u2193 $download"
+            SpeedDisplayMode.UPLOAD -> "\u2191 $upload"
+            SpeedDisplayMode.COMBINED -> "$combined total"
+            SpeedDisplayMode.BOTH -> "\u2193 $download    \u2191 $upload"
+        }
+
+        // Anything the title already says would only be repeated here, so the content line carries
+        // whatever the chosen mode leaves out.
+        val content = when (displayMode) {
+            SpeedDisplayMode.DOWNLOAD -> "\u2191$upload | $networkType"
+            SpeedDisplayMode.UPLOAD -> "\u2193$download | $networkType"
+            SpeedDisplayMode.COMBINED, SpeedDisplayMode.BOTH -> networkType
+        }
+
+        return if (notificationStyle == NotificationStyle.COMPACT) {
+            buildNotification(pendingIntent, speedIcon, title, content, bigText = null)
         } else {
-            createDetailedNotification(
+            buildNotification(
                 pendingIntent,
                 speedIcon,
-                speedText,
-                formatSpeedImproved(currentUploadSpeed)
+                title,
+                "$content | Signal: $signalText",
+                bigText = detailedBigText(download, upload, combined)
             )
         }
     }
 
     @SuppressLint("DefaultLocale")
-    private fun createDetailedNotification(
-        pendingIntent: PendingIntent,
-        speedIcon: Bitmap,
-        speedText: String,
-        uploadText: String
-    ): Notification {
-        // Format data usage
+    private fun detailedBigText(
+        download: FormattedSpeed,
+        upload: FormattedSpeed,
+        combined: FormattedSpeed
+    ): String {
         val mobileDataMB = (mobileDataUsed / (1024.0 * 1024.0))
         val wifiDataMB = (wifiDataUsed / (1024.0 * 1024.0))
 
-        val title = "Net Speed: $speedText"
-        val content = "↑$uploadText | Signal: $signalStrength% | $networkType"
-        val bigText = buildString {
-            append("Download: $speedText\n")
-            append("Upload: $uploadText\n")
-            append("Signal: $signalStrength% ($networkType)\n")
+        return buildString {
+            when (displayMode) {
+                SpeedDisplayMode.COMBINED -> append("Total: $combined\n")
+                SpeedDisplayMode.UPLOAD -> append("Upload: $upload\n")
+                SpeedDisplayMode.DOWNLOAD -> append("Download: $download\n")
+                SpeedDisplayMode.BOTH -> {
+                    append("Download: $download\n")
+                    append("Upload: $upload\n")
+                }
+            }
+            append("Signal: $signalText ($networkType)\n")
             append("Mobile Data: ${String.format("%.1f", mobileDataMB)} MB\n")
             append("WiFi Data: ${String.format("%.1f", wifiDataMB)} MB")
         }
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(IconCompat.createWithBitmap(speedIcon))
-            .setContentTitle(title)
-            .setContentText(content)
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(bigText)
-                    .setBigContentTitle(title)
-                    .setSummaryText("Net Speed Monitor")
-            )
-            .setContentIntent(pendingIntent)
-            .setOngoing(true)
-            .setSilent(true)
-            .setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setColor(0xFF2196F3.toInt())
-            .build()
     }
 
+    /** Signal as text, or an em dash when the platform declined to report it. */
+    private val signalText: String
+        get() = signalStrength?.let { "$it%" } ?: "\u2014"
 
-    private fun createCompactNotification(
+    private fun buildNotification(
         pendingIntent: PendingIntent,
         speedIcon: Bitmap,
-        speedText: String,
-        uploadText: String
+        title: String,
+        content: String,
+        bigText: String?
     ): Notification {
-        val title = "Net Speed: $speedText"
-        val content = "↑$uploadText | $networkType"
-
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(IconCompat.createWithBitmap(speedIcon))
             .setContentTitle(title)
             .setContentText(content)
+            .apply {
+                if (bigText != null) {
+                    setStyle(
+                        NotificationCompat.BigTextStyle()
+                            .bigText(bigText)
+                            .setBigContentTitle(title)
+                            .setSummaryText("Net Speed Monitor")
+                    )
+                }
+            }
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setSilent(true)
             .setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            // Without this, every one-second update is treated as a fresh alert and can pop the
+            // notification back up as a heads-up.
+            .setOnlyAlertOnce(true)
+            // A live readout should sit quietly in the shade, not announce itself.
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setColor(0xFF2196F3.toInt())
             .build()
@@ -428,10 +705,21 @@ class SpeedMonitorService : Service() {
 
 
     private fun createNotificationChannel() {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        // The original channel was created at IMPORTANCE_HIGH, which made each update eligible
+        // for a heads-up popup. Importance cannot be lowered on an existing channel, so the old
+        // one is removed and replaced.
+        try {
+            notificationManager.deleteNotificationChannel(LEGACY_CHANNEL_ID)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Net Speed Monitor",
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_LOW
         ).apply {
             description = "Shows real-time internet speed and data usage"
             setShowBadge(false)
@@ -441,7 +729,6 @@ class SpeedMonitorService : Service() {
             setBypassDnd(true) // Allow notifications even in Do Not Disturb mode
         }
 
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
@@ -454,71 +741,114 @@ class SpeedMonitorService : Service() {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // A rotation swaps the display bounds, which can leave the overlay's saved coordinates
+        // outside the new ones.
+        if (overlayManager.isShowing) overlayManager.ensureOnScreen()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         isMonitoring = false
+        overlayManager.hide()
+        flushUsageDelta()
         serviceScope.cancel()
         releaseWakeLock()
+        try {
+            unregisterReceiver(screenStateReceiver)
+        } catch (e: IllegalArgumentException) {
+            // Never registered, or already gone.
+        }
     }
 
-    private fun createTextBasedIcon(speedText: String): Bitmap {
-        // Get status bar text size dynamically
+    /**
+     * Renders the speed as a status-bar icon, since Android gives no way to put live text there.
+     *
+     * Takes the two lines already formatted rather than a single string to pull apart: the caller
+     * knows whether the second line is a unit or the other direction's speed, and re-parsing a
+     * formatted string to find out was fragile.
+     */
+    private fun createTextBasedIcon(primaryText: String, secondaryText: String): Bitmap {
         val statusBarTextSize = getStatusBarTextSize()
 
-        // Optimized dimensions for status bar compatibility
-        val width = 96  // Reduced width for better status bar fit
-        val height = getStatusBarHeight(this) // Reduced height to match status bar
+        val width = 96
+        val height = getStatusBarHeight(this)
 
         val bitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-
-        // Clear background (completely transparent)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
 
-        // Parse speed text into number and unit
-        val (speedNumber, speedUnit) = parseSpeedForTwoLines(speedText)
         val centerX = width / 2f
 
-        // Paint for the main speed number (matches status bar clock size)
-        val numberPaint = Paint().apply {
+        // No shadow layer: the status bar tints a small icon from its alpha channel, so a
+        // drop shadow only smears the silhouette it derives. A clean white-on-transparent
+        // glyph is also what lets the system invert it on a light status bar.
+        val primaryPaint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD) // System UI font
-            textSize = statusBarTextSize * 0.9f // Slightly smaller than clock
-            setShadowLayer(2f, 0.5f, 0.5f, Color.parseColor("#80000000")) // Subtle shadow
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            textSize = statusBarTextSize * 0.9f
         }
 
-        // Paint for the unit (smaller, like status bar indicators)
-        val unitPaint = Paint().apply {
+        val secondaryPaint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create("sans-serif", Typeface.NORMAL) // Regular weight
-            textSize = statusBarTextSize * 0.6f // Much smaller for unit
-            setShadowLayer(1f, 0.5f, 0.5f, Color.parseColor("#80000000"))
+            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+            textSize = statusBarTextSize * 0.6f
         }
 
-        // Calculate text metrics for perfect positioning
-        val numberBounds = android.graphics.Rect()
-        numberPaint.getTextBounds(speedNumber, 0, speedNumber.length, numberBounds)
+        // Two speeds need equal weight; a speed plus its unit does not.
+        if (displayMode == SpeedDisplayMode.BOTH) {
+            secondaryPaint.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            secondaryPaint.textSize = statusBarTextSize * 0.75f
+            primaryPaint.textSize = statusBarTextSize * 0.75f
+        }
 
-        val unitBounds = android.graphics.Rect()
-        unitPaint.getTextBounds(speedUnit, 0, speedUnit.length, unitBounds)
+        // The bitmap is a fixed 96px wide, but the text is not: "1023" or a two-arrow line at
+        // a large status-bar text size overruns it and gets cut off. Scale both lines by the
+        // same factor so the size hierarchy survives.
+        shrinkToFit(primaryPaint, primaryText, secondaryPaint, secondaryText, width * 0.94f)
 
-        // Position text to center vertically in the available space
-        val totalTextHeight = numberBounds.height() + unitBounds.height() + 2 // 2px spacing
-        val startY = (height - totalTextHeight) / 2f + numberBounds.height()
+        val primaryBounds = android.graphics.Rect()
+        primaryPaint.getTextBounds(primaryText, 0, primaryText.length, primaryBounds)
 
-        // Draw the speed number (main text)
-        canvas.drawText(speedNumber, centerX, startY, numberPaint)
+        val secondaryBounds = android.graphics.Rect()
+        secondaryPaint.getTextBounds(secondaryText, 0, secondaryText.length, secondaryBounds)
 
-        // Draw the unit (smaller text below)
-        canvas.drawText(speedUnit, centerX, startY + unitBounds.height() + 4, unitPaint)
+        val totalTextHeight = primaryBounds.height() + secondaryBounds.height() + 2
+        val startY = (height - totalTextHeight) / 2f + primaryBounds.height()
+
+        canvas.drawText(primaryText, centerX, startY, primaryPaint)
+        canvas.drawText(secondaryText, centerX, startY + secondaryBounds.height() + 4, secondaryPaint)
 
         return bitmap
     }
 
+
+    /**
+     * Scales a pair of paints down together until the wider of the two lines fits [maxWidth].
+     * Never scales up: the configured sizes are the intended maximum.
+     */
+    private fun shrinkToFit(
+        primaryPaint: Paint,
+        primaryText: String,
+        secondaryPaint: Paint,
+        secondaryText: String,
+        maxWidth: Float
+    ) {
+        val widest = maxOf(
+            primaryPaint.measureText(primaryText),
+            secondaryPaint.measureText(secondaryText)
+        )
+        if (widest <= maxWidth || widest <= 0f) return
+
+        val scale = maxWidth / widest
+        primaryPaint.textSize *= scale
+        secondaryPaint.textSize *= scale
+    }
 
     private fun getStatusBarTextSize(): Float {
         return try {
@@ -566,77 +896,21 @@ class SpeedMonitorService : Service() {
     }
 
 
-    /**
-     * Parses speed text into number and unit for two-line display
-     * Returns (number, unit) pair
-     * Examples: "5.2 MB/s" -> ("5.2", "MB/s"), "125 KB/s" -> ("125", "KB/s")
-     */
-    private fun parseSpeedForTwoLines(speedText: String): Pair<String, String> {
-        return try {
-            val clean = speedText.trim()
-
-            // Try to match number and unit pattern
-            val regex = Regex("([0-9.]+)\\s*([A-Za-z/]+)")
-            val matchResult = regex.find(clean)
-
-            if (matchResult != null) {
-                val number = matchResult.groupValues[1]
-                val unit = matchResult.groupValues[2].uppercase()
-
-                // Format the number (remove unnecessary decimals)
-                val formattedNumber = formatNumber(number.toDoubleOrNull() ?: 0.0)
-
-                return Pair(formattedNumber, unit)
-            } else {
-                // Fallback: try to split by space
-                val parts = clean.split(" ")
-                if (parts.size >= 2) {
-                    val number = formatNumber(extractNumber(parts[0]))
-                    val unit = parts[1].uppercase()
-                    return Pair(number, unit)
-                } else {
-                    // If can't parse, return as single number
-                    return Pair(clean.take(4), "")
-                }
-            }
-        } catch (e: Exception) {
-            Pair("0", "KB/s")
+    private fun registerScreenStateReceiver() {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_SCREEN_OFF)
         }
-    }
-
-    /**
-     * Extracts numeric value from speed string
-     */
-    private fun extractNumber(text: String): Double {
-        return try {
-            val numberString = text.replace(Regex("[^0-9.]"), "")
-            numberString.toDoubleOrNull() ?: 0.0
-        } catch (e: Exception) {
-            0.0
-        }
-    }
-
-    /**
-     * Formats number for display (removes unnecessary decimals)
-     */
-    @SuppressLint("DefaultLocale")
-    private fun formatNumber(value: Double): String {
-        return when {
-            value >= 100 -> value.toInt().toString()
-            value >= 10 -> String.format("%.1f", value)
-            value >= 1 -> String.format("%.1f", value)
-            else -> String.format("%.2f", value)
-        }.let { result ->
-            // Remove trailing zeros and decimal point if not needed
-            if (result.contains(".")) {
-                result.trimEnd('0').trimEnd('.')
-            } else {
-                result
-            }
-        }
+        ContextCompat.registerReceiver(
+            this,
+            screenStateReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock =
             powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SpeedMonitorService:WakeLock")
@@ -644,15 +918,24 @@ class SpeedMonitorService : Service() {
     }
 
     private fun releaseWakeLock() {
-        wakeLock?.release()
+        try {
+            if (wakeLock?.isHeld == true) wakeLock?.release()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         wakeLock = null
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        // Restart the service if task is removed
-        val restartService = Intent(this, SpeedMonitorService::class.java)
-        restartService.action = ACTION_START_MONITORING
-        startService(restartService)
+        // Only revive a service the user still wants running.
+        if (isMonitoring) {
+            val restartService = Intent(this, SpeedMonitorService::class.java).apply {
+                action = ACTION_START_MONITORING
+            }
+            // startService() throws IllegalStateException from the background on Android 8+;
+            // we are still a foreground service here, so starting one is permitted.
+            ContextCompat.startForegroundService(this, restartService)
+        }
         super.onTaskRemoved(rootIntent)
     }
 }

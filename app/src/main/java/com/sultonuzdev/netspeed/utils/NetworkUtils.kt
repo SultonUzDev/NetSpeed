@@ -7,52 +7,6 @@ import kotlin.math.pow
 object NetworkUtils {
 
     @SuppressLint("DefaultLocale")
-    fun formatSpeed(bytesPerSecond: Double): Pair<String, String> {
-        return when {
-            bytesPerSecond >= 1024.0.pow(3) -> {
-                Pair(String.format("%.1f", bytesPerSecond / 1024.0.pow(3)), "GB/s")
-            }
-
-            bytesPerSecond >= 1024.0.pow(2) -> {
-                Pair(String.format("%.1f", bytesPerSecond / 1024.0.pow(2)), "MB/s")
-            }
-
-            bytesPerSecond >= 1024.0 -> {
-                Pair(String.format("%.1f", bytesPerSecond / 1024.0), "KB/s")
-            }
-
-            else -> {
-                Pair(String.format("%.0f", bytesPerSecond), "B/s")
-            }
-        }
-    }
-
-    @SuppressLint("DefaultLocale")
-    fun formatSpeedImproved(bytesPerSecond: Double): String {
-        return when {
-            bytesPerSecond >= 1024.0.pow(3) -> {
-                String.format("%.1f GB/s", bytesPerSecond / 1024.0.pow(3))
-            }
-
-            bytesPerSecond >= 1024.0.pow(2) -> {
-                String.format("%.1f MB/s", bytesPerSecond / 1024.0.pow(2))
-            }
-
-            bytesPerSecond >= 1024.0 -> {
-                String.format("%.1f KB/s", bytesPerSecond / 1024.0)
-            }
-
-            bytesPerSecond >= 1.0 -> {
-                String.format("%.0f B/s", bytesPerSecond)
-            }
-
-            else -> {
-                "0 B/s"
-            }
-        }
-    }
-
-    @SuppressLint("DefaultLocale")
     fun formatDataUsage(bytes: Long): Pair<String, String> {
         return when {
             bytes >= 1024L * 1024L * 1024L -> {

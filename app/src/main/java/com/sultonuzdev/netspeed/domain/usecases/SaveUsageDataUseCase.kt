@@ -12,4 +12,14 @@ class SaveUsageDataUseCase(private val repository: UsageRepository) {
     suspend fun updateUsage(usageData: UsageData) {
         repository.updateUsageData(usageData)
     }
+
+    /** Accumulating write used by the monitoring service; see [UsageRepository.addUsageDelta]. */
+    suspend fun addDelta(
+        date: String,
+        wifiDelta: Long,
+        mobileDelta: Long,
+        sessionDelta: Long
+    ) {
+        repository.addUsageDelta(date, wifiDelta, mobileDelta, sessionDelta)
+    }
 }

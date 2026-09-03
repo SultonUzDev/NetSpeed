@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <!-- Service permissions -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -17,6 +18,28 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Floating speed overlay. Special permission: granted from system settings, revocable. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Usage access: special permission, granted by the user in system settings, not at runtime.
+         Unlocks NetworkStatsManager for per-app usage and system-accurate daily totals. -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!--
+        Package visibility. Since Android 11 getPackagesForUid() returns null for apps this one
+        cannot "see", which is why the per-app usage list rendered every entry as "Unknown (uid
+        NNNNN)". Declaring the launcher intent makes every user-launchable app resolvable, which
+        is what the breakdown needs in order to name and illustrate its rows.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <application
         android:name=".NetSpeedApplication"
@@ -44,6 +67,46 @@
             android:name=".data.services.SpeedMonitorService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- Home-screen widget. updatePeriodMillis is 0; the service pushes live updates. -->
+        <receiver
+            android:name=".data.widget.SpeedWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_speed_info" />
+        </receiver>
+
+        <!-- Quick Settings tile toggling monitoring. -->
+        <service
+            android:name=".data.tile.SpeedTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_speed_notification_bg"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Restores monitoring after a reboot or an app update. Exported so the system can
+             deliver BOOT_COMPLETED; the receiver itself only reads our own preferences. -->
+        <receiver
+            android:name=".data.receivers.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

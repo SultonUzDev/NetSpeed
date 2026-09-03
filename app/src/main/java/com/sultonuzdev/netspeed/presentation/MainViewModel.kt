@@ -21,6 +21,13 @@ class MainViewModel(
             initialValue = true
         )
 
+    val isDynamicColor: StateFlow<Boolean> = preferencesManager.dynamicColor
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
+
     val isFirstLaunch: StateFlow<Boolean> = preferencesManager.isFirstLaunch
         .stateIn(
             scope = viewModelScope,

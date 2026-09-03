@@ -20,7 +20,9 @@ fun SpeedCircle(
     speed: String,
     unit: String,
     type: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Optional second line inside the circle; null hides it. */
+    secondary: String? = null
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val rotation by infiniteTransition.animateFloat(
@@ -45,9 +47,10 @@ fun SpeedCircle(
         modifier = modifier.size(250.dp),
         contentAlignment = Alignment.Center
     ) {
+        val surfaceColor = MaterialTheme.colorScheme.surface
         val colors= listOf(
             Color.Transparent,
-            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primary,
             MaterialTheme.colorScheme.error,
             Color.Transparent
         )
@@ -66,12 +69,17 @@ fun SpeedCircle(
             )
         }
 
-        // Inner circle background
+        // Inner circle background.
+        //
+        // This was a hardcoded near-black (#1a1a1a). In dark mode that matched the surface by
+        // coincidence; in light mode it put a black disc on a white page and every label on it
+        // -- the speed, the unit, the caption -- was dark-on-dark and unreadable. Taking the
+        // surface colour keeps the dark appearance identical and makes light mode work.
         Canvas(
             modifier = Modifier.size(230.dp)
         ) {
             drawCircle(
-                color = Color(0xFF1a1a1a),
+                color = surfaceColor,
                 radius = size.width / 2,
                 center = center
             )
@@ -87,20 +95,30 @@ fun SpeedCircle(
         ) {
             Text(
                 text = speed,
-                fontSize = 48.sp,
+                style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = unit,
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            // Only populated in the download-and-upload mode, where one number cannot carry both.
+            if (secondary != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = secondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = type.uppercase(),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primaryContainer,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 1.sp
             )
         }

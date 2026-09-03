@@ -1,6 +1,13 @@
 package com.sultonuzdev.netspeed.presentation.screens.speed
 
 data class SpeedUiState(
+    /** What the hero circle shows; follows the Status bar display-mode setting. */
+    val heroSpeed: String = "0",
+    val heroUnit: String = "MB/s",
+    val heroLabel: String = "Download",
+    /** Second line inside the circle, used only in the download-and-upload mode. */
+    val heroSecondary: String? = null,
+
     val downloadSpeed: String = "0",
     val downloadUnit: String = "MB/s",
     val uploadSpeed: String = "0",
@@ -17,11 +24,6 @@ data class SpeedUiState(
     val networkName: String = "No Connection",
     val signalStrength: Int = 0,
 
-    // Data usage fields
-    val todayWifiUsage: String = "0 B",
-    val todayMobileUsage: String = "0 B",
-    val todayTotalUsage: String = "0 B",
-    val wifiProgress: Float = 0f,
-    val mobileProgress: Float = 0f,
-    val totalProgress: Float = 0f
+    /** Recent samples of whatever the hero shows, in bytes/sec, oldest first. */
+    val recentDownload: List<Float> = emptyList()
 )

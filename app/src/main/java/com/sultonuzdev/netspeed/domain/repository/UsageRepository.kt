@@ -9,6 +9,17 @@ interface UsageRepository {
     fun getWeeklyUsage(): Flow<List<UsageData>>
     suspend fun saveUsageData(usageData: UsageData)
     suspend fun updateUsageData(usageData: UsageData)
+
+    /**
+     * Accumulates a delta onto [date]'s row. This is the write path for sampled monitoring;
+     * [updateUsageData] overwrites and is only safe for a caller that owns the whole day.
+     */
+    suspend fun addUsageDelta(
+        date: String,
+        wifiDelta: Long,
+        mobileDelta: Long,
+        sessionDelta: Long
+    )
     suspend fun getMonthlyTotal(monthYear: String): Long
 
 

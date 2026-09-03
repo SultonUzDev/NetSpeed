@@ -14,11 +14,12 @@ val databaseModule = module {
             NetSpeedDatabase::class.java,
             Constants.DB_NAME
         )
-            .fallbackToDestructiveMigration()
+            .addMigrations(NetSpeedDatabase.MIGRATION_2_3)
             .build()
     }
 
     single { get<NetSpeedDatabase>().usageDao() }
+    single { get<NetSpeedDatabase>().speedTestDao() }
     single { PreferencesManager(get()) }
 
 }

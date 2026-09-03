@@ -1,42 +1,55 @@
 package com.sultonuzdev.netspeed.presentation.screens.speed
 
 
-import android.app.Application
-import android.content.Context
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sultonuzdev.netspeed.domain.models.UsageData
+import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
 import com.sultonuzdev.netspeed.domain.usecases.GetNetworkSpeedUseCase
-import com.sultonuzdev.netspeed.domain.usecases.SaveUsageDataUseCase
-import com.sultonuzdev.netspeed.utils.DataUsageCalculator
+import com.sultonuzdev.netspeed.utils.FormattedSpeed
 import com.sultonuzdev.netspeed.utils.NetworkUtils
-import com.sultonuzdev.netspeed.utils.NetworkUtils.formatBytes
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import com.sultonuzdev.netspeed.utils.SpeedDisplayMode
+import com.sultonuzdev.netspeed.utils.SpeedFormatter
+import com.sultonuzdev.netspeed.utils.SpeedUnit
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class SpeedViewModel(
     private val getNetworkSpeedUseCase: GetNetworkSpeedUseCase,
     private val networkRepository: NetworkRepository,
-    private val saveUsageDataUseCase: SaveUsageDataUseCase,
-    application: Application
-
-) : AndroidViewModel(application) {
+    private val preferencesManager: PreferencesManager
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SpeedUiState())
     val uiState: StateFlow<SpeedUiState> = _uiState.asStateFlow()
 
+    /** Cached so the per-sample formatting below stays synchronous. */
+    private var speedUnit = SpeedUnit.AUTO
+    private var displayMode = SpeedDisplayMode.DOWNLOAD
+
     init {
-        DataUsageCalculator.initializeTracking(getApplication()) // Use getApplication()
+        observeSpeedUnit()
+        observeDisplayMode()
         startMonitoring()
         observeNetworkSpeed()
         observeNetworkInfo()
-        startUsageTracking()
+    }
+
+    /** The unit preference applies app-wide, so the screen and the notification agree. */
+    private fun observeSpeedUnit() {
+        viewModelScope.launch {
+            preferencesManager.speedUnit.collect { unit -> speedUnit = unit }
+        }
+    }
+
+    /** The circle answers to the same setting as the notification and the overlay. */
+    private fun observeDisplayMode() {
+        viewModelScope.launch {
+            preferencesManager.speedDisplayMode.collect { mode -> displayMode = mode }
+        }
     }
 
     private fun startMonitoring() {
@@ -48,27 +61,69 @@ class SpeedViewModel(
     private fun observeNetworkSpeed() {
         viewModelScope.launch {
             getNetworkSpeedUseCase().collect { speed ->
-                val (downloadValue, downloadUnit) = NetworkUtils.formatSpeed(speed.downloadSpeed)
-                val (uploadValue, uploadUnit) = NetworkUtils.formatSpeed(speed.uploadSpeed)
+                val download = SpeedFormatter.format(speed.downloadSpeed, speedUnit)
+                val upload = SpeedFormatter.format(speed.uploadSpeed, speedUnit)
+                val combinedBps = speed.downloadSpeed + speed.uploadSpeed
+                val combined = SpeedFormatter.format(combinedBps, speedUnit)
+
+                // The circle, its caption, and the sparkline all follow the display mode, so the
+                // screen cannot claim "Download" while the status bar shows something else.
+                val heroFormatted: FormattedSpeed
+                val heroLabel: String
+                val heroSecondary: String?
+                val heroBps: Double
+                when (displayMode) {
+                    SpeedDisplayMode.UPLOAD -> {
+                        heroFormatted = upload
+                        heroLabel = "Upload"
+                        heroSecondary = null
+                        heroBps = speed.uploadSpeed
+                    }
+
+                    SpeedDisplayMode.COMBINED -> {
+                        heroFormatted = combined
+                        heroLabel = "Total"
+                        heroSecondary = null
+                        heroBps = combinedBps
+                    }
+
+                    SpeedDisplayMode.BOTH -> {
+                        heroFormatted = download
+                        heroLabel = "Download"
+                        heroSecondary = "\u2191 $upload"
+                        heroBps = speed.downloadSpeed
+                    }
+
+                    SpeedDisplayMode.DOWNLOAD -> {
+                        heroFormatted = download
+                        heroLabel = "Download"
+                        heroSecondary = null
+                        heroBps = speed.downloadSpeed
+                    }
+                }
 
                 _uiState.update { currentState ->
                     currentState.copy(
-                        downloadSpeed = downloadValue,
-                        downloadUnit = downloadUnit,
-                        uploadSpeed = uploadValue,
-                        uploadUnit = uploadUnit,
+                        heroSpeed = heroFormatted.value,
+                        heroUnit = heroFormatted.unit,
+                        heroLabel = heroLabel,
+                        heroSecondary = heroSecondary,
+                        downloadSpeed = download.value,
+                        downloadUnit = download.unit,
+                        uploadSpeed = upload.value,
+                        uploadUnit = upload.unit,
                         ping = speed.ping,
                         peakDownload = if (speed.downloadSpeed > currentState.peakDownloadValue) {
-                            val (peakValue, peakUnit) = NetworkUtils.formatSpeed(speed.downloadSpeed)
-                            "$peakValue $peakUnit"
+                            download.toString()
                         } else currentState.peakDownload,
                         peakUpload = if (speed.uploadSpeed > currentState.peakUploadValue) {
-                            val (peakValue, peakUnit) = NetworkUtils.formatSpeed(speed.uploadSpeed)
-                            "$peakValue $peakUnit"
+                            upload.toString()
                         } else currentState.peakUpload,
                         peakDownloadValue = maxOf(speed.downloadSpeed, currentState.peakDownloadValue),
                         peakUploadValue = maxOf(speed.uploadSpeed, currentState.peakUploadValue),
-                        sessionTime = NetworkUtils.formatTime(System.currentTimeMillis() / 1000 - currentState.sessionStartTime)
+                        sessionTime = NetworkUtils.formatTime(System.currentTimeMillis() / 1000 - currentState.sessionStartTime),
+                        recentDownload = (currentState.recentDownload +
+                                heroBps.toFloat()).takeLast(SPARKLINE_SAMPLES)
                     )
                 }
             }
@@ -90,58 +145,6 @@ class SpeedViewModel(
         }
     }
 
-    private fun startUsageTracking() {
-        viewModelScope.launch {
-            while (true) {
-                try {
-                    updateUsageData()
-                    delay(3000) // Update every 3 seconds
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    delay(5000)
-                }
-            }
-        }
-    }
-
-    private fun updateUsageData() {
-        val todayUsage = DataUsageCalculator.updateUsage(getApplication()) // Use getApplication()
-
-        // Calculate progress (5GB daily limit)
-        val dailyLimit = 5L * 1024 * 1024 * 1024 // 5GB
-        val wifiProgress = (todayUsage.wifiBytes.toFloat() / dailyLimit).coerceAtMost(1f)
-        val mobileProgress = (todayUsage.mobileBytes.toFloat() / dailyLimit).coerceAtMost(1f)
-        val totalProgress = (todayUsage.totalBytes.toFloat() / dailyLimit).coerceAtMost(1f)
-
-        _uiState.update { currentState ->
-            currentState.copy(
-                todayWifiUsage = formatBytes(todayUsage.wifiBytes),
-                todayMobileUsage = formatBytes(todayUsage.mobileBytes),
-                todayTotalUsage = formatBytes(todayUsage.totalBytes),
-                wifiProgress = wifiProgress,
-                mobileProgress = mobileProgress,
-                totalProgress = totalProgress
-            )
-        }
-
-        // Save usage data to database
-        val usageData = UsageData(
-            date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-            wifiUsage = todayUsage.wifiBytes,
-            mobileUsage = todayUsage.mobileBytes,
-            totalUsage = todayUsage.totalBytes,
-            sessionTime = System.currentTimeMillis() / 1000 - _uiState.value.sessionStartTime
-        )
-        viewModelScope.launch {
-            saveUsageDataUseCase.updateUsage(usageData)
-        }
-    }
-
-    fun resetTodayUsage() {
-        DataUsageCalculator.resetTodayTracking()
-        updateUsageData()
-    }
-
     fun resetPeakValues() {
         _uiState.update { currentState ->
             currentState.copy(
@@ -158,5 +161,10 @@ class SpeedViewModel(
         viewModelScope.launch {
             networkRepository.stopMonitoring()
         }
+    }
+
+    private companion object {
+        /** About a minute of history at the default one-second cadence. */
+        const val SPARKLINE_SAMPLES = 60
     }
 }

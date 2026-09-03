@@ -14,6 +14,7 @@ import com.sultonuzdev.netspeed.domain.models.NetworkSpeed
 import com.sultonuzdev.netspeed.domain.models.NetworkType
 import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
 import com.sultonuzdev.netspeed.utils.PingCalculator
+import com.sultonuzdev.netspeed.utils.SignalStrengthReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -69,7 +70,12 @@ class NetworkRepositoryImpl(
         scope.launch {
             while (isMonitoring) {
                 try {
-                    currentPing = PingCalculator.simplePing()
+                    // simplePing() relies on InetAddress.isReachable, which needs ICMP that
+                    // unprivileged apps cannot send; its TCP fallback targets port 7, which
+                    // almost nothing listens on. It reported "N/A" on most devices.
+                    currentPing = PingCalculator.tcpLatencyMillis()
+                        ?.let { "$it ms" }
+                        ?: "N/A"
                     delay(5000) // Update ping every 5 seconds
                 } catch (e: Exception) {
                     currentPing = "N/A"
@@ -115,22 +121,46 @@ class NetworkRepositoryImpl(
     }
 
     private suspend fun updateNetworkInfo() {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        val isWifi = isConnectedToWiFi()
-        val signalStrength = if (isWifi) getWiFiSignalStrength() else getMobileSignalStrength()
-        val networkName = getNetworkName()
+        val type = currentNetworkType()
+        val isWifi = type == NetworkType.WIFI
 
         val networkInfo = NetworkInfo(
-            isConnected = true,
-            networkName = networkName,
-            signalStrength = (signalStrength / 25).coerceAtMost(4), // Convert to 1-4 scale
-            networkType = if (isWifi) NetworkType.WIFI else NetworkType.NONE
-
+            isConnected = type != NetworkType.NONE,
+            networkName = if (type == NetworkType.NONE) "No Connection" else getNetworkName(),
+            // 0..4, matching the four bars the Speed screen draws.
+            signalStrength = if (type == NetworkType.NONE) {
+                0
+            } else {
+                SignalStrengthReader.level(context, isWifi) ?: 0
+            },
+            networkType = type
         )
 
         _networkInfo.emit(networkInfo)
+    }
+
+    /**
+     * The active transport.
+     *
+     * This previously read `if (isWifi) WIFI else NONE`, so a device on mobile data reported NONE
+     * and the Speed screen claimed there was no connection.
+     */
+    private fun currentNetworkType(): NetworkType {
+        return try {
+            val connectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+                    ?: return NetworkType.NONE
+
+            when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkType.WIFI
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> NetworkType.MOBILE
+                else -> NetworkType.NONE
+            }
+        } catch (e: Exception) {
+            NetworkType.NONE
+        }
     }
 
     private fun isConnectedToWiFi(): Boolean {
@@ -142,33 +172,6 @@ class NetworkRepositoryImpl(
             capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
         } catch (e: Exception) {
             false
-        }
-    }
-
-    private fun getWiFiSignalStrength(): Int {
-        return try {
-            val wifiManager =
-                context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val wifiInfo = wifiManager.connectionInfo
-            val rssi = wifiInfo.rssi
-
-            when {
-                rssi >= -50 -> 100
-                rssi >= -60 -> 75
-                rssi >= -70 -> 50
-                rssi >= -80 -> 25
-                else -> 10
-            }
-        } catch (e: Exception) {
-            50
-        }
-    }
-
-    private fun getMobileSignalStrength(): Int {
-        return try {
-            75 // Placeholder - implement based on your needs
-        } catch (e: Exception) {
-            50
         }
     }
 

@@ -1,128 +1,130 @@
 package com.sultonuzdev.netspeed.presentation.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+private data class NavDestination(
+    val icon: ImageVector,
+    val label: String
+)
+
+private val destinations = listOf(
+    NavDestination(Icons.Default.Speed, "Speed"),
+    NavDestination(Icons.Default.BarChart, "Usage"),
+    NavDestination(Icons.Default.History, "History"),
+    NavDestination(Icons.Default.Settings, "Settings")
+)
+
+/**
+ * Telegram-style bottom navigation.
+ *
+ * Flat and edge-to-edge, filled with the surface colour (white in light, near-black in dark), a
+ * hairline divider along the top, and each item a plain icon over a small label. Selection is
+ * shown purely by tinting both with the accent colour -- no filled pill or oval behind the icon,
+ * which is what Material's own NavigationBar would add.
+ */
 @Composable
 fun BottomNavigation(
     currentPage: Int,
     onPageSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.Transparent)
-            .shadow(1.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 0.dp
     ) {
-        BottomNavItem(
-            icon = Icons.Default.Speed,
-            label = "Speed",
-            isSelected = currentPage == 0,
-            onClick = { onPageSelected(0) }
-        )
-
-        BottomNavItem(
-            icon = Icons.Default.BarChart,
-            label = "Usage",
-            isSelected = currentPage == 1,
-            onClick = { onPageSelected(1) }
-        )
-
-        BottomNavItem(
-            icon = Icons.Default.Settings,
-            label = "Settings",
-            isSelected = currentPage == 2,
-            onClick = { onPageSelected(2) }
-        )
+        Column(modifier = Modifier.navigationBarsPadding()) {
+            HorizontalDivider(
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                destinations.forEachIndexed { index, destination ->
+                    NavItem(
+                        destination = destination,
+                        isSelected = currentPage == index,
+                        onClick = { onPageSelected(index) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun BottomNavItem(
-    icon: ImageVector,
-    label: String,
+private fun NavItem(
+    destination: NavDestination,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Fixed: Use proper theme-aware colors
-    val animatedIconColor by animateColorAsState(
+    val tint by animateColorAsState(
         targetValue = if (isSelected) {
             MaterialTheme.colorScheme.primary
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         },
-        animationSpec = tween(300),
-        label = "nav_icon_color"
-    )
-
-    val animatedTextColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        animationSpec = tween(300),
-        label = "nav_text_color"
-    )
-
-
-    val animatedScale by animateFloatAsState(
-        targetValue = if (isSelected) 1.05f else 1.0f,
-        animationSpec = tween(300),
-        label = "nav_scale"
+        animationSpec = tween(durationMillis = 200),
+        label = "nav_item_tint"
     )
 
     Column(
         modifier = modifier
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .scale(animatedScale),
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = animatedIconColor,
-            modifier = Modifier.size(20.dp)
+            imageVector = destination.icon,
+            contentDescription = destination.label,
+            tint = tint,
+            modifier = Modifier.size(24.dp)
         )
+        Spacer(modifier = Modifier.height(3.dp))
         Text(
-            text = label,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-            color = animatedTextColor,
-            fontSize = 12.sp,
-            letterSpacing = 0.3.sp
+            text = destination.label,
+            fontSize = 11.sp,
+            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+            color = tint,
+            maxLines = 1
         )
     }
 }

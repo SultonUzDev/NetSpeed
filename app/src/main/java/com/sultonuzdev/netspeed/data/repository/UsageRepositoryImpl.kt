@@ -101,6 +101,16 @@ class UsageRepositoryImpl (
         }
     }
 
+    override suspend fun addUsageDelta(
+        date: String,
+        wifiDelta: Long,
+        mobileDelta: Long,
+        sessionDelta: Long
+    ) {
+        if (wifiDelta <= 0L && mobileDelta <= 0L && sessionDelta <= 0L) return
+        usageDao.addUsageDelta(date, wifiDelta, mobileDelta, sessionDelta)
+    }
+
     override suspend fun getMonthlyTotal(monthYear: String): Long {
         return usageDao.getMonthlyUsage(monthYear) ?: 0L
     }

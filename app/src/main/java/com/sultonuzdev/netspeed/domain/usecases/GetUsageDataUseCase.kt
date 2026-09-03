@@ -3,6 +3,7 @@ package com.sultonuzdev.netspeed.domain.usecases
 import com.sultonuzdev.netspeed.domain.models.UsageData
 import com.sultonuzdev.netspeed.domain.repository.UsageRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -13,6 +14,18 @@ class GetUsageDataUseCase(private val repository: UsageRepository) {
         repository.getMonthlyUsage(monthYear)
 
     fun getWeeklyUsage(): Flow<List<UsageData>> = repository.getWeeklyUsage()
+
+    /** Sum of the stored rows between two "yyyy-MM-dd" keys, inclusive. Fallback for billing cycles. */
+    suspend fun getUsageInRange(startDate: String, endDate: String): UsageData {
+        val days = repository.getUsageByDateRange(startDate, endDate).first()
+        return UsageData(
+            date = startDate,
+            wifiUsage = days.sumOf { it.wifiUsage },
+            mobileUsage = days.sumOf { it.mobileUsage },
+            totalUsage = days.sumOf { it.totalUsage },
+            sessionTime = days.sumOf { it.sessionTime }
+        )
+    }
 
     suspend fun getMonthlyTotal(monthYear: String): Long =
         repository.getMonthlyTotal(monthYear)

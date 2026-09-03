@@ -101,4 +101,8 @@
     <string name="value_export">Export</string>
     <string name="value_1st">1st</string>
     <string name="value_1_second">1 second</string>
+    <string name="widget_placeholder_speed">--</string>
+    <string name="widget_placeholder_today">Today --</string>
+    <string name="widget_description">Live download and upload speed</string>
+    <string name="tile_label">Net Speed</string>
 </resources>
