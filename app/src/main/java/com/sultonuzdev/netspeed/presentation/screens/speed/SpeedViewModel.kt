@@ -6,9 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
 import com.sultonuzdev.netspeed.domain.usecases.GetNetworkSpeedUseCase
-import com.sultonuzdev.netspeed.utils.FormattedSpeed
 import com.sultonuzdev.netspeed.utils.NetworkUtils
-import com.sultonuzdev.netspeed.utils.SpeedDisplayMode
 import com.sultonuzdev.netspeed.utils.SpeedFormatter
 import com.sultonuzdev.netspeed.utils.SpeedUnit
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,11 +26,9 @@ class SpeedViewModel(
 
     /** Cached so the per-sample formatting below stays synchronous. */
     private var speedUnit = SpeedUnit.AUTO
-    private var displayMode = SpeedDisplayMode.DOWNLOAD
 
     init {
         observeSpeedUnit()
-        observeDisplayMode()
         startMonitoring()
         observeNetworkSpeed()
         observeNetworkInfo()
@@ -42,13 +38,6 @@ class SpeedViewModel(
     private fun observeSpeedUnit() {
         viewModelScope.launch {
             preferencesManager.speedUnit.collect { unit -> speedUnit = unit }
-        }
-    }
-
-    /** The circle answers to the same setting as the notification and the overlay. */
-    private fun observeDisplayMode() {
-        viewModelScope.launch {
-            preferencesManager.speedDisplayMode.collect { mode -> displayMode = mode }
         }
     }
 
@@ -63,67 +52,14 @@ class SpeedViewModel(
             getNetworkSpeedUseCase().collect { speed ->
                 val download = SpeedFormatter.format(speed.downloadSpeed, speedUnit)
                 val upload = SpeedFormatter.format(speed.uploadSpeed, speedUnit)
-                val combinedBps = speed.downloadSpeed + speed.uploadSpeed
-                val combined = SpeedFormatter.format(combinedBps, speedUnit)
-
-                // The circle, its caption, and the sparkline all follow the display mode, so the
-                // screen cannot claim "Download" while the status bar shows something else.
-                val heroFormatted: FormattedSpeed
-                val heroLabel: String
-                val heroSecondary: String?
-                val heroBps: Double
-                when (displayMode) {
-                    SpeedDisplayMode.UPLOAD -> {
-                        heroFormatted = upload
-                        heroLabel = "Upload"
-                        heroSecondary = null
-                        heroBps = speed.uploadSpeed
-                    }
-
-                    SpeedDisplayMode.COMBINED -> {
-                        heroFormatted = combined
-                        heroLabel = "Total"
-                        heroSecondary = null
-                        heroBps = combinedBps
-                    }
-
-                    SpeedDisplayMode.BOTH -> {
-                        heroFormatted = download
-                        heroLabel = "Download"
-                        heroSecondary = "\u2191 $upload"
-                        heroBps = speed.downloadSpeed
-                    }
-
-                    SpeedDisplayMode.DOWNLOAD -> {
-                        heroFormatted = download
-                        heroLabel = "Download"
-                        heroSecondary = null
-                        heroBps = speed.downloadSpeed
-                    }
-                }
-
                 _uiState.update { currentState ->
                     currentState.copy(
-                        heroSpeed = heroFormatted.value,
-                        heroUnit = heroFormatted.unit,
-                        heroLabel = heroLabel,
-                        heroSecondary = heroSecondary,
                         downloadSpeed = download.value,
                         downloadUnit = download.unit,
                         uploadSpeed = upload.value,
                         uploadUnit = upload.unit,
-                        ping = speed.ping,
-                        peakDownload = if (speed.downloadSpeed > currentState.peakDownloadValue) {
-                            download.toString()
-                        } else currentState.peakDownload,
-                        peakUpload = if (speed.uploadSpeed > currentState.peakUploadValue) {
-                            upload.toString()
-                        } else currentState.peakUpload,
-                        peakDownloadValue = maxOf(speed.downloadSpeed, currentState.peakDownloadValue),
-                        peakUploadValue = maxOf(speed.uploadSpeed, currentState.peakUploadValue),
-                        sessionTime = NetworkUtils.formatTime(System.currentTimeMillis() / 1000 - currentState.sessionStartTime),
                         recentDownload = (currentState.recentDownload +
-                                heroBps.toFloat()).takeLast(SPARKLINE_SAMPLES)
+                                speed.downloadSpeed.toFloat()).takeLast(SPARKLINE_SAMPLES)
                     )
                 }
             }
@@ -142,17 +78,6 @@ class SpeedViewModel(
                     )
                 }
             }
-        }
-    }
-
-    fun resetPeakValues() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                peakDownload = "0 B/s",
-                peakUpload = "0 B/s",
-                peakDownloadValue = 0.0,
-                peakUploadValue = 0.0
-            )
         }
     }
 

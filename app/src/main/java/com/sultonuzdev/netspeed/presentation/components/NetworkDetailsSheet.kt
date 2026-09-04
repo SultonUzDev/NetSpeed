@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sultonuzdev.netspeed.domain.models.NetworkDetails
 import kotlinx.coroutines.launch
@@ -98,7 +99,8 @@ fun NetworkDetailsSheet(
                                 text = detail.label,
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
@@ -107,7 +109,11 @@ fun NetworkDetailsSheet(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.End
+                                textAlign = TextAlign.End,
+                                // IPv6 addresses are long; two lines then ellipsis rather than a
+                                // row that grows to five.
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }

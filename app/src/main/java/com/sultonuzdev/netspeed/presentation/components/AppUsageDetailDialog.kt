@@ -21,6 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +47,26 @@ import com.sultonuzdev.netspeed.utils.NetworkUtils
 fun AppUsageDetailDialog(
     detail: AppUsageDetail,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** This app's cycle allowance, or null if it has none. */
+    limitBytes: Long? = null,
+    onSetLimit: (Long) -> Unit = {}
 ) {
     val context = LocalContext.current
+    var pickingLimit by remember { mutableStateOf(false) }
+
+    if (pickingLimit) {
+        SelectionDialog(
+            title = "Limit for ${detail.appLabel}",
+            options = APP_LIMIT_OPTIONS.map { if (it == 0L) "No limit" else NetworkUtils.formatBytes(it) },
+            selectedIndex = APP_LIMIT_OPTIONS.indexOf(limitBytes ?: 0L),
+            onOptionSelected = { index ->
+                onSetLimit(APP_LIMIT_OPTIONS[index])
+                pickingLimit = false
+            },
+            onDismiss = { pickingLimit = false }
+        )
+    }
 
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -102,7 +123,7 @@ fun AppUsageDetailDialog(
                 } else {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "This device does not report a foreground/background split.",
+                        text = "No foreground/background split on this device.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -113,6 +134,39 @@ fun AppUsageDetailDialog(
                     "Share of period",
                     "${(detail.shareOfPeriod * 100).toInt()}%"
                 )
+
+                // Only offered for real packages: a synthetic bucket like "Tethering" has no
+                // stable uid to hold an allowance against.
+                if (detail.isRealPackage) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Limit this cycle",
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        TextButton(onClick = { pickingLimit = true }) {
+                            Text(
+                                // Showing usage against the limit, not just the limit: the
+                                // number on its own says nothing about how close you are.
+                                text = limitBytes?.let { limit ->
+                                    "${NetworkUtils.formatBytes(detail.totalBytes)} / " +
+                                            NetworkUtils.formatBytes(limit)
+                                } ?: "Set limit",
+                                color = if (limitBytes != null && detail.totalBytes >= limitBytes) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.primary
+                                }
+                            )
+                        }
+                    }
+                }
 
                 if (detail.isRealPackage) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -166,6 +220,7 @@ private fun DetailRow(label: String, value: String, emphasise: Boolean = false) 
         )
         Text(
             text = value,
+            maxLines = 1,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (emphasise) FontWeight.Bold else FontWeight.Medium,
             color = if (emphasise) {
@@ -185,3 +240,15 @@ private fun openAppInfo(context: Context, packageName: String) {
     ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     runCatching { context.startActivity(intent) }
 }
+
+/** Round allowances people actually think in; zero clears the limit. */
+private val APP_LIMIT_OPTIONS = listOf(
+    0L,
+    100L * 1024 * 1024,
+    250L * 1024 * 1024,
+    500L * 1024 * 1024,
+    1L * 1024 * 1024 * 1024,
+    2L * 1024 * 1024 * 1024,
+    5L * 1024 * 1024 * 1024,
+    10L * 1024 * 1024 * 1024
+)

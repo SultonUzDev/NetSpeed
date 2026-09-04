@@ -201,6 +201,7 @@ private fun SummaryRow(label: String, value: String) {
         )
         Text(
             text = value,
+            maxLines = 1,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -235,8 +236,7 @@ private fun DailyBudgetBar(detail: DayUsageDetail) {
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             // The cap is monthly, so the meaningful per-day comparison is its daily share.
-            text = "Mobile against this day's share of the limit " +
-                    "(${NetworkUtils.formatBytes(detail.budgetBytes)})",
+            text = "Daily share of limit · ${NetworkUtils.formatBytes(detail.budgetBytes)}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

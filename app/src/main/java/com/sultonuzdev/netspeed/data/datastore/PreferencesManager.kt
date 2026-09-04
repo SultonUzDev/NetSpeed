@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.sultonuzdev.netspeed.utils.NotificationStyle
 import com.sultonuzdev.netspeed.utils.SpeedDisplayMode
@@ -24,7 +25,6 @@ class PreferencesManager(private val context: Context) {
         /** White; the overlay sits on arbitrary content, so a neutral default reads anywhere. */
         const val OVERLAY_DEFAULT_COLOR = 0xFFFFFFFF.toInt()
 
-        val SPEED_NOTIFICATION_ENABLED = booleanPreferencesKey("speed_notification_enabled")
         val UPDATE_FREQUENCY = intPreferencesKey("update_frequency")
         val NOTIFICATION_STYLE = stringPreferencesKey("notification_style")
         val MONITOR_WIFI = booleanPreferencesKey("monitor_wifi")
@@ -44,6 +44,17 @@ class PreferencesManager(private val context: Context) {
         val SPEED_DISPLAY_MODE = stringPreferencesKey("speed_display_mode")
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
 
+        // Alerts
+        val ROAMING_ALERT = booleanPreferencesKey("roaming_alert")
+        val BACKGROUND_DATA_ALERT = booleanPreferencesKey("background_data_alert")
+        val BACKGROUND_DATA_THRESHOLD = longPreferencesKey("background_data_threshold")
+        val ALERTED_ROAMING = booleanPreferencesKey("alerted_roaming")
+        /** "uid:bytes" entries; DataStore has no map type. */
+        val APP_LIMITS = stringSetPreferencesKey("app_limits")
+        /** Uids already warned about this cycle, prefixed with the cycle key. */
+        val ALERTED_APPS = stringSetPreferencesKey("alerted_apps")
+        val ALERTED_BACKGROUND = stringSetPreferencesKey("alerted_background")
+
         // Floating overlay
         val OVERLAY_ENABLED = booleanPreferencesKey("overlay_enabled")
         val OVERLAY_X = intPreferencesKey("overlay_x")
@@ -52,9 +63,6 @@ class PreferencesManager(private val context: Context) {
         val OVERLAY_COLOR = intPreferencesKey("overlay_color")
         val OVERLAY_OPACITY = intPreferencesKey("overlay_opacity")
     }
-
-    val speedNotificationEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences -> preferences[SPEED_NOTIFICATION_ENABLED] == true }
 
     val updateFrequency: Flow<Int> = context.dataStore.data
         .map { preferences -> preferences[UPDATE_FREQUENCY] ?: 1 }
@@ -92,6 +100,38 @@ class PreferencesManager(private val context: Context) {
 
     val darkTheme: Flow<Boolean> = context.dataStore.data
         .map { preferences -> preferences[DARK_THEME] != false }
+
+    /** Warn as soon as the device starts roaming. On by default: the cost is the point. */
+    val roamingAlert: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[ROAMING_ALERT] != false }
+
+    /** Whether roaming has already been announced for the current roaming session. */
+    val alertedRoaming: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[ALERTED_ROAMING] == true }
+
+    val backgroundDataAlert: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[BACKGROUND_DATA_ALERT] == true }
+
+    /** Background bytes in a day that warrant telling the user. Defaults to 200 MB. */
+    val backgroundDataThreshold: Flow<Long> = context.dataStore.data
+        .map { preferences -> preferences[BACKGROUND_DATA_THRESHOLD] ?: (200L * 1024 * 1024) }
+
+    /** Per-app cycle allowances, keyed by uid. */
+    val appLimits: Flow<Map<Int, Long>> = context.dataStore.data
+        .map { preferences ->
+            preferences[APP_LIMITS].orEmpty().mapNotNull { entry ->
+                val parts = entry.split(':')
+                val uid = parts.getOrNull(0)?.toIntOrNull()
+                val bytes = parts.getOrNull(1)?.toLongOrNull()
+                if (uid != null && bytes != null) uid to bytes else null
+            }.toMap()
+        }
+
+    val alertedApps: Flow<Set<String>> = context.dataStore.data
+        .map { preferences -> preferences[ALERTED_APPS].orEmpty() }
+
+    val alertedBackground: Flow<Set<String>> = context.dataStore.data
+        .map { preferences -> preferences[ALERTED_BACKGROUND].orEmpty() }
 
     val overlayEnabled: Flow<Boolean> = context.dataStore.data
         .map { preferences -> preferences[OVERLAY_ENABLED] == true }
@@ -159,12 +199,6 @@ class PreferencesManager(private val context: Context) {
     val alertLevel: Flow<Int> = context.dataStore.data
         .map { preferences -> preferences[ALERT_LEVEL] ?: 0 }
 
-    suspend fun updateSpeedNotificationEnabled(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[SPEED_NOTIFICATION_ENABLED] = enabled
-        }
-    }
-
     suspend fun updateUpdateFrequency(frequency: Int) {
         context.dataStore.edit { preferences ->
             preferences[UPDATE_FREQUENCY] = frequency
@@ -211,6 +245,41 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[DATA_LIMIT] = limit
         }
+    }
+
+    suspend fun updateRoamingAlert(enabled: Boolean) {
+        context.dataStore.edit { preferences -> preferences[ROAMING_ALERT] = enabled }
+    }
+
+    suspend fun updateAlertedRoaming(alerted: Boolean) {
+        context.dataStore.edit { preferences -> preferences[ALERTED_ROAMING] = alerted }
+    }
+
+    suspend fun updateBackgroundDataAlert(enabled: Boolean) {
+        context.dataStore.edit { preferences -> preferences[BACKGROUND_DATA_ALERT] = enabled }
+    }
+
+    suspend fun updateBackgroundDataThreshold(bytes: Long) {
+        context.dataStore.edit { preferences -> preferences[BACKGROUND_DATA_THRESHOLD] = bytes }
+    }
+
+    /** Sets or clears one app's allowance; zero removes it. */
+    suspend fun updateAppLimit(uid: Int, bytes: Long) {
+        context.dataStore.edit { preferences ->
+            val current = preferences[APP_LIMITS].orEmpty()
+                .filterNot { it.startsWith("$uid:") }
+                .toMutableSet()
+            if (bytes > 0L) current += "$uid:$bytes"
+            preferences[APP_LIMITS] = current
+        }
+    }
+
+    suspend fun updateAlertedApps(entries: Set<String>) {
+        context.dataStore.edit { preferences -> preferences[ALERTED_APPS] = entries }
+    }
+
+    suspend fun updateAlertedBackground(entries: Set<String>) {
+        context.dataStore.edit { preferences -> preferences[ALERTED_BACKGROUND] = entries }
     }
 
     suspend fun updateOverlayEnabled(enabled: Boolean) {

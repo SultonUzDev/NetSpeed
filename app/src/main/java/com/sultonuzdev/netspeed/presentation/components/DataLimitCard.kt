@@ -23,10 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sultonuzdev.netspeed.domain.models.DataLimitLevel
 import com.sultonuzdev.netspeed.domain.models.DataLimitStatus
+import com.sultonuzdev.netspeed.domain.models.UsageForecast
 import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
 import com.sultonuzdev.netspeed.utils.NetworkUtils
 
@@ -37,7 +39,9 @@ import com.sultonuzdev.netspeed.utils.NetworkUtils
 @Composable
 fun DataLimitCard(
     status: DataLimitStatus,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Projection for the rest of the cycle; omitted when there is not enough of one yet. */
+    forecast: UsageForecast? = null
 ) {
     val barColor: Color = when (status.level) {
         DataLimitLevel.REACHED -> MaterialTheme.colorScheme.error
@@ -98,6 +102,8 @@ fun DataLimitCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            forecast?.let { ForecastLine(it) }
+
             Text(
                 text = when (status.level) {
                     DataLimitLevel.REACHED ->
@@ -110,8 +116,49 @@ fun DataLimitCard(
                                 "${NetworkUtils.formatBytes(status.remainingBytes)} left"
                 },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                // One line: the forecast is a glanceable summary, not a paragraph.
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+/**
+ * The projection, in the terms people actually think in: a total, and how far off the cap it is.
+ *
+ * Phrased as "at this rate" because that is exactly what the arithmetic supports -- a linear
+ * extrapolation of the cycle so far, not a prediction.
+ */
+@Composable
+private fun ForecastLine(forecast: UsageForecast) {
+    // Kept to one line. The earlier phrasing ran to ~80 characters and wrapped to three lines
+    // inside a status card, which buries the number it exists to deliver.
+    val projected = NetworkUtils.formatBytes(forecast.projectedBytes)
+    val text = when {
+        forecast.willExceed && forecast.daysUntilLimit != null -> {
+            val days = forecast.daysUntilLimit
+            val whenText = if (days <= 1) "tomorrow" else "in ${days}d"
+            "Heading for $projected · over $whenText"
+        }
+
+        forecast.willExceed ->
+            "Heading for $projected · ${NetworkUtils.formatBytes(forecast.overageBytes)} over"
+
+        else -> "Heading for $projected · within limit"
+    }
+
+    Column {
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (forecast.willExceed) {
+                MaterialTheme.netSpeedColors.warning
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+        )
     }
 }

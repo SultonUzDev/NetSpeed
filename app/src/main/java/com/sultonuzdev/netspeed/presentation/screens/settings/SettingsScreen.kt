@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,8 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.SelectionDialog
 import com.sultonuzdev.netspeed.presentation.components.SettingItem
+import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
+import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
+import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
+import com.sultonuzdev.netspeed.utils.AutoStartHelper
+import com.sultonuzdev.netspeed.utils.NetworkUtils
 import com.sultonuzdev.netspeed.utils.OverlayPermissionHelper
 import com.sultonuzdev.netspeed.presentation.theme.supportsDynamicColor
 import org.koin.androidx.compose.koinViewModel
@@ -40,6 +47,8 @@ fun SettingsScreen(
     val showLimitDialog by viewModel.showLimitDialog.collectAsStateWithLifecycle()
     val showThresholdDialog by viewModel.showThresholdDialog.collectAsStateWithLifecycle()
     val showDisplayModeDialog by viewModel.showDisplayModeDialog.collectAsStateWithLifecycle()
+    val showBackgroundThresholdDialog by
+        viewModel.showBackgroundThresholdDialog.collectAsStateWithLifecycle()
     val showOverlaySizeDialog by viewModel.showOverlaySizeDialog.collectAsStateWithLifecycle()
     val showOverlayColorDialog by viewModel.showOverlayColorDialog.collectAsStateWithLifecycle()
     val showOverlayOpacityDialog by viewModel.showOverlayOpacityDialog.collectAsStateWithLifecycle()
@@ -49,17 +58,22 @@ fun SettingsScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            // See SpeedScreen: the Scaffold's content padding already clears the bottom bar.
-            .padding(bottom = 24.dp)
+            .navigationBarsPadding()
+            // See SpeedScreen: the floating bar overlays content, so clear its height here.
+            .padding(bottom = BottomNavigationHeight + 16.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             // Notification Section
             SettingsSection(title = "NOTIFICATION") {
                 SettingItem(
-                    label = "Show speed in notification bar",
+                    label = "Monitor network speed",
                     isToggle = true,
-                    isEnabled = uiState.speedNotificationEnabled,
-                    onToggleChange = { viewModel.updateSpeedNotification(it) }
+                    isEnabled = uiState.monitoringEnabled,
+                    // The service writes the preference back, so the switch reflects what is
+                    // actually running rather than a wish stored beside it.
+                    onToggleChange = { wantsMonitoring ->
+                        setMonitoring(context, wantsMonitoring)
+                    }
                 )
 
                 SettingItem(
@@ -162,7 +176,9 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Data & Privacy Section
-            SettingsSection(title = "DATA & PRIVACY") {
+            // Split from the alerts below: the cycle day and the cap describe your plan, while
+            // the switches under ALERTS decide what the app says about it.
+            SettingsSection(title = "DATA LIMIT") {
                 SettingItem(
                     label = "Billing cycle starts on",
                     value = uiState.monthlyResetDate,
@@ -170,23 +186,76 @@ fun SettingsScreen(
                 )
 
                 SettingItem(
+                    label = "Mobile data limit",
+                    value = uiState.dataLimit,
+                    onValueClick = { viewModel.showLimitDialog() }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SettingsSection(title = "ALERTS") {
+                SettingItem(
                     label = "Warn before data limit",
                     isToggle = true,
                     isEnabled = uiState.dataLimitAlert,
                     onToggleChange = { viewModel.updateDataLimitAlert(it) }
                 )
 
+                // Only meaningful while the warning above is on; shown as a dead row otherwise,
+                // it invites the user to configure something that will never fire.
+                if (uiState.dataLimitAlert) {
+                    SettingItem(
+                        label = "Warn at",
+                        value = uiState.warningThreshold,
+                        onValueClick = { viewModel.showThresholdDialog() }
+                    )
+                }
+
                 SettingItem(
-                    label = "Mobile data limit",
-                    value = uiState.dataLimit,
-                    onValueClick = { viewModel.showLimitDialog() }
+                    label = "Warn when roaming",
+                    isToggle = true,
+                    isEnabled = uiState.roamingAlert,
+                    onToggleChange = { viewModel.updateRoamingAlert(it) }
                 )
 
                 SettingItem(
-                    label = "Warn at",
-                    value = uiState.warningThreshold,
-                    onValueClick = { viewModel.showThresholdDialog() }
+                    label = "Warn about background data",
+                    isToggle = true,
+                    isEnabled = uiState.backgroundDataAlert,
+                    onToggleChange = { viewModel.updateBackgroundDataAlert(it) }
                 )
+
+                if (uiState.backgroundDataAlert) {
+                    SettingItem(
+                        label = "Warn above",
+                        value = uiState.backgroundDataThreshold,
+                        onValueClick = { viewModel.showBackgroundThresholdDialog() }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Offered only where such a screen exists and resolves; on a Pixel there is
+            // nothing to link to and the row would be a dead end.
+            if (AutoStartHelper.hasAutoStartSettings(context)) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                SettingsSection(title = "DEVICE") {
+                    // Says what tapping does and why it matters. "Allow autostart / Open" read
+                    // like a setting whose current value was the word "Open".
+                    SettingItem(
+                        label = "Allow autostart",
+                        description = "This device may stop background apps",
+                        value = "Settings",
+                        onValueClick = {
+                            AutoStartHelper.resolveIntent(context)?.let { intent ->
+                                runCatching { context.startActivity(intent) }
+                            }
+                        }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -266,6 +335,21 @@ fun SettingsScreen(
                 viewModel.updateSpeedDisplayMode(viewModel.displayModeOptions[index])
             },
             onDismiss = { viewModel.hideDisplayModeDialog() }
+        )
+    }
+
+    if (showBackgroundThresholdDialog) {
+        SelectionDialog(
+            title = "Background data threshold",
+            options = viewModel.backgroundThresholdOptions.map { NetworkUtils.formatBytes(it) },
+            selectedIndex = viewModel.backgroundThresholdOptions
+                .indexOf(uiState.backgroundDataThresholdBytes),
+            onOptionSelected = { index ->
+                viewModel.updateBackgroundDataThreshold(
+                    viewModel.backgroundThresholdOptions[index]
+                )
+            },
+            onDismiss = { viewModel.hideBackgroundThresholdDialog() }
         )
     }
 
@@ -389,4 +473,12 @@ private fun openOverlaySettings(context: android.content.Context) {
     if (!launch(OverlayPermissionHelper.settingsIntent(context))) {
         launch(OverlayPermissionHelper.settingsFallbackIntent())
     }
+}
+
+/** Starts or stops the monitoring service; it persists the resulting state itself. */
+private fun setMonitoring(context: android.content.Context, enabled: Boolean) {
+    val intent = android.content.Intent(context, SpeedMonitorService::class.java).apply {
+        action = if (enabled) ACTION_START_MONITORING else ACTION_STOP_MONITORING
+    }
+    runCatching { androidx.core.content.ContextCompat.startForegroundService(context, intent) }
 }

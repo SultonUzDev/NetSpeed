@@ -6,6 +6,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -38,7 +40,6 @@ import com.sultonuzdev.netspeed.presentation.components.BottomNavigation
 import com.sultonuzdev.netspeed.presentation.screens.history.HistoryScreen
 import com.sultonuzdev.netspeed.presentation.screens.settings.SettingsScreen
 import com.sultonuzdev.netspeed.presentation.screens.speed.SpeedScreen
-import com.sultonuzdev.netspeed.presentation.screens.speedtest.SpeedTestScreen
 import com.sultonuzdev.netspeed.presentation.screens.usage.UsageScreen
 import com.sultonuzdev.netspeed.presentation.theme.*
 import com.sultonuzdev.netspeed.utils.BatteryOptimizationHelper
@@ -131,6 +132,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startSpeedMonitorService() {
+        lifecycleScope.launch {
+            if (mainViewModel.shouldAutoStartMonitoring()) startMonitoringService()
+        }
+    }
+
+    private fun startMonitoringService() {
         val intent = Intent(this, SpeedMonitorService::class.java).apply {
             action = ACTION_START_MONITORING
         }
@@ -152,20 +159,9 @@ fun NetSpeedApp(
         MaterialTheme.colorScheme.surface
     )
 
-    // The speed test is a mode of the Speed tab rather than a fifth tab: it is something you
-    // start and finish, not a place you browse. Saveable so a rotation does not drop you out of
-    // a running test.
-    var showSpeedTest by rememberSaveable { mutableStateOf(false) }
-
-    // Nothing was intercepting back, so the system default applied and the Activity finished --
-    // pressing back inside the speed test dropped the user out of the app entirely.
-    BackHandler(enabled = showSpeedTest) {
-        showSpeedTest = false
-    }
-
-    // From any tab other than the first, back returns to it rather than leaving the app. The two
-    // handlers are mutually exclusive, so their registration order does not matter.
-    BackHandler(enabled = !showSpeedTest && currentPage != 0) {
+    // From any tab other than the first, back returns to it rather than leaving the app.
+    // Without a handler the system default applies and the Activity simply finishes.
+    BackHandler(enabled = currentPage != 0) {
         onPageSelected(0)
     }
 
@@ -188,29 +184,18 @@ fun NetSpeedApp(
                 .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
         ) {
             when (currentPage) {
-                0 -> if (showSpeedTest) {
-                    SpeedTestScreen(onBack = { showSpeedTest = false })
-                } else {
-                    SpeedScreen(onRunSpeedTest = { showSpeedTest = true })
-                }
-
+                0 -> SpeedScreen()
                 1 -> UsageScreen()
                 2 -> HistoryScreen()
                 3 -> SettingsScreen()
             }
 
 
-            Box(modifier = Modifier.align(Alignment.BottomCenter)){
-                // The speed test is a full-screen mode with its own back button; the nav bar both
-                // covered its content and invited switching tabs mid-test.
-                if (!showSpeedTest) {
-                    // NavigationBar applies the navigation-bar inset itself, so adding it here too
-                    // would pad the bar down by the gesture bar's height twice.
-                    BottomNavigation(
-                        currentPage = currentPage,
-                        onPageSelected = onPageSelected
-                    )
-                }
+            Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                BottomNavigation(
+                    currentPage = currentPage,
+                    onPageSelected = onPageSelected
+                )
             }
         }
     }

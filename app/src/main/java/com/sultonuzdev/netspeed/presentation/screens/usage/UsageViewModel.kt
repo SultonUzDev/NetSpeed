@@ -11,6 +11,7 @@ import com.sultonuzdev.netspeed.domain.models.UsageData
 import com.sultonuzdev.netspeed.domain.usecases.CheckDataLimitUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetAccurateUsageUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetAppUsageUseCase
+import com.sultonuzdev.netspeed.domain.usecases.GetUsageForecastUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetUsageDataUseCase
 import com.sultonuzdev.netspeed.presentation.components.UsageBar
 import com.sultonuzdev.netspeed.utils.NetworkUtils
@@ -33,6 +34,7 @@ class UsageViewModel(
     private val getAccurateUsageUseCase: GetAccurateUsageUseCase,
     private val getAppUsageUseCase: GetAppUsageUseCase,
     private val checkDataLimitUseCase: CheckDataLimitUseCase,
+    private val getUsageForecastUseCase: GetUsageForecastUseCase,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
@@ -75,6 +77,7 @@ class UsageViewModel(
             // per-app list wait behind it on every entry.
             loadAppUsage()
             loadDataLimitStatus()
+            loadForecast()
             observeTodayUsage()
             loadCycleTotals(hasAccess)
             loadDailyHistory(hasAccess)
@@ -243,6 +246,28 @@ class UsageViewModel(
             }
             _uiState.update {
                 it.copy(dataLimitStatus = status, dataLimitAlertEnabled = enabled)
+            }
+        }
+    }
+
+    /** Projection for the cap card; recomputed on refresh rather than polled. */
+    private fun loadForecast() {
+        viewModelScope.launch {
+            val forecast = runCatching { getUsageForecastUseCase() }.getOrNull()
+            val limits = runCatching { preferencesManager.appLimits.first() }
+                .getOrDefault(emptyMap())
+            _uiState.update { it.copy(forecast = forecast, appLimits = limits) }
+        }
+    }
+
+    /** Sets or clears one app's cycle allowance; zero removes it. */
+    fun setAppLimit(uid: Int, bytes: Long) {
+        viewModelScope.launch {
+            preferencesManager.updateAppLimit(uid, bytes)
+            _uiState.update { state ->
+                val limits = state.appLimits.toMutableMap()
+                if (bytes > 0L) limits[uid] = bytes else limits.remove(uid)
+                state.copy(appLimits = limits)
             }
         }
     }

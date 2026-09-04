@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -37,6 +38,22 @@ class MainViewModel(
 
     fun setCurrentPage(page: Int) {
         _currentPage.value = page
+    }
+
+    /**
+     * Whether opening the app should start monitoring.
+     *
+     * True on a fresh install so the app works without being switched on, and thereafter only if
+     * monitoring was left running -- otherwise turning it off in Settings would silently undo
+     * itself the next time the app was opened.
+     */
+    suspend fun shouldAutoStartMonitoring(): Boolean {
+        val firstLaunch = preferencesManager.isFirstLaunch.first()
+        if (firstLaunch) {
+            preferencesManager.updateFirstLaunch(false)
+            return true
+        }
+        return preferencesManager.monitoringEnabled.first()
     }
 
     fun completeFirstLaunch() {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.presentation.components.AppUsageDetailDialog
+import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.AppUsageListItem
 import com.sultonuzdev.netspeed.presentation.components.DataLimitCard
 import com.sultonuzdev.netspeed.presentation.components.StatCard
@@ -61,19 +63,25 @@ fun UsageScreen(
     }
 
     uiState.selectedApp?.let { detail ->
-        AppUsageDetailDialog(detail = detail, onDismiss = viewModel::clearSelectedApp)
+        AppUsageDetailDialog(
+            detail = detail,
+            onDismiss = viewModel::clearSelectedApp,
+            limitBytes = uiState.appLimits[detail.uid],
+            onSetLimit = { bytes -> viewModel.setAppLimit(detail.uid, bytes) }
+        )
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .navigationBarsPadding()
+            // Leaves room for the floating bar, which overlays rather than displaces content.
+            .padding(bottom = BottomNavigationHeight)
     ) {
-        UsageHeader(isAccurate = uiState.isUsageAccurate)
-
         uiState.dataLimitStatus
             ?.takeIf { it.limitBytes > 0L }
-            ?.let { DataLimitCard(status = it) }
+            ?.let { DataLimitCard(status = it, forecast = uiState.forecast) }
 
         TodayTotals(uiState = uiState)
 
@@ -90,44 +98,32 @@ fun UsageScreen(
 }
 
 @Composable
-private fun UsageHeader(isAccurate: Boolean) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // The bottom bar already names this destination; only the accuracy note earns space.
-            Text(
-                text = if (isAccurate) {
-                    "Matching Android's own measurements"
-                } else {
-                    "Estimated — turn on usage access for exact figures"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
 private fun TodayTotals(uiState: UsageUiState) {
     Column {
         // "Today" said once as a heading, rather than repeated inside all three card labels
-        // where it crowded out the part that actually differs.
-        Text(
-            text = "Today",
-            modifier = Modifier.padding(start = 12.dp, top = 4.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        // where it crowded out the part that actually differs. The accuracy note sits opposite
+        // it: it qualifies these figures, and floating alone at the top of the screen it read as
+        // a caption belonging to nothing.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp, top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Today",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = if (uiState.isUsageAccurate) "Exact" else "Estimated",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()

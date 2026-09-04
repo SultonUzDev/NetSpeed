@@ -42,6 +42,10 @@ class SettingsViewModel(
     private val _showDisplayModeDialog = MutableStateFlow(false)
     val showDisplayModeDialog: StateFlow<Boolean> = _showDisplayModeDialog.asStateFlow()
 
+    private val _showBackgroundThresholdDialog = MutableStateFlow(false)
+    val showBackgroundThresholdDialog: StateFlow<Boolean> =
+        _showBackgroundThresholdDialog.asStateFlow()
+
     private val _showOverlaySizeDialog = MutableStateFlow(false)
     val showOverlaySizeDialog: StateFlow<Boolean> = _showOverlaySizeDialog.asStateFlow()
 
@@ -56,6 +60,15 @@ class SettingsViewModel(
     val styleOptions = listOf(NotificationStyle.COMPACT, NotificationStyle.DETAILED)
     val unitsOptions = SpeedUnit.entries
     val displayModeOptions = SpeedDisplayMode.entries
+
+    /** Background bytes per day that warrant a warning. */
+    val backgroundThresholdOptions = listOf(
+        50L * 1024 * 1024,
+        100L * 1024 * 1024,
+        200L * 1024 * 1024,
+        500L * 1024 * 1024,
+        1024L * 1024 * 1024
+    )
 
     val overlaySizeOptions = listOf(10, 12, 14, 16, 18, 22)
     val overlayOpacityOptions = listOf(0, 25, 40, 55, 70, 85, 100)
@@ -84,7 +97,7 @@ class SettingsViewModel(
     private fun observeSettings() {
         viewModelScope.launch {
             val base = combine(
-                preferencesManager.speedNotificationEnabled,
+                preferencesManager.monitoringEnabled,
                 preferencesManager.updateFrequency,
                 preferencesManager.notificationStyle,
                 preferencesManager.monitorWifi,
@@ -96,7 +109,7 @@ class SettingsViewModel(
                 preferencesManager.speedUnits
             ) { values ->
                 SettingsUiState(
-                    speedNotificationEnabled = values[0] as Boolean,
+                    monitoringEnabled = values[0] as Boolean,
                     updateFrequency = formatFrequencyText(values[1] as Int),
                     notificationStyle = values[2] as NotificationStyle,
                     monitorWifi = values[3] as Boolean,
@@ -133,8 +146,22 @@ class SettingsViewModel(
                     state.copy(dynamicColor = dynamicColor)
                 }
 
-            combine(
+            val withAlerts = combine(
                 withAppearance,
+                preferencesManager.roamingAlert,
+                preferencesManager.backgroundDataAlert,
+                preferencesManager.backgroundDataThreshold
+            ) { state, roaming, backgroundAlert, threshold ->
+                state.copy(
+                    roamingAlert = roaming,
+                    backgroundDataAlert = backgroundAlert,
+                    backgroundDataThreshold = NetworkUtils.formatBytes(threshold),
+                    backgroundDataThresholdBytes = threshold
+                )
+            }
+
+            combine(
+                withAlerts,
                 preferencesManager.overlayEnabled,
                 preferencesManager.overlayTextSize,
                 preferencesManager.overlayColor,
@@ -212,12 +239,6 @@ class SettingsViewModel(
     }
 
     // Update functions
-    fun updateSpeedNotification(enabled: Boolean) {
-        viewModelScope.launch {
-            preferencesManager.updateSpeedNotificationEnabled(enabled)
-        }
-    }
-
     fun updateMonitorWifi(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.updateMonitorWifi(enabled)
@@ -284,6 +305,29 @@ class SettingsViewModel(
 
     fun hideOverlayOpacityDialog() {
         _showOverlayOpacityDialog.value = false
+    }
+
+    fun showBackgroundThresholdDialog() {
+        _showBackgroundThresholdDialog.value = true
+    }
+
+    fun hideBackgroundThresholdDialog() {
+        _showBackgroundThresholdDialog.value = false
+    }
+
+    fun updateRoamingAlert(enabled: Boolean) {
+        viewModelScope.launch { preferencesManager.updateRoamingAlert(enabled) }
+    }
+
+    fun updateBackgroundDataAlert(enabled: Boolean) {
+        viewModelScope.launch { preferencesManager.updateBackgroundDataAlert(enabled) }
+    }
+
+    fun updateBackgroundDataThreshold(bytes: Long) {
+        viewModelScope.launch {
+            preferencesManager.updateBackgroundDataThreshold(bytes)
+            hideBackgroundThresholdDialog()
+        }
     }
 
     fun updateOverlayEnabled(enabled: Boolean) {

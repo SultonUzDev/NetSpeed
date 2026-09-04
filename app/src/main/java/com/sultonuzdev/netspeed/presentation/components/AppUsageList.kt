@@ -210,8 +210,8 @@ fun UsageAccessCard(
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Text(
-                text = "Needed to show which apps used your data, and to make daily totals match " +
-                        "the figures in Android Settings. Nothing leaves your device.",
+                text = "Shows which apps use your data, and makes totals match Android " +
+                        "Settings. Nothing leaves your device.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )

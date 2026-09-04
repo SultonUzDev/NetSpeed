@@ -78,6 +78,19 @@
                 android:resource="@xml/widget_speed_info" />
         </receiver>
 
+        <!-- Data-usage widget: what the speed widget cannot show, since speed is already
+             permanently in the status bar. -->
+        <receiver
+            android:name=".data.widget.UsageWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_usage_info" />
+        </receiver>
+
         <!-- Quick Settings tile toggling monitoring. -->
         <service
             android:name=".data.tile.SpeedTileService"

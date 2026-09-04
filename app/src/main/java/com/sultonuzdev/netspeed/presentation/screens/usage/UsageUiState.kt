@@ -4,6 +4,7 @@ import com.sultonuzdev.netspeed.domain.models.DailyUsageData
 import com.sultonuzdev.netspeed.domain.models.AppUsageDetail
 import com.sultonuzdev.netspeed.domain.models.DataLimitStatus
 import com.sultonuzdev.netspeed.domain.models.DayUsageDetail
+import com.sultonuzdev.netspeed.domain.models.UsageForecast
 import com.sultonuzdev.netspeed.presentation.components.UsageBar
 
 /** Window the per-app breakdown covers. */
@@ -45,6 +46,10 @@ data class UsageUiState(
     /** Mobile usage measured against the cap; null while unknown. */
     val dataLimitStatus: DataLimitStatus? = null,
     val dataLimitAlertEnabled: Boolean = false,
+    /** Where the cycle is heading at the current rate; null when no limit is set. */
+    val forecast: UsageForecast? = null,
+    /** Per-app cycle allowances by uid, for the app detail dialog. */
+    val appLimits: Map<Int, Long> = emptyMap(),
 
     val appUsagePeriod: AppUsagePeriod = AppUsagePeriod.TODAY,
     val appUsage: List<AppUsageRow> = emptyList(),

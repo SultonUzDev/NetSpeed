@@ -16,7 +16,13 @@ object Constants {
     // Data-cap alerts get their own channel: the monitor notification is silent and ongoing,
     // while an alert is a one-off the user is meant to notice and dismiss.
     const val ALERT_CHANNEL_ID = "data_limit_alert_channel"
+
+    // Distinct ids so one alert never replaces another: a roaming warning and a cap warning are
+    // about different things and may both be relevant at once.
     const val ALERT_NOTIFICATION_ID = 1002
+    const val ROAMING_NOTIFICATION_ID = 1003
+    const val BACKGROUND_DATA_NOTIFICATION_ID = 1004
+    const val APP_LIMIT_NOTIFICATION_ID = 1005
     const val ACTION_START_MONITORING = "START_MONITORING"
     const val ACTION_STOP_MONITORING = "STOP_MONITORING"
 

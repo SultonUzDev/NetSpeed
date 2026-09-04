@@ -13,15 +13,12 @@ enum class SpeedTestPhase {
 /**
  * One completed test.
  *
- * Speeds are stored in bytes/sec so they can be re-formatted into whichever unit the user prefers
- * later; latency is in milliseconds.
+ * Speeds are in bytes/sec so they can be formatted into whichever unit the user prefers; latency
+ * is in milliseconds. Not persisted -- a result is only meaningful when it is taken.
  */
 data class SpeedTestResult(
-    val id: Long = 0L,
     val downloadBytesPerSecond: Double = 0.0,
     val uploadBytesPerSecond: Double = 0.0,
     val pingMillis: Int = 0,
-    val jitterMillis: Int = 0,
-    val timestamp: Long = System.currentTimeMillis(),
-    val networkType: String = "Unknown"
+    val jitterMillis: Int = 0
 )

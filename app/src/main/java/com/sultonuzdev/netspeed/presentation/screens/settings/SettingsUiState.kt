@@ -5,7 +5,9 @@ import com.sultonuzdev.netspeed.utils.SpeedDisplayMode
 import com.sultonuzdev.netspeed.utils.SpeedUnit
 
 data class SettingsUiState(
-    val speedNotificationEnabled: Boolean = true,
+    /** Whether the monitoring service is running. A foreground service cannot exist without
+     *  its notification, so this switch is the monitoring master, not a notification toggle. */
+    val monitoringEnabled: Boolean = false,
     val updateFrequency: String = "1 second",
     val notificationStyle: NotificationStyle = NotificationStyle.DETAILED,
     val monitorWifi: Boolean = true,
@@ -18,6 +20,10 @@ data class SettingsUiState(
     val dataLimitBytes: Long = 25L * 1024 * 1024 * 1024,
     val warningThreshold: String = "80%",
     val warningThresholdPercent: Int = 80,
+    val roamingAlert: Boolean = true,
+    val backgroundDataAlert: Boolean = false,
+    val backgroundDataThreshold: String = "200.0 MB",
+    val backgroundDataThresholdBytes: Long = 200L * 1024 * 1024,
     val darkTheme: Boolean = true,
     val dynamicColor: Boolean = true,
     val overlayEnabled: Boolean = false,

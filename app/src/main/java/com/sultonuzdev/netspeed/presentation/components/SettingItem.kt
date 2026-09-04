@@ -1,22 +1,19 @@
 package com.sultonuzdev.netspeed.presentation.components
 
 import android.content.res.Configuration
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateOffsetAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,7 +53,11 @@ fun SettingItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            // A uniform row height. A Material Switch carries its own 48dp touch target while a
+            // value chip does not, so equal padding produced toggle rows half again as tall as
+            // the rest and a visibly uneven list.
+            .heightIn(min = 60.dp)
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -74,6 +75,9 @@ fun SettingItem(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    // A description is a hint, not a paragraph; two lines is the budget.
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -116,53 +120,18 @@ private fun ToggleSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Theme-aware colors for the toggle switch
-    // Track and thumb follow Material's switch pairing. The thumb used to be onSurface, which
-    // is near-black in light mode -- a dark thumb on the dark-blue "on" track, effectively
-    // invisible. It only looked right in dark mode, where onSurface happens to be white.
-    val backgroundColor by animateColorAsState(
-        targetValue = if (checked) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        },
-        animationSpec = tween(300),
-        label = "backgroundColor"
-    )
-
-    val thumbColor by animateColorAsState(
-        targetValue = if (checked) {
-            MaterialTheme.colorScheme.onPrimary
-        } else {
-            MaterialTheme.colorScheme.outline
-        },
-        animationSpec = tween(300),
-        label = "thumbColor"
-    )
-
-
-
-    val thumbOffset by animateOffsetAsState(
-        targetValue = if (checked) Offset(24f, 0f) else Offset(0f, 0f),
-        animationSpec = tween(300),
-        label = "thumbOffset"
-    )
-
-    Box(
+    // Material's own Switch rather than a hand-drawn one. The custom version had two faults:
+    //
+    //  - Off, its track was surfaceVariant with no border, which is all but the same colour as
+    //    the Settings background in both themes, so a switch that was off simply vanished. The
+    //    real Switch draws an outline border on the unchecked track for exactly this reason.
+    //  - Its thumb animated 24dp inside a 46dp usable track, overshooting the right edge by 2dp.
+    //
+    // It also brings the 48dp touch target, state semantics for accessibility, and the thumb
+    // resize on press.
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
         modifier = modifier
-            .size(width = 50.dp, height = 28.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(backgroundColor)
-            .clickable { onCheckedChange(!checked) }
-            .padding(2.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .offset(thumbOffset.x.dp, thumbOffset.y.dp)
-                .clip(CircleShape)
-                .background(thumbColor)
-        )
-    }
+    )
 }

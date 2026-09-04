@@ -11,7 +11,7 @@ import org.koin.dsl.module
 val appModule = module {
     viewModel { MainViewModel(get()) }
     viewModel { SpeedViewModel(get(), get(), get()) }
-    viewModel { UsageViewModel(get(), get(), get(), get(), get()) }
+    viewModel { UsageViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get()) }
     viewModel { SpeedTestViewModel(get(), get()) }
 }

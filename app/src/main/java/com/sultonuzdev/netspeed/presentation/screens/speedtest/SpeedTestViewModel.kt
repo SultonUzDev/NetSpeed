@@ -34,21 +34,12 @@ class SpeedTestViewModel(
 
     init {
         observeUnit()
-        observeHistory()
     }
 
     private fun observeUnit() {
         viewModelScope.launch {
             preferencesManager.speedUnit.collect { unit ->
                 reportingUnit = if (unit == SpeedUnit.AUTO) SpeedUnit.MBPS else unit
-            }
-        }
-    }
-
-    private fun observeHistory() {
-        viewModelScope.launch {
-            runSpeedTestUseCase.history().collect { results ->
-                _uiState.update { it.copy(history = results) }
             }
         }
     }
@@ -139,14 +130,6 @@ class SpeedTestViewModel(
         testJob = null
         _uiState.update { it.copy(phase = SpeedTestPhase.IDLE, liveBytesPerSecond = 0.0) }
     }
-
-    fun clearHistory() {
-        viewModelScope.launch { runSpeedTestUseCase.clearHistory() }
-    }
-
-    /** Formats a stored result for the history list, in the user's current unit. */
-    fun formatSpeed(bytesPerSecond: Double): String =
-        SpeedFormatter.format(bytesPerSecond, reportingUnit).toString()
 
     override fun onCleared() {
         super.onCleared()

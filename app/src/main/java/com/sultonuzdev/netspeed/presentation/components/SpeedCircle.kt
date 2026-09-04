@@ -97,12 +97,16 @@ fun SpeedCircle(
                 text = speed,
                 style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                // The stack is centred inside a fixed circle; a wrap would push the unit and
+                // caption out of it rather than shrinking the text.
+                maxLines = 1
             )
             Text(
                 text = unit,
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
             )
             // Only populated in the download-and-upload mode, where one number cannot carry both.
             if (secondary != null) {
@@ -119,7 +123,8 @@ fun SpeedCircle(
                 text = type.uppercase(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                letterSpacing = 1.sp
+                letterSpacing = 1.sp,
+                maxLines = 1
             )
         }
     }

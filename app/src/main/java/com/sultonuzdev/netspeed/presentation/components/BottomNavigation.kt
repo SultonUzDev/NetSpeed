@@ -35,6 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Space a screen must leave below its content so the floating bar does not cover it.
+ *
+ * The bar overlays content rather than occupying a Scaffold slot, so nothing reserves its height
+ * automatically: 62dp of content plus 10dp of margin above and below. Screens add the
+ * navigation-bar inset on top of this, which the bar also applies to itself.
+ */
+val BottomNavigationHeight = 82.dp
+
 private data class NavDestination(
     val icon: ImageVector,
     val label: String

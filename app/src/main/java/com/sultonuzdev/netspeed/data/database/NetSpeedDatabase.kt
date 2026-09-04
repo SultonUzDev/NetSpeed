@@ -5,23 +5,20 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.sultonuzdev.netspeed.data.database.dao.SpeedTestDao
 import com.sultonuzdev.netspeed.data.database.dao.UsageDao
-import com.sultonuzdev.netspeed.data.database.entities.SpeedTestEntity
 import com.sultonuzdev.netspeed.data.database.entities.UsageEntity
 
 @Database(
-    entities = [UsageEntity::class, SpeedTestEntity::class],
-    version = 3,
+    entities = [UsageEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class NetSpeedDatabase : RoomDatabase() {
     abstract fun usageDao(): UsageDao
-    abstract fun speedTestDao(): SpeedTestDao
 
     companion object {
         /**
-         * Adds the speed-test history table.
+         * Added the speed-test history table.
          *
          * A real migration rather than a destructive one: by this version the usage table holds
          * the user's own history, which a destructive fallback would silently erase on upgrade.
@@ -41,6 +38,16 @@ abstract class NetSpeedDatabase : RoomDatabase() {
                     )
                     """.trimIndent()
                 )
+            }
+        }
+
+        /**
+         * Drops it again: speed-test results are no longer kept. Installs that never saw v3 skip
+         * straight here, so the drop is written defensively.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `speed_test_table`")
             }
         }
     }

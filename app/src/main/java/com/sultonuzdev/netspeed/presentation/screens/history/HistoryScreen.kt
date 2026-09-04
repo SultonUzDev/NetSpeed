@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,6 +41,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import com.sultonuzdev.netspeed.domain.models.DailyUsageData
 import com.sultonuzdev.netspeed.domain.models.DataLimitLevel
+import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.DayUsageDetailDialog
 import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
 import com.sultonuzdev.netspeed.presentation.components.UsageBarChart
@@ -72,27 +74,21 @@ fun HistoryScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .navigationBarsPadding()
+            // The cycle total is pinned to the bottom and would sit under the floating bar.
+            .padding(bottom = BottomNavigationHeight)
     ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Titled by the bottom bar; this line says what the range is instead.
-                Text(
-                    text = "Daily usage over the last 30 days",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
         UsageBarChart(bars = uiState.dailyChart)
+
+        // Labels the table beneath it. Floating at the top of the screen it described nothing in
+        // particular, and sat oddly above a chart that covers a different range.
+        Text(
+            text = "Last 30 days",
+            modifier = Modifier.padding(start = 14.dp, top = 10.dp, bottom = 2.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
 
         Card(
             modifier = Modifier
@@ -108,7 +104,7 @@ fun HistoryScreen(
             ) {
                 TableHeaderCell("Date", weight = 2f)
                 TableHeaderCell("Mobile", weight = 1.5f)
-                TableHeaderCell("WiFi", weight = 1.5f)
+                TableHeaderCell("Wi-Fi", weight = 1.5f)
                 TableHeaderCell("Total", weight = 1.5f)
             }
         }

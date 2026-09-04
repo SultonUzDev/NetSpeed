@@ -1,7 +1,6 @@
 package com.sultonuzdev.netspeed.presentation.screens.speedtest
 
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
-import com.sultonuzdev.netspeed.domain.models.SpeedTestResult
 
 data class SpeedTestUiState(
     val phase: SpeedTestPhase = SpeedTestPhase.IDLE,
@@ -16,7 +15,6 @@ data class SpeedTestUiState(
     val pingResult: String = "—",
     val jitterResult: String = "—",
 
-    val history: List<SpeedTestResult> = emptyList(),
     val error: String? = null
 ) {
     val isRunning: Boolean

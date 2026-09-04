@@ -105,4 +105,6 @@
     <string name="widget_placeholder_today">Today --</string>
     <string name="widget_description">Live download and upload speed</string>
     <string name="tile_label">Net Speed</string>
+    <string name="widget_usage_title">Mobile data this cycle</string>
+    <string name="widget_usage_description">Data used against your limit</string>
 </resources>

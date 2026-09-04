@@ -13,7 +13,6 @@ import com.sultonuzdev.netspeed.domain.models.NetworkInfo
 import com.sultonuzdev.netspeed.domain.models.NetworkSpeed
 import com.sultonuzdev.netspeed.domain.models.NetworkType
 import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
-import com.sultonuzdev.netspeed.utils.PingCalculator
 import com.sultonuzdev.netspeed.utils.SignalStrengthReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +37,6 @@ class NetworkRepositoryImpl(
     // Current speeds
     private var currentDownloadSpeed = 0.0
     private var currentUploadSpeed = 0.0
-    private var currentPing = "N/A"
 
 
     // Flows for real-time data
@@ -66,22 +64,6 @@ class NetworkRepositoryImpl(
             }
         }
 
-        // Calculate ping in background (less frequently)
-        scope.launch {
-            while (isMonitoring) {
-                try {
-                    // simplePing() relies on InetAddress.isReachable, which needs ICMP that
-                    // unprivileged apps cannot send; its TCP fallback targets port 7, which
-                    // almost nothing listens on. It reported "N/A" on most devices.
-                    currentPing = PingCalculator.tcpLatencyMillis()
-                        ?.let { "$it ms" }
-                        ?: "N/A"
-                    delay(5000) // Update ping every 5 seconds
-                } catch (e: Exception) {
-                    currentPing = "N/A"
-                }
-            }
-        }
     }
 
     override suspend fun stopMonitoring() {
@@ -107,7 +89,7 @@ class NetworkRepositoryImpl(
                 val networkSpeed = NetworkSpeed(
                     downloadSpeed = currentDownloadSpeed,
                     uploadSpeed = currentUploadSpeed,
-                    ping = currentPing, // You can implement ping calculation
+                    ping = "",
                     timestamp = currentTime
                 )
 

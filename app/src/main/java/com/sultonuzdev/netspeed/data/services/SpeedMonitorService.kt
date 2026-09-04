@@ -31,7 +31,11 @@ import androidx.core.graphics.drawable.IconCompat
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.data.overlay.SpeedOverlayManager
 import com.sultonuzdev.netspeed.data.widget.SpeedWidgetProvider
+import com.sultonuzdev.netspeed.data.widget.UsageWidgetProvider
+import com.sultonuzdev.netspeed.domain.usecases.Alert
+import com.sultonuzdev.netspeed.domain.usecases.CheckAlertsUseCase
 import com.sultonuzdev.netspeed.domain.usecases.CheckDataLimitUseCase
+import com.sultonuzdev.netspeed.domain.usecases.GetUsageForecastUseCase
 import com.sultonuzdev.netspeed.domain.usecases.SaveUsageDataUseCase
 import com.sultonuzdev.netspeed.presentation.MainActivity
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
@@ -77,12 +81,19 @@ class SpeedMonitorService : Service() {
     private val preferencesManager: PreferencesManager by inject()
     private val saveUsageDataUseCase: SaveUsageDataUseCase by inject()
     private val checkDataLimitUseCase: CheckDataLimitUseCase by inject()
+    private val checkAlertsUseCase: CheckAlertsUseCase by inject()
+    private val getUsageForecastUseCase: GetUsageForecastUseCase by inject()
     private var updateFrequency = 1000L
 
     // Cache for preferences to avoid frequent reads
     private var notificationStyle = NotificationStyle.DETAILED
     private var speedUnit = SpeedUnit.AUTO
     private var displayMode = SpeedDisplayMode.DOWNLOAD
+
+    // Which transports to count usage on, and whether to survive the app being swiped away.
+    private var monitorWifi = true
+    private var monitorMobile = true
+    private var backgroundMonitoring = true
 
     // Floating overlay
     private var overlayEnabled = false
@@ -177,6 +188,11 @@ class SpeedMonitorService : Service() {
     private var alertCounter = 0
     private val alertInterval = 30
 
+    // Roaming, per-app limits and background usage need per-uid queries, so they run far less
+    // often than the cap check -- once every few minutes is ample for all three.
+    private var extraAlertCounter = 0
+    private val extraAlertInterval = 300
+
     private var widgetCounter = 0
     private val widgetInterval = 5
 
@@ -206,6 +222,9 @@ class SpeedMonitorService : Service() {
                 notificationStyle = preferencesManager.notificationStyle.first()
                 speedUnit = preferencesManager.speedUnit.first()
                 displayMode = preferencesManager.speedDisplayMode.first()
+                monitorWifi = preferencesManager.monitorWifi.first()
+                monitorMobile = preferencesManager.monitorMobile.first()
+                backgroundMonitoring = preferencesManager.backgroundMonitoring.first()
                 overlayEnabled = preferencesManager.overlayEnabled.first()
                 overlayTextSize = preferencesManager.overlayTextSize.first()
                 overlayColor = preferencesManager.overlayColor.first()
@@ -218,6 +237,9 @@ class SpeedMonitorService : Service() {
                 notificationStyle = NotificationStyle.DETAILED
                 speedUnit = SpeedUnit.AUTO
                 displayMode = SpeedDisplayMode.DOWNLOAD
+                monitorWifi = true
+                monitorMobile = true
+                backgroundMonitoring = true
                 updateFrequency = DEFAULT_UPDATE_INTERVAL
             }
         }
@@ -309,6 +331,13 @@ class SpeedMonitorService : Service() {
                     if (alertCounter >= alertInterval) {
                         checkDataLimit()
                         alertCounter = 0
+                    }
+
+                    extraAlertCounter++
+                    if (extraAlertCounter >= extraAlertInterval) {
+                        checkExtraAlerts()
+                        updateUsageWidget()
+                        extraAlertCounter = 0
                     }
 
                     // Only measured while the overlay is up: it is the only surface that shows
@@ -463,6 +492,55 @@ class SpeedMonitorService : Service() {
         return parts.joinToString(" · ")
     }
 
+    /**
+     * Cycle usage for the home-screen widget. Slow cadence deliberately: the figure moves in
+     * megabytes over hours, and it costs a NetworkStats query plus a RemoteViews round trip.
+     */
+    private fun updateUsageWidget() {
+        persistenceScope.launch {
+            try {
+                UsageWidgetProvider.updateAll(
+                    this@SpeedMonitorService,
+                    getUsageForecastUseCase()
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /** Roaming, per-app allowances and background usage. The use case decides what is due. */
+    private fun checkExtraAlerts() {
+        persistenceScope.launch {
+            try {
+                val alerts = checkAlertsUseCase.check()
+
+                alerts.filterIsInstance<Alert.Roaming>().firstOrNull()?.let {
+                    DataLimitNotifier.notifyRoaming(
+                        this@SpeedMonitorService,
+                        it.mobileUsedThisCycle
+                    )
+                }
+
+                // Batched, because per-app alerts share a notification id.
+                DataLimitNotifier.notifyBackgroundData(
+                    this@SpeedMonitorService,
+                    alerts.filterIsInstance<Alert.BackgroundData>()
+                        .map { it.appLabel to it.bytes }
+                )
+
+                DataLimitNotifier.notifyAppLimit(
+                    this@SpeedMonitorService,
+                    alerts.filterIsInstance<Alert.AppLimit>().map {
+                        DataLimitNotifier.AppLimitBreach(it.appLabel, it.used, it.limit)
+                    }
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun stopMonitoring() {
         isMonitoring = false
         overlayManager.hide()
@@ -521,10 +599,15 @@ class SpeedMonitorService : Service() {
         val totalBytes = rxBytes + txBytes
         if (totalBytes <= 0L) return
 
+        // The Monitor Wi-Fi / Monitor mobile data switches decide whether traffic on that
+        // transport is counted at all. Live speed is unaffected -- the switches are about usage
+        // accounting, which is what their descriptions promise.
         if (isWifiConnected) {
+            if (!monitorWifi) return
             wifiDataUsed += totalBytes
             pendingWifiBytes += totalBytes
         } else {
+            if (!monitorMobile) return
             mobileDataUsed += totalBytes
             pendingMobileBytes += totalBytes
         }
@@ -927,6 +1010,14 @@ class SpeedMonitorService : Service() {
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
+        // "Keep monitoring in background" off means the service goes when the app does.
+        if (!backgroundMonitoring) {
+            setMonitoringEnabled(false)
+            stopMonitoring()
+            super.onTaskRemoved(rootIntent)
+            return
+        }
+
         // Only revive a service the user still wants running.
         if (isMonitoring) {
             val restartService = Intent(this, SpeedMonitorService::class.java).apply {
