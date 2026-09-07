@@ -1,18 +1,19 @@
-# Net Speed 📱
+<div align="center">
 
-Real-time internet speed monitoring with a persistent notification, a floating overlay, per-app
-data breakdowns and a built-in speed test. Everything is measured and stored on your device.
+<img src="samples/play_store_screenshots/00_feature_graphic.png" alt="Net Speed" width="640"/>
 
----
+# Net Speed
 
-*Coming soon to Google Play.*
+**Live internet speed in your status bar, and where your data actually goes.**
 
-<!-- Restore once the listing is live:
+Per-app usage, data-limit forecasts, a floating overlay and a built-in speed test —
+measured and stored entirely on your device.
+
 <a href="https://play.google.com/store/apps/details?id=com.sultonuzdev.netspeed">
   <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200"/>
 </a>
--->
 
+</div>
 
 ---
 
@@ -61,15 +62,15 @@ data breakdowns and a built-in speed test. Everything is measured and stored on 
 
 ## ✦ Screenshots
 
-| Speed + test | Per-app usage | History | Settings |
-|:---:|:---:|:---:|:---:|
-| <img src="samples/img.png" width="200"/> | <img src="samples/img_1.png" width="200"/> | <img src="samples/img_3.png" width="200"/> | <img src="samples/img_4.png" width="200"/> |
-| Live speed, and a finished speed test | Which apps used what, with the cycle forecast | 30 days, with over-limit days flagged | Everything configurable |
+<div align="center">
 
-Store-ready versions with captions are in
-[`samples/play_store_screenshots/`](samples/play_store_screenshots), generated from the raw
-captures by [`samples/make_play_screenshots.py`](samples/make_play_screenshots.py) — re-run it
-after replacing the captures to rebuild them.
+<img src="samples/play_store_screenshots/01_img.png" width="165" alt=""/>
+<img src="samples/play_store_screenshots/02_img_1.png" width="165"/>
+<img src="samples/play_store_screenshots/03_img_2.png" width="165"/>
+<img src="samples/play_store_screenshots/04_img_3.png" width="165"/>
+<img src="samples/play_store_screenshots/05_img_4.png" width="165"/>
+
+</div>
 
 ---
 
@@ -122,7 +123,7 @@ which mode it is in.
 5. **History** — 30 days of daily usage; tap a day to see what used it
 6. **Settings** — notification style and units, data limit and alerts, overlay, theme
 
-A full privacy policy is at [`docs/privacy-policy.html`](docs/privacy-policy.html).
+Full privacy policy: <https://sultonuzdev.github.io/NetSpeed/privacy-policy.html>
 
 ## 🔒 Privacy
 
@@ -138,94 +139,7 @@ A full privacy policy is at [`docs/privacy-policy.html`](docs/privacy-policy.htm
 
 ---
 
-## 🏷️ Play Store listing
+## 📄 Documents
 
-Copy for the Play Console. Both are kept here so the listing and the app can be revised together.
-
-### Short description
-
-> Speed meter in your status bar, per-app data usage. No ads, no tracking.
-
-### Full description
-
-> **Net Speed shows how fast your connection is and where your data goes — without ads, without
-> tracking, and without sending anything anywhere.**
->
-> Your current download and upload speed sits in the status bar and the notification shade, always
-> visible, updating live. Open the app to see which apps used your data, how much of your monthly
-> allowance is left, and whether you are on course to go over it.
->
-> **LIVE SPEED**
-> • Real-time download and upload speed in the status bar
-> • Choose what to show: download, upload, both, or a combined total
-> • Units in Mbps, Kbps, MB/s, KB/s, or automatic
-> • Compact or detailed notification
-> • Optional floating overlay you can drag anywhere — with live latency, useful while gaming or
->   on a call
->
-> **DATA USAGE**
-> • See exactly which apps used your data, split by mobile and Wi-Fi
-> • Foreground and background usage per app — find what is using data when you are not looking
-> • Figures read from Android's own accounting, so totals match your device Settings
-> • 30 days of daily history, with a weekly chart
-> • Tap any day to see which apps were responsible
->
-> **STAY UNDER YOUR LIMIT**
-> • Set your mobile data limit and your real billing cycle day
-> • Get warned before you reach it, at a threshold you choose
-> • A forecast tells you where the cycle is heading at your current rate
-> • Set limits for individual apps
-> • Warnings for roaming and for heavy background data
->
-> **SPEED TEST**
-> • Download, upload, ping and jitter
-> • Clear gauge, no countdown ads, no daily limit
->
-> **ON YOUR HOME SCREEN**
-> • Live speed widget
-> • Data usage widget with your limit progress
-> • Quick Settings tile to start and stop monitoring
->
-> **DESIGNED FOR ANDROID**
-> • Material You — follows your wallpaper colours on Android 12 and above
-> • Dark and light themes
-> • Runs in the background and restarts after a reboot
-> • Light on battery: sampling slows while the screen is off
->
-> **ABOUT PERMISSIONS**
-> Two permissions are optional and you grant them yourself in system settings:
->
-> • **Usage access** unlocks per-app usage and makes totals exact. It is only used to read network
->   statistics — never to see which apps you open or for how long.
-> • **Display over other apps** draws the floating overlay. The overlay only draws text; it cannot
->   see or touch what is beneath it.
->
-> The app works without either one.
->
-> **PRIVACY**
-> Net Speed has no ads, no analytics, no crash reporting and no accounts. Your usage data is
-> stored on your device and is never uploaded. The only time the app contacts an outside server
-> is when you press Start on the speed test, which transfers meaningless bytes to Cloudflare's
-> public endpoint to measure throughput — nothing about you is included.
->
-> Uninstalling deletes everything.
-
-### Release notes
-
-Play allows 500 characters per language. First release:
-
-> First release.
->
-> • Live download and upload speed in your status bar
-> • See which apps use your data, including in the background
-> • Set a data limit and get warned before you reach it
-> • Usage forecast tells you where your cycle is heading
-> • 30 days of history, per-app and per-day
-> • Built-in speed test, floating overlay, home screen widgets
->
-> No ads, no tracking. Everything stays on your device.
-
-### Suggested search keywords
-
-`internet speed meter` · `data usage monitor` · `net speed indicator` · `data usage manager`
-· `internet speed test` · `network monitor` · `mobile data usage` · `speed meter`
+- [Privacy policy](https://sultonuzdev.github.io/NetSpeed/privacy-policy.html) — what is stored, and the two special permissions
+  ([source](docs/privacy-policy.html))
