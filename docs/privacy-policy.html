@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Net Speed</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1a1c1e;
+    --muted: #5a6068;
+    --rule: #e3e6ea;
+    --accent: #0277bd;
+    --card: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1419;
+      --fg: #e7ecf2;
+      --muted: #9aa4b0;
+      --rule: #232a33;
+      --accent: #4fc3f7;
+      --card: #161c24;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 40px 20px 80px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .updated { color: var(--muted); font-size: 0.9rem; margin: 0 0 32px; }
+  h2 {
+    font-size: 1.15rem;
+    margin: 40px 0 10px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+  h3 { font-size: 1rem; margin: 24px 0 6px; }
+  p, li { color: var(--fg); }
+  ul { padding-left: 22px; }
+  li { margin: 6px 0; }
+  .lead {
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    padding: 16px 18px;
+    border-radius: 6px;
+    margin: 0 0 8px;
+  }
+  .lead strong { color: var(--accent); }
+  code {
+    background: var(--card);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.9rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+
+  <h1>Privacy Policy — Net Speed</h1>
+  <p class="updated">Last updated: 7 September 2026</p>
+
+  <p class="lead">
+    <strong>Net Speed does not collect, store, or transmit any personal data.</strong>
+    There are no accounts, no analytics, no advertising, and no crash reporting. Everything the
+    app measures stays on your device, and no user data is sent to us or to any third party.
+  </p>
+
+  <h2>What the app stores, and where</h2>
+  <p>
+    Net Speed measures network throughput and data usage and keeps the results in a database on
+    your own device. Nothing is uploaded. Specifically, the app stores:
+  </p>
+  <ul>
+    <li>Daily totals of Wi-Fi and mobile data used</li>
+    <li>Your settings — data limit, billing cycle day, units, notification and overlay preferences</li>
+  </ul>
+  <p>
+    This data never leaves the device. Uninstalling Net Speed deletes all of it.
+  </p>
+
+  <h2>Special permissions</h2>
+  <p>
+    Two permissions cannot be requested from inside an app — you grant them yourself in system
+    settings, and you can revoke them there at any time. Net Speed works without both; each one
+    only enables the feature described below.
+  </p>
+
+  <h3>Usage access <code>PACKAGE_USAGE_STATS</code></h3>
+  <table>
+    <tr><th>What it is used for</th><th>What it is not used for</th></tr>
+    <tr>
+      <td>
+        Reading Android's own network accounting so the app can show which apps used data, and so
+        daily totals match the figures in Android Settings rather than being estimated from
+        sampling.
+      </td>
+      <td>
+        It is never used to see which apps you open, how long you use them, or when. The app reads
+        network statistics only, and the results are displayed on your device and stored nowhere
+        else.
+      </td>
+    </tr>
+  </table>
+
+  <h3>Display over other apps <code>SYSTEM_ALERT_WINDOW</code></h3>
+  <table>
+    <tr><th>What it is used for</th><th>What it is not used for</th></tr>
+    <tr>
+      <td>
+        Drawing the optional floating speed overlay — a small, draggable readout you can position
+        anywhere on screen.
+      </td>
+      <td>
+        It is never used to read, capture, or interact with anything shown by other apps. The
+        overlay only draws text and cannot see what is beneath it.
+      </td>
+    </tr>
+  </table>
+
+  <h2>Network connections</h2>
+  <p>
+    Net Speed makes no network requests for its normal operation. Speed and usage are measured
+    from counters the Android system already maintains on the device.
+  </p>
+  <p>
+    There is one exception, and it only happens when you press the button:
+  </p>
+  <ul>
+    <li>
+      <strong>The speed test.</strong> When you start a test, the app transfers a quantity of
+      meaningless bytes to and from Cloudflare's public speed-test endpoint
+      (<code>speed.cloudflare.com</code>) and times how long it takes. No information about you,
+      your device, or your usage is included in those requests. As with any request to any server
+      on the internet, your IP address is visible to that server — this is unavoidable for any
+      speed test, and it is the only way the app ever contacts an outside service. The result is
+      shown on screen and is not saved or sent anywhere.
+    </li>
+    <li>
+      <strong>Latency measurement.</strong> While the floating overlay is visible, the app opens a
+      brief connection to a public DNS server (<code>8.8.8.8:53</code>) to time the round trip.
+      No data is sent or received beyond establishing and closing the connection.
+    </li>
+  </ul>
+
+  <h2>App names and icons</h2>
+  <p>
+    The per-app usage breakdown shows the names and icons of apps installed on your device. These
+    are read from the device's own package manager. No list of your installed apps is transmitted
+    anywhere.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    Net Speed is not directed at children and collects no data from anyone, of any age.
+  </p>
+
+  <h2>Changes</h2>
+  <p>
+    If this policy changes, the updated version will be published at this address with a revised
+    date above. Any change that affects what data leaves your device would also be described in
+    the app's release notes.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about this policy or the app can be sent to
+    <a href="mailto:sultonuzdev@gmail.com">sultonuzdev@gmail.com</a>.
+  </p>
+
+  <footer>
+    Net Speed · <a href="https://play.google.com/store/apps/details?id=com.sultonuzdev.netspeed">Google Play</a>
+    · <a href="https://github.com/SultonUzDev/NetSpeed">Source</a>
+  </footer>
+
+</main>
+</body>
+</html>
