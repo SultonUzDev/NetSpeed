@@ -11,7 +11,14 @@
     <!-- Service permissions -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!--
+        specialUse, not dataSync. Android 15 caps a dataSync foreground service at roughly six
+        hours per day and then stops it, which for a continuous network monitor means it simply
+        dies partway through the day. Continuous measurement is not a data sync, and specialUse is
+        the type the platform provides for a long-running job that fits no other category.
+        Using it requires declaring the subtype below and justifying it in the Play Console.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -64,7 +71,14 @@
         <service
             android:name=".data.services.SpeedMonitorService"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Continuous measurement of network throughput and data usage for
+                    display in an ongoing notification, a status bar indicator and an optional
+                    floating overlay. The measurement is only meaningful while sampling is
+                    uninterrupted, so it must run for as long as the user leaves it enabled." />
+        </service>
 
         <!-- Home-screen widget. updatePeriodMillis is 0; the service pushes live updates. -->
         <receiver

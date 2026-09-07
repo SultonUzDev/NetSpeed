@@ -1,15 +1,59 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+# ---------------------------------------------------------------------------------------------
+# Signing material — never commit
+# ---------------------------------------------------------------------------------------------
+# A leaked release key lets anyone sign an APK as you, and it cannot be rotated for an app that
+# is already published. keystore.properties holds the store and key passwords in plaintext.
+keystore/
+*.jks
+*.keystore
+keystore.properties
+
+# ---------------------------------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------------------------------
 /build
+build/
 /captures
-.externalNativeBuild
+.gradle
 .cxx
+.externalNativeBuild
+
+# Unpacked bundles and exported artifacts. Android Studio writes these when you use
+# Build > Generate Signed Bundle / APK, and they are large, regenerable, and never useful in git.
+/app/release/
+/app/debug/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Kotlin incremental compilation state
+.kotlin/
+
+# ---------------------------------------------------------------------------------------------
+# Local machine configuration
+# ---------------------------------------------------------------------------------------------
 local.properties
+gradle/gradle-daemon-jvm.properties
+
+# ---------------------------------------------------------------------------------------------
+# IDE
+# ---------------------------------------------------------------------------------------------
+*.iml
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/deploymentTargetDropDown.xml
+.idea/appInsightsSettings.xml
+.idea/androidTestResultsUserPreferences.xml
+.idea/misc.xml
+
+# ---------------------------------------------------------------------------------------------
+# OS
+# ---------------------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db

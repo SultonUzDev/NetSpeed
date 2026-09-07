@@ -1,3 +1,6 @@
+import java.util.Properties
+import kotlin.apply
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,14 +9,24 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
 }
 
+
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+val hasSigningConfig = keystoreProperties.getProperty("storeFile") != null
+
+
+
 android {
     namespace = "com.sultonuzdev.netspeed"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sultonuzdev.netspeed"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -23,12 +36,30 @@ android {
         }
     }
 
+
+
+    signingConfigs {
+        if (hasSigningConfig) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
+
     buildTypes {
         release {
+            // R8: obfuscates + shrinks. Keep rules live in proguard-rules.pro; RootDetector and
+            // the rest of our code are deliberately NOT kept, so integrity checks get renamed.
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
+                "proguard-log-strip.pro",
             )
         }
         debug {
