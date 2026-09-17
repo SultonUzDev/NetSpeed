@@ -1,38 +1,39 @@
 package com.sultonuzdev.netspeed.presentation.screens.settings
 
+import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.SelectionDialog
 import com.sultonuzdev.netspeed.presentation.components.SettingItem
-import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
+import com.sultonuzdev.netspeed.presentation.theme.supportsDynamicColor
+import com.sultonuzdev.netspeed.utils.AutoStartHelper
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
-import com.sultonuzdev.netspeed.utils.AutoStartHelper
 import com.sultonuzdev.netspeed.utils.NetworkUtils
 import com.sultonuzdev.netspeed.utils.OverlayPermissionHelper
-import com.sultonuzdev.netspeed.presentation.theme.supportsDynamicColor
 import org.koin.androidx.compose.koinViewModel
-
 
 @Composable
 fun SettingsScreen(
@@ -40,6 +41,334 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    SettingsScreenContent(
+        uiState = uiState,
+        // Offered only where such a screen exists and resolves; on a Pixel there is nothing to
+        // link to and the row would be a dead end.
+        showAutoStart = AutoStartHelper.hasAutoStartSettings(context),
+        actions = SettingsActions(
+            // The service writes the preference back, so the switch reflects what is actually
+            // running rather than a wish stored beside it.
+            onMonitoringChange = { setMonitoring(context, it) },
+            onFrequencyClick = viewModel::showFrequencyDialog,
+            onStyleClick = viewModel::showStyleDialog,
+            onDisplayModeClick = viewModel::showDisplayModeDialog,
+            onUnitsClick = viewModel::showUnitsDialog,
+            onMonitorWifiChange = viewModel::updateMonitorWifi,
+            onMonitorMobileChange = viewModel::updateMonitorMobile,
+            onBackgroundMonitoringChange = viewModel::updateBackgroundMonitoring,
+            onStartOnBootChange = viewModel::updateStartOnBoot,
+            onOverlayChange = { wantsOverlay ->
+                // "Draw over other apps" cannot be requested in-app; without it the switch would
+                // flip on and nothing would appear, so send the user to settings instead of
+                // storing a preference we cannot honour.
+                if (wantsOverlay && !OverlayPermissionHelper.canDrawOverlays(context)) {
+                    openOverlaySettings(context)
+                } else {
+                    viewModel.updateOverlayEnabled(wantsOverlay)
+                }
+            },
+            onOverlaySizeClick = viewModel::showOverlaySizeDialog,
+            onOverlayColorClick = viewModel::showOverlayColorDialog,
+            onOverlayOpacityClick = viewModel::showOverlayOpacityDialog,
+            onResetDateClick = viewModel::showDateDialog,
+            onDataLimitClick = viewModel::showLimitDialog,
+            onDataLimitAlertChange = viewModel::updateDataLimitAlert,
+            onThresholdClick = viewModel::showThresholdDialog,
+            onRoamingAlertChange = viewModel::updateRoamingAlert,
+            onBackgroundDataAlertChange = viewModel::updateBackgroundDataAlert,
+            onBackgroundThresholdClick = viewModel::showBackgroundThresholdDialog,
+            onAutoStartClick = {
+                AutoStartHelper.resolveIntent(context)?.let { intent ->
+                    runCatching { context.startActivity(intent) }
+                }
+            },
+            onDarkThemeChange = viewModel::updateDarkTheme,
+            onDynamicColorChange = viewModel::updateDynamicColor
+        ),
+        modifier = modifier
+    )
+
+    SettingsDialogs(viewModel = viewModel, uiState = uiState)
+}
+
+/**
+ * Everything the settings list can do. Bundled so [SettingsScreenContent] takes one parameter
+ * instead of twenty-odd lambdas, and so the preview can pass `SettingsActions()` and be done.
+ */
+private data class SettingsActions(
+    val onMonitoringChange: (Boolean) -> Unit = {},
+    val onFrequencyClick: () -> Unit = {},
+    val onStyleClick: () -> Unit = {},
+    val onDisplayModeClick: () -> Unit = {},
+    val onUnitsClick: () -> Unit = {},
+    val onMonitorWifiChange: (Boolean) -> Unit = {},
+    val onMonitorMobileChange: (Boolean) -> Unit = {},
+    val onBackgroundMonitoringChange: (Boolean) -> Unit = {},
+    val onStartOnBootChange: (Boolean) -> Unit = {},
+    val onOverlayChange: (Boolean) -> Unit = {},
+    val onOverlaySizeClick: () -> Unit = {},
+    val onOverlayColorClick: () -> Unit = {},
+    val onOverlayOpacityClick: () -> Unit = {},
+    val onResetDateClick: () -> Unit = {},
+    val onDataLimitClick: () -> Unit = {},
+    val onDataLimitAlertChange: (Boolean) -> Unit = {},
+    val onThresholdClick: () -> Unit = {},
+    val onRoamingAlertChange: (Boolean) -> Unit = {},
+    val onBackgroundDataAlertChange: (Boolean) -> Unit = {},
+    val onBackgroundThresholdClick: () -> Unit = {},
+    val onAutoStartClick: () -> Unit = {},
+    val onDarkThemeChange: (Boolean) -> Unit = {},
+    val onDynamicColorChange: (Boolean) -> Unit = {}
+)
+
+@Composable
+private fun SettingsScreenContent(
+    uiState: SettingsUiState,
+    showAutoStart: Boolean,
+    actions: SettingsActions,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
+                // See SpeedScreen: the floating bar overlays content, so clear its height here.
+                .padding(bottom = BottomNavigationHeight + 16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Notification Section
+                SettingsSection(title = "NOTIFICATION") {
+                    SettingItem(
+                        label = "Monitor network speed",
+                        isToggle = true,
+                        isEnabled = uiState.monitoringEnabled,
+                        // The service writes the preference back, so the switch reflects what is
+                        // actually running rather than a wish stored beside it.
+                        onToggleChange = actions.onMonitoringChange
+                    )
+
+                    SettingItem(
+                        label = "Update frequency",
+                        value = uiState.updateFrequency,
+                        onValueClick = actions.onFrequencyClick
+                    )
+
+                    SettingItem(
+                        label = "Notification style",
+                        value = uiState.notificationStyle.styleName,
+                        onValueClick = actions.onStyleClick
+                    )
+
+                    SettingItem(
+                        label = "Status bar shows",
+                        value = uiState.speedDisplayMode.label,
+                        onValueClick = actions.onDisplayModeClick
+                    )
+
+                    SettingItem(
+                        label = "Speed units",
+                        value = uiState.speedUnits,
+                        onValueClick = actions.onUnitsClick
+                    )
+                }
+
+
+                // Monitoring Section
+                SettingsSection(title = "MONITORING") {
+                    SettingItem(
+                        label = "Monitor Wi-Fi",
+                        isToggle = true,
+                        isEnabled = uiState.monitorWifi,
+                        onToggleChange = actions.onMonitorWifiChange
+                    )
+
+                    SettingItem(
+                        label = "Monitor mobile data",
+                        isToggle = true,
+                        isEnabled = uiState.monitorMobile,
+                        onToggleChange = actions.onMonitorMobileChange
+                    )
+
+                    SettingItem(
+                        label = "Keep monitoring in background",
+                        isToggle = true,
+                        isEnabled = uiState.backgroundMonitoring,
+                        onToggleChange = actions.onBackgroundMonitoringChange
+                    )
+
+                    SettingItem(
+                        label = "Start after device restart",
+                        isToggle = true,
+                        isEnabled = uiState.startOnBoot,
+                        onToggleChange = actions.onStartOnBootChange
+                    )
+                }
+
+
+                // Floating Overlay Section
+                SettingsSection(title = "FLOATING OVERLAY") {
+                    SettingItem(
+                        label = "Show floating overlay",
+                        isToggle = true,
+                        isEnabled = uiState.overlayEnabled,
+                        onToggleChange = actions.onOverlayChange
+                    )
+
+                    SettingItem(
+                        label = "Overlay text size",
+                        value = "${uiState.overlayTextSize} sp",
+                        onValueClick = actions.onOverlaySizeClick
+                    )
+
+                    SettingItem(
+                        label = "Overlay text colour",
+                        value = uiState.overlayColorName,
+                        onValueClick = actions.onOverlayColorClick
+                    )
+
+                    SettingItem(
+                        label = "Overlay background opacity",
+                        value = "${uiState.overlayOpacity}%",
+                        onValueClick = actions.onOverlayOpacityClick
+                    )
+                }
+
+
+                // Data & Privacy Section
+                // Split from the alerts below: the cycle day and the cap describe your plan, while
+                // the switches under ALERTS decide what the app says about it.
+                SettingsSection(title = "DATA LIMIT") {
+                    SettingItem(
+                        label = "Billing cycle starts on",
+                        value = uiState.monthlyResetDate,
+                        onValueClick = actions.onResetDateClick
+                    )
+
+                    SettingItem(
+                        label = "Mobile data limit",
+                        value = uiState.dataLimit,
+                        onValueClick = actions.onDataLimitClick
+                    )
+                }
+
+
+                SettingsSection(title = "ALERTS") {
+                    SettingItem(
+                        label = "Warn before data limit",
+                        isToggle = true,
+                        isEnabled = uiState.dataLimitAlert,
+                        onToggleChange = actions.onDataLimitAlertChange
+                    )
+
+                    // Only meaningful while the warning above is on; shown as a dead row otherwise,
+                    // it invites the user to configure something that will never fire.
+                    if (uiState.dataLimitAlert) {
+                        SettingItem(
+                            label = "Warn at",
+                            value = uiState.warningThreshold,
+                            onValueClick = actions.onThresholdClick
+                        )
+                    }
+
+                    SettingItem(
+                        label = "Warn when roaming",
+                        isToggle = true,
+                        isEnabled = uiState.roamingAlert,
+                        onToggleChange = actions.onRoamingAlertChange
+                    )
+
+                    SettingItem(
+                        label = "Warn about background data",
+                        isToggle = true,
+                        isEnabled = uiState.backgroundDataAlert,
+                        onToggleChange = actions.onBackgroundDataAlertChange
+                    )
+
+                    if (uiState.backgroundDataAlert) {
+                        SettingItem(
+                            label = "Warn above",
+                            value = uiState.backgroundDataThreshold,
+                            onValueClick = actions.onBackgroundThresholdClick
+                        )
+                    }
+                }
+
+
+                // Offered only where such a screen exists and resolves; on a Pixel there is
+                // nothing to link to and the row would be a dead end.
+                if (showAutoStart) {
+
+                    SettingsSection(title = "DEVICE") {
+                        // Says what tapping does and why it matters. "Allow autostart / Open" read
+                        // like a setting whose current value was the word "Open".
+                        SettingItem(
+                            label = "Allow autostart",
+                            value = "Settings",
+                            onValueClick = actions.onAutoStartClick
+                        )
+                    }
+                }
+
+
+                // Appearance Section
+                SettingsSection(title = "APPEARANCE") {
+                    SettingItem(
+                        label = "Dark theme",
+                        isToggle = true,
+                        isEnabled = uiState.darkTheme,
+                        onToggleChange = actions.onDarkThemeChange
+                    )
+
+                    // Wallpaper-derived colour only exists from Android 12; on older devices the row
+                    // would be a switch that does nothing, so it is not offered at all.
+                    if (supportsDynamicColor) {
+                        SettingItem(
+                            label = "Match wallpaper colours",
+                            isToggle = true,
+                            isEnabled = uiState.dynamicColor,
+                            onToggleChange = actions.onDynamicColorChange
+                        )
+                    }
+
+                }
+            }
+        }
+    }}
+@Composable
+private fun SettingsScreenContentPreview() {
+    NetSpeedTheme(darkTheme = true) {
+        SettingsScreenContent(
+            uiState = SettingsUiState(
+                monitoringEnabled = true,
+                overlayEnabled = true,
+                dataLimitAlert = true,
+                backgroundDataAlert = true
+            ),
+            showAutoStart = true,
+            actions = SettingsActions()
+        )
+    }
+}
+
+/**
+ * The selection dialogs, kept beside the view model rather than inside [SettingsScreenContent]:
+ * each one reads its option list off the view model, so passing them through would mean another
+ * dozen parameters for no gain in testability.
+ */
+@Composable
+private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiState) {
     val showFrequencyDialog by viewModel.showFrequencyDialog.collectAsStateWithLifecycle()
     val showStyleDialog by viewModel.showStyleDialog.collectAsStateWithLifecycle()
     val showUnitsDialog by viewModel.showUnitsDialog.collectAsStateWithLifecycle()
@@ -52,239 +381,7 @@ fun SettingsScreen(
     val showOverlaySizeDialog by viewModel.showOverlaySizeDialog.collectAsStateWithLifecycle()
     val showOverlayColorDialog by viewModel.showOverlayColorDialog.collectAsStateWithLifecycle()
     val showOverlayOpacityDialog by viewModel.showOverlayOpacityDialog.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .navigationBarsPadding()
-            // See SpeedScreen: the floating bar overlays content, so clear its height here.
-            .padding(bottom = BottomNavigationHeight + 16.dp)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            // Notification Section
-            SettingsSection(title = "NOTIFICATION") {
-                SettingItem(
-                    label = "Monitor network speed",
-                    isToggle = true,
-                    isEnabled = uiState.monitoringEnabled,
-                    // The service writes the preference back, so the switch reflects what is
-                    // actually running rather than a wish stored beside it.
-                    onToggleChange = { wantsMonitoring ->
-                        setMonitoring(context, wantsMonitoring)
-                    }
-                )
-
-                SettingItem(
-                    label = "Update frequency",
-                    value = uiState.updateFrequency,
-                    onValueClick = { viewModel.showFrequencyDialog() }
-                )
-
-                SettingItem(
-                    label = "Notification style",
-                    value = uiState.notificationStyle.styleName,
-                    onValueClick = { viewModel.showStyleDialog() }
-                )
-
-                SettingItem(
-                    label = "Status bar shows",
-                    value = uiState.speedDisplayMode.label,
-                    onValueClick = { viewModel.showDisplayModeDialog() }
-                )
-
-                SettingItem(
-                    label = "Speed units",
-                    value = uiState.speedUnits,
-                    onValueClick = { viewModel.showUnitsDialog() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Monitoring Section
-            SettingsSection(title = "MONITORING") {
-                SettingItem(
-                    label = "Monitor Wi-Fi",
-                    isToggle = true,
-                    isEnabled = uiState.monitorWifi,
-                    onToggleChange = { viewModel.updateMonitorWifi(it) }
-                )
-
-                SettingItem(
-                    label = "Monitor mobile data",
-                    isToggle = true,
-                    isEnabled = uiState.monitorMobile,
-                    onToggleChange = { viewModel.updateMonitorMobile(it) }
-                )
-
-                SettingItem(
-                    label = "Keep monitoring in background",
-                    isToggle = true,
-                    isEnabled = uiState.backgroundMonitoring,
-                    onToggleChange = { viewModel.updateBackgroundMonitoring(it) }
-                )
-
-                SettingItem(
-                    label = "Start after device restart",
-                    isToggle = true,
-                    isEnabled = uiState.startOnBoot,
-                    onToggleChange = { viewModel.updateStartOnBoot(it) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Floating Overlay Section
-            SettingsSection(title = "FLOATING OVERLAY") {
-                SettingItem(
-                    label = "Show floating overlay",
-                    isToggle = true,
-                    isEnabled = uiState.overlayEnabled,
-                    onToggleChange = { wantsOverlay ->
-                        // "Draw over other apps" cannot be requested in-app; without it the
-                        // switch would flip on and nothing would appear, so send the user to
-                        // settings instead of storing a preference we cannot honour.
-                        if (wantsOverlay && !OverlayPermissionHelper.canDrawOverlays(context)) {
-                            openOverlaySettings(context)
-                        } else {
-                            viewModel.updateOverlayEnabled(wantsOverlay)
-                        }
-                    }
-                )
-
-                SettingItem(
-                    label = "Overlay text size",
-                    value = "${uiState.overlayTextSize} sp",
-                    onValueClick = { viewModel.showOverlaySizeDialog() }
-                )
-
-                SettingItem(
-                    label = "Overlay text colour",
-                    value = uiState.overlayColorName,
-                    onValueClick = { viewModel.showOverlayColorDialog() }
-                )
-
-                SettingItem(
-                    label = "Overlay background opacity",
-                    value = "${uiState.overlayOpacity}%",
-                    onValueClick = { viewModel.showOverlayOpacityDialog() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Data & Privacy Section
-            // Split from the alerts below: the cycle day and the cap describe your plan, while
-            // the switches under ALERTS decide what the app says about it.
-            SettingsSection(title = "DATA LIMIT") {
-                SettingItem(
-                    label = "Billing cycle starts on",
-                    value = uiState.monthlyResetDate,
-                    onValueClick = { viewModel.showDateDialog() }
-                )
-
-                SettingItem(
-                    label = "Mobile data limit",
-                    value = uiState.dataLimit,
-                    onValueClick = { viewModel.showLimitDialog() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            SettingsSection(title = "ALERTS") {
-                SettingItem(
-                    label = "Warn before data limit",
-                    isToggle = true,
-                    isEnabled = uiState.dataLimitAlert,
-                    onToggleChange = { viewModel.updateDataLimitAlert(it) }
-                )
-
-                // Only meaningful while the warning above is on; shown as a dead row otherwise,
-                // it invites the user to configure something that will never fire.
-                if (uiState.dataLimitAlert) {
-                    SettingItem(
-                        label = "Warn at",
-                        value = uiState.warningThreshold,
-                        onValueClick = { viewModel.showThresholdDialog() }
-                    )
-                }
-
-                SettingItem(
-                    label = "Warn when roaming",
-                    isToggle = true,
-                    isEnabled = uiState.roamingAlert,
-                    onToggleChange = { viewModel.updateRoamingAlert(it) }
-                )
-
-                SettingItem(
-                    label = "Warn about background data",
-                    isToggle = true,
-                    isEnabled = uiState.backgroundDataAlert,
-                    onToggleChange = { viewModel.updateBackgroundDataAlert(it) }
-                )
-
-                if (uiState.backgroundDataAlert) {
-                    SettingItem(
-                        label = "Warn above",
-                        value = uiState.backgroundDataThreshold,
-                        onValueClick = { viewModel.showBackgroundThresholdDialog() }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Offered only where such a screen exists and resolves; on a Pixel there is
-            // nothing to link to and the row would be a dead end.
-            if (AutoStartHelper.hasAutoStartSettings(context)) {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                SettingsSection(title = "DEVICE") {
-                    // Says what tapping does and why it matters. "Allow autostart / Open" read
-                    // like a setting whose current value was the word "Open".
-                    SettingItem(
-                        label = "Allow autostart",
-                        description = "This device may stop background apps",
-                        value = "Settings",
-                        onValueClick = {
-                            AutoStartHelper.resolveIntent(context)?.let { intent ->
-                                runCatching { context.startActivity(intent) }
-                            }
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Appearance Section
-            SettingsSection(title = "APPEARANCE") {
-                SettingItem(
-                    label = "Dark theme",
-                    isToggle = true,
-                    isEnabled = uiState.darkTheme,
-                    onToggleChange = { viewModel.updateDarkTheme(it) }
-                )
-
-                // Wallpaper-derived colour only exists from Android 12; on older devices the row
-                // would be a switch that does nothing, so it is not offered at all.
-                if (supportsDynamicColor) {
-                    SettingItem(
-                        label = "Match wallpaper colours",
-                        isToggle = true,
-                        isEnabled = uiState.dynamicColor,
-                        onToggleChange = { viewModel.updateDynamicColor(it) }
-                    )
-                }
-
-            }
-        }
-    }
-
-    // Dialogs
     if (showFrequencyDialog) {
         SelectionDialog(
             title = "Update Frequency",
@@ -440,7 +537,6 @@ fun SettingsScreen(
     }
 }
 
-
 @Composable
 private fun SettingsSection(
     title: String,
@@ -455,18 +551,17 @@ private fun SettingsSection(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
         )
 
         content()
     }
 }
 
-private fun openOverlaySettings(context: android.content.Context) {
-    val launch = { intent: android.content.Intent ->
+private fun openOverlaySettings(context: Context) {
+    val launch = { intent: Intent ->
         runCatching {
             context.startActivity(
-                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }.isSuccess
     }
@@ -476,9 +571,10 @@ private fun openOverlaySettings(context: android.content.Context) {
 }
 
 /** Starts or stops the monitoring service; it persists the resulting state itself. */
-private fun setMonitoring(context: android.content.Context, enabled: Boolean) {
-    val intent = android.content.Intent(context, SpeedMonitorService::class.java).apply {
+private fun setMonitoring(context: Context, enabled: Boolean) {
+    val intent = Intent(context, SpeedMonitorService::class.java).apply {
         action = if (enabled) ACTION_START_MONITORING else ACTION_STOP_MONITORING
     }
-    runCatching { androidx.core.content.ContextCompat.startForegroundService(context, intent) }
+    runCatching { ContextCompat.startForegroundService(context, intent) }
 }
+

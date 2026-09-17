@@ -83,7 +83,60 @@ measured and stored entirely on your device.
 - **Foreground Service** for monitoring, **WindowManager** for the overlay
 - **NetworkStatsManager** for accurate and per-app usage; **TrafficStats** for live speed
 - **AppWidgetProvider** and **TileService** for the widget and tile
-- minSdk 26 · targetSdk 35
+- minSdk 26 · targetSdk 36
+
+## 🧩 Screen structure
+
+Every screen file under `presentation/screens/<name>/` follows the same order, top to bottom:
+
+| # | Function | Visibility | Role |
+|---|---|---|---|
+| 1 | `XScreen(modifier, viewModel = koinViewModel())` | public | The only entry point. Collects ViewModel state, runs lifecycle effects, and wires callbacks — **no layout here** |
+| 2 | `XScreenContent(uiState, callbacks…, modifier)` | private | The whole UI, driven purely by parameters. Knows nothing about ViewModels, Koin or `LocalContext` |
+| 3 | `XScreenContentPreview()` | private, `@Preview` | Renders `XScreenContent` inside `NetSpeedTheme` with hand-written sample state and no-op callbacks |
+| 4 | helpers | private | Sub-composables and plain functions the content uses, in the order they are called |
+
+```kotlin
+@Composable
+fun SpeedScreen(
+    modifier: Modifier = Modifier,
+    viewModel: SpeedViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    SpeedScreenContent(
+        uiState = uiState,
+        onStart = { viewModel.startTest() },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun SpeedScreenContent(
+    uiState: SpeedUiState,
+    onStart: () -> Unit,
+    modifier: Modifier = Modifier
+) { /* layout */ }
+
+@Preview(showBackground = true)
+@Composable
+private fun SpeedScreenContentPreview() {
+    NetSpeedTheme(darkTheme = true) {
+        SpeedScreenContent(uiState = SpeedUiState(/* sample */), onStart = {})
+    }
+}
+```
+
+Rules of thumb:
+
+- UI state lives in a `data class` next to the ViewModel (`XUiState.kt`, or `contract/` when there
+  is more than one). Everything the content needs to draw comes through that object.
+- Callbacks are individual lambdas. When a screen has more than a handful, group them in a private
+  `XActions` data class with no-op defaults so the preview can pass `XActions()` (see
+  `SettingsScreen`).
+- Anything that needs a `Context` or the ViewModel — starting a service, opening system settings,
+  dialogs that read option lists off the ViewModel — is wired in `XScreen`, never in the content.
+- Previews use a fixed `darkTheme = true` and populated sample data, so the Android Studio preview
+  shows the screen as it looks with real content rather than an empty state.
 
 ## 🔑 Permissions
 

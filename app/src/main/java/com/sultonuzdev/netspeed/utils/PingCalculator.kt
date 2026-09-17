@@ -8,38 +8,6 @@ import java.io.InputStreamReader
 
 object PingCalculator {
 
-    suspend fun calculatePing(host: String = "8.8.8.8"): String {
-        return withContext(Dispatchers.IO) {
-            try {
-                val process = Runtime.getRuntime().exec("ping -c 1 $host")
-                val reader = BufferedReader(InputStreamReader(process.inputStream))
-
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    line?.let {
-                        // Look for time= in ping output
-                        if (it.contains("time=")) {
-                            val timeIndex = it.indexOf("time=")
-                            val timeSubstring = it.substring(timeIndex + 5)
-                            val timeEnd = timeSubstring.indexOf(" ")
-                            if (timeEnd > 0) {
-                                val pingTime = timeSubstring.substring(0, timeEnd)
-                                return@withContext "${pingTime}ms"
-                            }
-                        }
-                    }
-                }
-
-                process.waitFor()
-                reader.close()
-
-                // Default if ping fails
-                "N/A"
-            } catch (e: Exception) {
-                "N/A"
-            }
-        }
-    }
 
     /**
      * Latency as the time to open a TCP connection, in milliseconds, or null if it fails.

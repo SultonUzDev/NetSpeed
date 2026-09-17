@@ -2,39 +2,51 @@ package com.sultonuzdev.netspeed.presentation.screens.speed
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.netspeed.domain.models.NetworkDetails
-import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
-import com.sultonuzdev.netspeed.presentation.components.NetworkDetailsSheet
-import com.sultonuzdev.netspeed.presentation.components.Sparkline
-import com.sultonuzdev.netspeed.presentation.components.SpeedTestSection
-import com.sultonuzdev.netspeed.presentation.components.SpeedCircle
-import com.sultonuzdev.netspeed.presentation.theme.*
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.SignalWifiOff
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Icon
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
-import com.sultonuzdev.netspeed.presentation.screens.speedtest.SpeedTestViewModel
-import com.sultonuzdev.netspeed.utils.NetworkDetailsReader
+import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
+import com.sultonuzdev.netspeed.presentation.components.NetworkDetailsSheet
+import com.sultonuzdev.netspeed.presentation.components.Sparkline
+import com.sultonuzdev.netspeed.presentation.components.SpeedCircle
+import com.sultonuzdev.netspeed.presentation.components.SpeedTestSection
+import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiState
+import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedUiState
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
+import com.sultonuzdev.netspeed.presentation.theme.Warning
+import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -43,28 +55,43 @@ fun SpeedScreen(
     modifier: Modifier = Modifier,
     viewModel: SpeedViewModel = koinViewModel(),
     // Same instance the inline section below resolves, so the dial and the results agree.
-    speedTestViewModel: SpeedTestViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val testState by speedTestViewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    // Read on open rather than polled: these values barely change, and a dialog that is not
-    // showing should not be querying system services every second.
-    var networkDetails by remember { mutableStateOf<NetworkDetails?>(null) }
+    val speedTestUiState by viewModel.speedTestState.collectAsStateWithLifecycle()
 
-    networkDetails?.let { details ->
-        NetworkDetailsSheet(details = details, onDismiss = { networkDetails = null })
+    SpeedScreenContent(
+        uiState = uiState,
+        speedTestUiState = speedTestUiState,
+        onStart = { viewModel.startTest() },
+        onCancel = { viewModel.cancelTest() },
+        onReadNetworkDetails = { viewModel.readNetworkDetails() },
+        onDismissNetworkDetails = { viewModel.clearNetworkDetails() }
+    )
+}
+
+
+@Composable
+private fun SpeedScreenContent(
+    uiState: SpeedUiState,
+    speedTestUiState: SpeedTestUiState,
+    onStart: () -> Unit,
+    onCancel: () -> Unit,
+    onReadNetworkDetails: () -> Unit,
+    onDismissNetworkDetails: () -> Unit,
+) {
+    uiState.networkDetails?.let { details ->
+        NetworkDetailsSheet(details = details, onDismiss = onDismissNetworkDetails)
     }
-
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
             // The bar floats over the content instead of occupying a Scaffold slot, so the
             // screen has to leave its height free itself.
             .padding(bottom = BottomNavigationHeight + 16.dp)
-    ) {
+    )
+    {
         // Live throughput is already the notification's whole job, so it does not need the
         // largest element on the screen -- a compact strip with its trace is enough.
         LiveSpeedCard(uiState = uiState)
@@ -78,12 +105,12 @@ fun SpeedScreen(
             contentAlignment = Alignment.Center
         ) {
             SpeedCircle(
-                speed = if (testState.phase == SpeedTestPhase.IDLE) "--" else testState.liveValue,
-                unit = if (testState.phase == SpeedTestPhase.IDLE) "" else testState.liveUnit,
-                type = if (testState.phase == SpeedTestPhase.IDLE) {
+                speed = if (speedTestUiState.phase == SpeedTestPhase.IDLE) "--" else speedTestUiState.liveValue,
+                unit = if (speedTestUiState.phase == SpeedTestPhase.IDLE) "" else speedTestUiState.liveUnit,
+                type = if (speedTestUiState.phase == SpeedTestPhase.IDLE) {
                     "Speed test"
                 } else {
-                    testState.phaseLabel
+                    speedTestUiState.phaseLabel
                 }
             )
         }
@@ -92,7 +119,9 @@ fun SpeedScreen(
         // the Speed screen, and its results belong beside the live figures they contextualise.
         SpeedTestSection(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-            viewModel = speedTestViewModel
+            speedTestUiState = speedTestUiState,
+            onCancel = onCancel,
+            onStart = onStart
         )
 
         // Network Status
@@ -107,7 +136,7 @@ fun SpeedScreen(
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                     RoundedCornerShape(12.dp)
                 )
-                .clickable { networkDetails = NetworkDetailsReader.read(context) }
+                .clickable { onReadNetworkDetails() }
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -145,7 +174,9 @@ fun SpeedScreen(
                         .width(3.dp)
                         .height((6 + index * 4).dp)
                         .background(
-                            if (index < uiState.signalStrength) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                            if (index < uiState.signalStrength) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
+                                alpha = 0.3f
+                            ),
                             RoundedCornerShape(1.dp)
                         )
                 )
@@ -159,6 +190,39 @@ fun SpeedScreen(
                 modifier = Modifier.size(20.dp)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SpeedScreenContentPreview() {
+    NetSpeedTheme(darkTheme = true) {
+        SpeedScreenContent(
+            uiState = SpeedUiState(
+                downloadSpeed = "9.9",
+                downloadUnit = "KB/s",
+                uploadSpeed = "2.9",
+                uploadUnit = "KB/s",
+                isConnected = true,
+                networkType = "MOBILE",
+                networkName = "Mobiuz",
+                signalStrength = 3,
+                recentDownload = listOf(2f, 8f, 3f, 12f, 6f, 9f, 4f, 15f, 7f, 5f)
+            ),
+            speedTestUiState = SpeedTestUiState(
+                phase = SpeedTestPhase.DONE,
+                liveValue = "93.6",
+                liveUnit = "Mbps",
+                downloadResult = "93.6 Mbps",
+                uploadResult = "12.4 Mbps",
+                pingResult = "365 ms",
+                jitterResult = "192 ms"
+            ),
+            onStart = {},
+            onCancel = {},
+            onReadNetworkDetails = {},
+            onDismissNetworkDetails = {}
+        )
     }
 }
 

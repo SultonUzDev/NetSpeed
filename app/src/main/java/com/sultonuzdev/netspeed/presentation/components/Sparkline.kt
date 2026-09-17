@@ -13,8 +13,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 
 /**
  * A compact trace of the most recent speed samples, oldest on the left.
@@ -77,5 +79,18 @@ fun Sparkline(
                 style = Stroke(width = 2.dp.toPx())
             )
         }
+    }
+}
+
+
+@Preview
+@Composable
+private fun SparklinePreview() {
+    NetSpeedTheme() {
+        val list =listOf<Float>(0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f)
+        Sparkline(
+            samples = list,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

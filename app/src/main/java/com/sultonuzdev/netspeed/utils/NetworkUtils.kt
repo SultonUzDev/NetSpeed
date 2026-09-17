@@ -7,27 +7,6 @@ import kotlin.math.pow
 object NetworkUtils {
 
     @SuppressLint("DefaultLocale")
-    fun formatDataUsage(bytes: Long): Pair<String, String> {
-        return when {
-            bytes >= 1024L * 1024L * 1024L -> {
-                Pair(String.format("%.2f", bytes.toDouble() / (1024L * 1024L * 1024L)), "GB")
-            }
-
-            bytes >= 1024L * 1024L -> {
-                Pair(String.format("%.1f", bytes.toDouble() / (1024L * 1024L)), "MB")
-            }
-
-            bytes >= 1024L -> {
-                Pair(String.format("%.1f", bytes.toDouble() / 1024L), "KB")
-            }
-
-            else -> {
-                Pair(bytes.toString(), "B")
-            }
-        }
-    }
-
-    @SuppressLint("DefaultLocale")
     fun formatBytes(bytes: Long): String {
         return when {
             bytes < 1024 -> "$bytes B"

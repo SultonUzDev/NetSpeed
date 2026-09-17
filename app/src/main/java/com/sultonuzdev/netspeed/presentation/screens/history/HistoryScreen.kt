@@ -8,44 +8,45 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
 import com.sultonuzdev.netspeed.domain.models.DailyUsageData
 import com.sultonuzdev.netspeed.domain.models.DataLimitLevel
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.DayUsageDetailDialog
-import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
+import com.sultonuzdev.netspeed.presentation.components.UsageBar
 import com.sultonuzdev.netspeed.presentation.components.UsageBarChart
+import com.sultonuzdev.netspeed.presentation.screens.usage.UsageUiState
 import com.sultonuzdev.netspeed.presentation.screens.usage.UsageViewModel
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
+import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -66,8 +67,23 @@ fun HistoryScreen(
         viewModel.refresh()
     }
 
+    HistoryScreenContent(
+        uiState = uiState,
+        onDayClick = viewModel::selectDay,
+        onDismissDay = viewModel::clearSelectedDay,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun HistoryScreenContent(
+    uiState: UsageUiState,
+    onDayClick: (dateKey: String) -> Unit,
+    onDismissDay: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     uiState.selectedDay?.let { day ->
-        DayUsageDetailDialog(detail = day, onDismiss = viewModel::clearSelectedDay)
+        DayUsageDetailDialog(detail = day, onDismiss = onDismissDay)
     }
 
     Column(
@@ -140,7 +156,7 @@ fun HistoryScreen(
                 items(uiState.dailyUsageHistory, key = { it.title }) { dailyData ->
                     UsageDataRow(
                         dailyData = dailyData,
-                        onClick = { viewModel.selectDay(dailyData.dateKey) }
+                        onClick = { onDayClick(dailyData.dateKey) }
                     )
                 }
                 item { UsageDataRow(dailyData = uiState.last7DaysUsage, isSummary = true) }
@@ -149,6 +165,54 @@ fun HistoryScreen(
         }
 
         CycleTotalRow(cycleData = uiState.cycleTotals)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HistoryScreenContentPreview() {
+    val mb = 1024L * 1024
+    val days = listOf(
+        DailyUsageData(
+            title = "Today", mobileUsage = "412 MB", wifiUsage = "2.1 GB", totalUsage = "2.5 GB",
+            isToday = true, dateKey = "2026-09-17", mobileBytes = 412 * mb
+        ),
+        DailyUsageData(
+            title = "Sep 16", mobileUsage = "1.3 GB", wifiUsage = "640 MB", totalUsage = "1.9 GB",
+            dateKey = "2026-09-16", mobileBytes = 1300 * mb, limitLevel = DataLimitLevel.REACHED
+        ),
+        DailyUsageData(
+            title = "Sep 15", mobileUsage = "720 MB", wifiUsage = "1.1 GB", totalUsage = "1.8 GB",
+            dateKey = "2026-09-15", mobileBytes = 720 * mb, limitLevel = DataLimitLevel.WARNING
+        ),
+        DailyUsageData(
+            title = "Sep 14", mobileUsage = "95 MB", wifiUsage = "3.4 GB", totalUsage = "3.5 GB",
+            dateKey = "2026-09-14", mobileBytes = 95 * mb
+        )
+    )
+    NetSpeedTheme(darkTheme = true) {
+        HistoryScreenContent(
+            uiState = UsageUiState(
+                dailyChart = listOf(
+                    UsageBar("Thu", 1200 * mb), UsageBar("Fri", 3100 * mb),
+                    UsageBar("Sat", 2600 * mb), UsageBar("Sun", 3500 * mb),
+                    UsageBar("Mon", 1800 * mb), UsageBar("Tue", 1900 * mb),
+                    UsageBar("Wed", 2500 * mb, isToday = true)
+                ),
+                dailyUsageHistory = days,
+                last7DaysUsage = DailyUsageData(
+                    "Last 7 days", mobileUsage = "4.2 GB", wifiUsage = "12.4 GB", totalUsage = "16.6 GB"
+                ),
+                last30DaysUsage = DailyUsageData(
+                    "Last 30 days", mobileUsage = "9.0 GB", wifiUsage = "41.2 GB", totalUsage = "50.2 GB"
+                ),
+                cycleTotals = DailyUsageData(
+                    "This cycle", mobileUsage = "9.0 GB", wifiUsage = "41.2 GB", totalUsage = "50.2 GB"
+                )
+            ),
+            onDayClick = {},
+            onDismissDay = {}
+        )
     }
 }
 

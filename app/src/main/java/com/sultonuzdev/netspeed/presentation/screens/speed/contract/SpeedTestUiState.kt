@@ -1,4 +1,4 @@
-package com.sultonuzdev.netspeed.presentation.screens.speedtest
+package com.sultonuzdev.netspeed.presentation.screens.speed.contract
 
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
 

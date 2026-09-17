@@ -45,7 +45,16 @@ fun NetworkDetailsSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
+    // Animate out, then tell the owner to drop the state so this leaves composition. Hiding
+    // alone is not enough: the composable stays, its sheetState stays hidden, and the next open
+    // updates a sheet that is already there instead of creating one that will show.
+    val dismiss: () -> Unit = {
+        scope.launch { sheetState.hide() }
+            .invokeOnCompletion { if (!sheetState.isVisible) onDismiss() }
+    }
+
     ModalBottomSheet(
+        // Swipe-down and scrim taps have already animated the sheet out by the time this fires.
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         modifier = modifier,
@@ -126,16 +135,7 @@ fun NetworkDetailsSheet(
                     .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(
-                    onClick = {
-                        // Animate the sheet out first, then drop the state, so it slides away
-                        // instead of vanishing.
-                        scope.launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) onDismiss()
-                            }
-                    }
-                ) {
+                TextButton(onClick = dismiss) {
                     Text("Close")
                 }
             }

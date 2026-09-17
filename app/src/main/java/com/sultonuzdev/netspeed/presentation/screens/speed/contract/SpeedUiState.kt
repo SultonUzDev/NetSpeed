@@ -1,4 +1,6 @@
-package com.sultonuzdev.netspeed.presentation.screens.speed
+package com.sultonuzdev.netspeed.presentation.screens.speed.contract
+
+import com.sultonuzdev.netspeed.domain.models.NetworkDetails
 
 data class SpeedUiState(
     val downloadSpeed: String = "0",
@@ -11,5 +13,6 @@ data class SpeedUiState(
     val signalStrength: Int = 0,
 
     /** Recent download samples in bytes/sec, oldest first. */
-    val recentDownload: List<Float> = emptyList()
+    val recentDownload: List<Float> = emptyList(),
+    val networkDetails: NetworkDetails? = null
 )

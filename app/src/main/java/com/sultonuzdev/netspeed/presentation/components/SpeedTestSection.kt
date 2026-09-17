@@ -18,18 +18,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
-import com.sultonuzdev.netspeed.presentation.screens.speedtest.SpeedTestViewModel
-import com.sultonuzdev.netspeed.utils.NetworkUtils
-import org.koin.androidx.compose.koinViewModel
+import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiState
 
 /**
  * The speed test, inline on the Speed screen.
@@ -41,22 +37,24 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SpeedTestSection(
     modifier: Modifier = Modifier,
-    viewModel: SpeedTestViewModel = koinViewModel()
+    speedTestUiState: SpeedTestUiState,
+    onCancel:() -> Unit,
+    onStart:() -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val hasRun = uiState.phase != SpeedTestPhase.IDLE
+
+    val hasRun = speedTestUiState.phase != SpeedTestPhase.IDLE
 
     Column(modifier = modifier.fillMaxWidth()) {
-        if (uiState.isRunning) {
+        if (speedTestUiState.isRunning) {
             OutlinedButton(
-                onClick = viewModel::cancelTest,
+                onClick =onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Cancel")
             }
         } else {
             Button(
-                onClick = viewModel::startTest,
+                onClick =onStart,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(if (hasRun) "Test again" else "Run speed test")
@@ -66,7 +64,7 @@ fun SpeedTestSection(
         AnimatedVisibility(visible = hasRun) {
             Column {
                 Spacer(modifier = Modifier.height(12.dp))
-                PhaseIndicator(phase = uiState.phase)
+                PhaseIndicator(phase = speedTestUiState.phase)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
@@ -75,13 +73,13 @@ fun SpeedTestSection(
                 ) {
                     StatCard(
                         label = "Download",
-                        value = uiState.downloadResult,
+                        value = speedTestUiState.downloadResult,
                         modifier = Modifier.weight(1f),
                         compact = true
                     )
                     StatCard(
                         label = "Upload",
-                        value = uiState.uploadResult,
+                        value = speedTestUiState.uploadResult,
                         modifier = Modifier.weight(1f),
                         compact = true
                     )
@@ -95,19 +93,19 @@ fun SpeedTestSection(
                 ) {
                     StatCard(
                         label = "Ping",
-                        value = uiState.pingResult,
+                        value = speedTestUiState.pingResult,
                         modifier = Modifier.weight(1f),
                         compact = true
                     )
                     StatCard(
                         label = "Jitter",
-                        value = uiState.jitterResult,
+                        value = speedTestUiState.jitterResult,
                         modifier = Modifier.weight(1f),
                         compact = true
                     )
                 }
 
-                uiState.error?.let { message ->
+                speedTestUiState.error?.let { message ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = message,

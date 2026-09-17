@@ -21,9 +21,11 @@ import java.net.Inet6Address
  * as blanks: SSID and BSSID need location, and the mobile data generation (LTE/5G) needs
  * READ_PHONE_STATE.
  */
-object NetworkDetailsReader {
+class NetworkDetailsReader(
+    private val context: Context,
+) {
 
-    fun read(context: Context): NetworkDetails {
+    fun read(): NetworkDetails {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
                 ?: return offline()

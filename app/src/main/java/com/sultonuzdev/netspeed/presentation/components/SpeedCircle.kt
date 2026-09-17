@@ -12,8 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 
 @Composable
 fun SpeedCircle(
@@ -128,4 +130,20 @@ fun SpeedCircle(
             )
         }
     }
+}
+
+
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun SpeedCirclePreview() {
+    NetSpeedTheme {
+        SpeedCircle(
+            speed = "100",
+            unit = "Mbps",
+            type = "Download",
+            secondary = "Upload",
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+
 }

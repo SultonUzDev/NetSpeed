@@ -21,7 +21,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,17 +29,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.domain.models.DataLimitLevel
+import com.sultonuzdev.netspeed.domain.models.DataLimitStatus
+import com.sultonuzdev.netspeed.domain.models.UsageForecast
 import com.sultonuzdev.netspeed.presentation.components.AppUsageDetailDialog
-import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.AppUsageListItem
+import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.DataLimitCard
 import com.sultonuzdev.netspeed.presentation.components.StatCard
 import com.sultonuzdev.netspeed.presentation.components.UsageAccessCard
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 import com.sultonuzdev.netspeed.utils.UsageAccessHelper
 import org.koin.androidx.compose.koinViewModel
 
@@ -62,12 +65,33 @@ fun UsageScreen(
         viewModel.refresh()
     }
 
+    UsageScreenContent(
+        uiState = uiState,
+        onPeriodSelected = viewModel::selectAppUsagePeriod,
+        onAppClick = viewModel::selectApp,
+        onDismissApp = viewModel::clearSelectedApp,
+        onSetAppLimit = viewModel::setAppLimit,
+        onGrantClick = { openUsageAccessSettings(context) },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun UsageScreenContent(
+    uiState: UsageUiState,
+    onPeriodSelected: (AppUsagePeriod) -> Unit,
+    onAppClick: (Int) -> Unit,
+    onDismissApp: () -> Unit,
+    onSetAppLimit: (uid: Int, bytes: Long) -> Unit,
+    onGrantClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     uiState.selectedApp?.let { detail ->
         AppUsageDetailDialog(
             detail = detail,
-            onDismiss = viewModel::clearSelectedApp,
+            onDismiss = onDismissApp,
             limitBytes = uiState.appLimits[detail.uid],
-            onSetLimit = { bytes -> viewModel.setAppLimit(detail.uid, bytes) }
+            onSetLimit = { bytes -> onSetAppLimit(detail.uid, bytes) }
         )
     }
 
@@ -90,9 +114,64 @@ fun UsageScreen(
         AppUsageSection(
             uiState = uiState,
             modifier = Modifier.weight(1f),
-            onPeriodSelected = viewModel::selectAppUsagePeriod,
-            onAppClick = viewModel::selectApp,
-            onGrantClick = { openUsageAccessSettings(context) }
+            onPeriodSelected = onPeriodSelected,
+            onAppClick = onAppClick,
+            onGrantClick = onGrantClick
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UsageScreenContentPreview() {
+    val gb = 1024L * 1024 * 1024
+    val mb = 1024L * 1024
+    NetSpeedTheme(darkTheme = true) {
+        UsageScreenContent(
+            uiState = UsageUiState(
+                todayMobile = "412 MB",
+                todayWifi = "2.1 GB",
+                todayTotal = "2.5 GB",
+                hasUsageAccess = true,
+                isUsageAccurate = true,
+                dataLimitStatus = DataLimitStatus(
+                    usedBytes = 9 * gb,
+                    limitBytes = 25 * gb,
+                    level = DataLimitLevel.NONE,
+                    cycleKey = "2026-09",
+                    warningThresholdPercent = 80
+                ),
+                forecast = UsageForecast(
+                    usedBytes = 9 * gb,
+                    limitBytes = 25 * gb,
+                    projectedBytes = 21 * gb,
+                    perDayBytes = 700 * mb,
+                    daysRemaining = 17,
+                    daysUntilLimit = null
+                ),
+                appUsage = listOf(
+                    AppUsageRow(
+                        uid = 10001, packageName = "com.example.video", appLabel = "Video",
+                        mobileUsage = "310 MB", wifiUsage = "1.4 GB", totalUsage = "1.7 GB",
+                        totalBytes = 1700 * mb, shareOfMax = 1f
+                    ),
+                    AppUsageRow(
+                        uid = 10002, packageName = "com.example.chat", appLabel = "Chat",
+                        mobileUsage = "80 MB", wifiUsage = "420 MB", totalUsage = "500 MB",
+                        totalBytes = 500 * mb, shareOfMax = 0.3f
+                    ),
+                    AppUsageRow(
+                        uid = 10003, packageName = "com.example.browser", appLabel = "Browser",
+                        mobileUsage = "22 MB", wifiUsage = "260 MB", totalUsage = "282 MB",
+                        totalBytes = 282 * mb, shareOfMax = 0.17f
+                    )
+                )
+            ),
+            onPeriodSelected = {},
+            onAppClick = {},
+            onDismissApp = {},
+            onSetAppLimit = { _, _ -> },
+            onGrantClick = {}
         )
     }
 }
