@@ -54,6 +54,5 @@ val DarkCardBackground = Color(0x1A64FFDA)
 val DarkCardBorder = Color(0x4D64FFDA)
 
 // Light theme custom colors
-val LightBackgroundVariant = Color(0xFFF8F9FA)
 val LightCardBackground = Color(0xFFF5F5F5)
 val LightCardBorder = Color(0xFFE0E0E0)

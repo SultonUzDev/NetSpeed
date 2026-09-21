@@ -1,8 +1,6 @@
 package com.sultonuzdev.netspeed.domain.models
 
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class NetworkInfo(
     val isConnected: Boolean = false,
     val networkType: NetworkType = NetworkType.NONE,

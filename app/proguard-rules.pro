@@ -11,8 +11,8 @@
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
 
-# Annotations drive Room's generated code and the serialization plugin; stripping them breaks
-# both in ways that only appear at runtime.
+# Annotations drive Room's generated code; stripping them breaks it in ways that only appear
+# at runtime.
 -keepattributes *Annotation*, InnerClasses, Signature, Exceptions
 
 # ---------------------------------------------------------------------------------------------
@@ -45,19 +45,6 @@
 # are needed for the modules themselves. It does look types up by class, so the classes named in
 # a module must survive with their identity intact -- which the rules above and below cover.
 -dontwarn org.koin.**
-
-# ---------------------------------------------------------------------------------------------
-# kotlinx.serialization
-# ---------------------------------------------------------------------------------------------
-# @Serializable is declared on three domain models. Nothing serializes them today, but the
-# generated serializers are found by name, so a future Json call would fail in release only.
--keepattributes RuntimeVisibleAnnotations
--keepclassmembers class com.sultonuzdev.netspeed.domain.models.** {
-    *** Companion;
-}
--keepclasseswithmembers class com.sultonuzdev.netspeed.domain.models.** {
-    kotlinx.serialization.KSerializer serializer(...);
-}
 
 # ---------------------------------------------------------------------------------------------
 # Domain and UI state

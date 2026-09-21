@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import com.sultonuzdev.netspeed.domain.models.NetworkInfo
 import com.sultonuzdev.netspeed.domain.models.NetworkSpeed
 import com.sultonuzdev.netspeed.domain.models.NetworkType
-import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
 import com.sultonuzdev.netspeed.utils.SignalStrengthReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +21,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-class NetworkRepositoryImpl(
+class NetworkRepository(
     private val context: Context
-) : NetworkRepository {
+) {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
@@ -43,7 +42,7 @@ class NetworkRepositoryImpl(
     private val _networkSpeed = MutableSharedFlow<NetworkSpeed>(replay = 1)
     private val _networkInfo = MutableSharedFlow<NetworkInfo>(replay = 1)
 
-    override suspend fun startMonitoring() {
+    suspend fun startMonitoring() {
         if (isMonitoring) return
 
         isMonitoring = true
@@ -66,7 +65,7 @@ class NetworkRepositoryImpl(
 
     }
 
-    override suspend fun stopMonitoring() {
+    suspend fun stopMonitoring() {
         isMonitoring = false
     }
 
@@ -188,7 +187,7 @@ class NetworkRepositoryImpl(
         }
     }
 
-    override fun getNetworkSpeed(): Flow<NetworkSpeed> = _networkSpeed
+    fun getNetworkSpeed(): Flow<NetworkSpeed> = _networkSpeed
 
-    override fun getNetworkInfo(): Flow<NetworkInfo> = _networkInfo
+    fun getNetworkInfo(): Flow<NetworkInfo> = _networkInfo
 }

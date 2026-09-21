@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigation
 import com.sultonuzdev.netspeed.presentation.screens.history.HistoryScreen
@@ -83,13 +83,14 @@ class MainActivity : ComponentActivity() {
             val isDarkTheme by mainViewModel.isDarkTheme.collectAsStateWithLifecycle()
             val isDynamicColor by mainViewModel.isDynamicColor.collectAsStateWithLifecycle()
             val currentPage by mainViewModel.currentPage.collectAsStateWithLifecycle()
-            val systemUiController = rememberSystemUiController()
-
+            // Re-applied on theme change so the status/nav bar icons flip with the app, not
+            // with the system setting.
             LaunchedEffect(isDarkTheme) {
-                systemUiController.setSystemBarsColor(
-                    color = androidx.compose.ui.graphics.Color.Transparent,
-                    darkIcons = !isDarkTheme
-                )
+                val bars = SystemBarStyle.auto(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT
+                ) { isDarkTheme }
+                enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
             }
 
             // Binds the composition to the Koin instance started in the Application. Without

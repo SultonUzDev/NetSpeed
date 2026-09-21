@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val preferencesManager: PreferencesManager
@@ -23,13 +22,6 @@ class MainViewModel(
         )
 
     val isDynamicColor: StateFlow<Boolean> = preferencesManager.dynamicColor
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
-
-    val isFirstLaunch: StateFlow<Boolean> = preferencesManager.isFirstLaunch
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -54,11 +46,5 @@ class MainViewModel(
             return true
         }
         return preferencesManager.monitoringEnabled.first()
-    }
-
-    fun completeFirstLaunch() {
-        viewModelScope.launch {
-            preferencesManager.updateFirstLaunch(false)
-        }
     }
 }

@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.data.repository.UsageRepository
 import com.sultonuzdev.netspeed.data.overlay.SpeedOverlayManager
 import com.sultonuzdev.netspeed.data.widget.SpeedWidgetProvider
 import com.sultonuzdev.netspeed.data.widget.UsageWidgetProvider
@@ -36,7 +37,6 @@ import com.sultonuzdev.netspeed.domain.usecases.Alert
 import com.sultonuzdev.netspeed.domain.usecases.CheckAlertsUseCase
 import com.sultonuzdev.netspeed.domain.usecases.CheckDataLimitUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetUsageForecastUseCase
-import com.sultonuzdev.netspeed.domain.usecases.SaveUsageDataUseCase
 import com.sultonuzdev.netspeed.presentation.MainActivity
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
@@ -77,9 +77,8 @@ class SpeedMonitorService : Service() {
     private var restartAttempts = 0
     private val maxRestartAttempts = 3
 
-    // Inject PreferencesManager and SaveUsageDataUseCase
     private val preferencesManager: PreferencesManager by inject()
-    private val saveUsageDataUseCase: SaveUsageDataUseCase by inject()
+    private val usageRepository: UsageRepository by inject()
     private val checkDataLimitUseCase: CheckDataLimitUseCase by inject()
     private val checkAlertsUseCase: CheckAlertsUseCase by inject()
     private val getUsageForecastUseCase: GetUsageForecastUseCase by inject()
@@ -407,7 +406,7 @@ class SpeedMonitorService : Service() {
 
         persistenceScope.launch {
             try {
-                saveUsageDataUseCase.addDelta(dayKey, wifiDelta, mobileDelta, sessionDelta)
+                usageRepository.addUsageDelta(dayKey, wifiDelta, mobileDelta, sessionDelta)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

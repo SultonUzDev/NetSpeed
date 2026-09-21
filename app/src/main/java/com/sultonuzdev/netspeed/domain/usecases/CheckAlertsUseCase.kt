@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.data.repository.NetworkStatsRepository
 import com.sultonuzdev.netspeed.utils.UsagePeriods
 import kotlinx.coroutines.flow.first
 
@@ -24,15 +25,14 @@ sealed interface Alert {
 class CheckAlertsUseCase(
     private val context: Context,
     private val preferencesManager: PreferencesManager,
-    private val getAppUsageUseCase: GetAppUsageUseCase,
-    private val getAccurateUsageUseCase: GetAccurateUsageUseCase
+    private val networkStats: NetworkStatsRepository
 ) {
 
     suspend fun check(): List<Alert> = buildList {
         checkRoaming()?.let { add(it) }
 
         // The remaining checks read per-app figures, which need usage access.
-        if (!getAppUsageUseCase.hasUsageAccess()) return@buildList
+        if (!networkStats.hasUsageAccess()) return@buildList
 
         addAll(checkAppLimits())
         addAll(checkBackgroundData())
@@ -55,7 +55,7 @@ class CheckAlertsUseCase(
 
         preferencesManager.updateAlertedRoaming(true)
         val resetDay = preferencesManager.monthlyResetDate.first()
-        val used = getAccurateUsageUseCase.cycleTotal(resetDay)?.mobileUsage ?: 0L
+        val used = networkStats.getCycleUsage(resetDay)?.mobileUsage ?: 0L
         return Alert.Roaming(used)
     }
 
@@ -85,7 +85,7 @@ class CheckAlertsUseCase(
             .filter { it.startsWith("$cycleKey:") }
             .toMutableSet()
 
-        val usage = runCatching { getAppUsageUseCase.forCycle(resetDay) }.getOrDefault(emptyList())
+        val usage = runCatching { networkStats.getAppUsageForCycle(resetDay) }.getOrDefault(emptyList())
 
         val due = usage.mapNotNull { app ->
             val limit = limits[app.uid] ?: return@mapNotNull null
@@ -114,7 +114,7 @@ class CheckAlertsUseCase(
             .toMutableSet()
 
         // Only the day's heaviest apps are worth the per-uid detail queries this needs.
-        val candidates = runCatching { getAppUsageUseCase.forToday() }
+        val candidates = runCatching { networkStats.getAppUsageForDay() }
             .getOrDefault(emptyList())
             .filter { it.totalBytes >= threshold }
             .take(MAX_APPS_INSPECTED)
@@ -123,7 +123,7 @@ class CheckAlertsUseCase(
             val marker = "$today:${app.uid}"
             if (marker in alerted) return@mapNotNull null
 
-            val detail = runCatching { getAppUsageUseCase.detailForToday(app.uid) }.getOrNull()
+            val detail = runCatching { networkStats.getAppDetailForDay(app.uid) }.getOrNull()
                 ?: return@mapNotNull null
             if (!detail.hasStateBreakdown || detail.backgroundBytes < threshold) {
                 return@mapNotNull null

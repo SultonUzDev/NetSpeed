@@ -5,9 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
-import com.sultonuzdev.netspeed.domain.repository.NetworkRepository
-import com.sultonuzdev.netspeed.domain.usecases.GetNetworkSpeedUseCase
-import com.sultonuzdev.netspeed.domain.usecases.RunSpeedTestUseCase
+import com.sultonuzdev.netspeed.data.repository.NetworkRepository
+import com.sultonuzdev.netspeed.data.repository.SpeedTestRepository
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiState
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedUiState
 import com.sultonuzdev.netspeed.utils.NetworkDetailsReader
@@ -23,11 +22,9 @@ import java.io.IOException
 import java.net.UnknownHostException
 
 class SpeedViewModel(
-    private val getNetworkSpeedUseCase: GetNetworkSpeedUseCase,
     private val networkRepository: NetworkRepository,
     private val preferencesManager: PreferencesManager,
-
-    private val runSpeedTestUseCase: RunSpeedTestUseCase,
+    private val speedTestRepository: SpeedTestRepository,
     private val networkDetailsReader: NetworkDetailsReader
 ) : ViewModel() {
 
@@ -94,7 +91,7 @@ class SpeedViewModel(
 
         testJob = viewModelScope.launch {
             try {
-                val result = runSpeedTestUseCase { phase, bytesPerSecond ->
+                val result = speedTestRepository.runTest { phase, bytesPerSecond ->
                     val formatted = SpeedFormatter.format(bytesPerSecond, reportingUnit)
                     _uiTestState.update { current ->
                         // Results used to be published only once everything finished, so the
@@ -186,7 +183,7 @@ class SpeedViewModel(
 
     private fun observeNetworkSpeed() {
         viewModelScope.launch {
-            getNetworkSpeedUseCase().collect { speed ->
+            networkRepository.getNetworkSpeed().collect { speed ->
                 val download = SpeedFormatter.format(speed.downloadSpeed, speedUnit)
                 val upload = SpeedFormatter.format(speed.uploadSpeed, speedUnit)
                 _uiState.update { currentState ->

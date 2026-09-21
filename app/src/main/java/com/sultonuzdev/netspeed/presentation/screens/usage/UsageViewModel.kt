@@ -3,20 +3,18 @@ package com.sultonuzdev.netspeed.presentation.screens.usage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.data.repository.NetworkStatsRepository
 import com.sultonuzdev.netspeed.domain.models.AppUsage
 import com.sultonuzdev.netspeed.domain.models.DailyUsageData
 import com.sultonuzdev.netspeed.domain.models.DataLimitLevel
 import com.sultonuzdev.netspeed.domain.models.DayUsageDetail
 import com.sultonuzdev.netspeed.domain.models.UsageData
 import com.sultonuzdev.netspeed.domain.usecases.CheckDataLimitUseCase
-import com.sultonuzdev.netspeed.domain.usecases.GetAccurateUsageUseCase
-import com.sultonuzdev.netspeed.domain.usecases.GetAppUsageUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetUsageForecastUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetUsageDataUseCase
 import com.sultonuzdev.netspeed.presentation.components.UsageBar
 import com.sultonuzdev.netspeed.utils.NetworkUtils
 import com.sultonuzdev.netspeed.utils.UsagePeriods
-import com.sultonuzdev.netspeed.utils.getCurrentMonth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.YearMonth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -31,8 +30,7 @@ import java.util.Locale
 
 class UsageViewModel(
     private val getUsageDataUseCase: GetUsageDataUseCase,
-    private val getAccurateUsageUseCase: GetAccurateUsageUseCase,
-    private val getAppUsageUseCase: GetAppUsageUseCase,
+    private val networkStats: NetworkStatsRepository,
     private val checkDataLimitUseCase: CheckDataLimitUseCase,
     private val getUsageForecastUseCase: GetUsageForecastUseCase,
     private val preferencesManager: PreferencesManager
@@ -69,7 +67,7 @@ class UsageViewModel(
                 if (limit <= 0L) 0L else limit / UsagePeriods.daysInCycle(resetDay)
             warningThresholdPercent = preferencesManager.warningThreshold.first().coerceIn(1, 100)
 
-            val hasAccess = getAppUsageUseCase.hasUsageAccess()
+            val hasAccess = networkStats.hasUsageAccess()
             _uiState.update { it.copy(hasUsageAccess = hasAccess, isUsageAccurate = hasAccess) }
 
             // Ordered cheapest-and-most-visible first. Platform queries are serialised, and
@@ -88,13 +86,11 @@ class UsageViewModel(
     fun selectApp(uid: Int) {
         appDetailJob?.cancel()
         appDetailJob = viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingAppDetail = true) }
-
             val period = _uiState.value.appUsagePeriod
             val detail = try {
                 when (period) {
-                    AppUsagePeriod.TODAY -> getAppUsageUseCase.detailForToday(uid)
-                    AppUsagePeriod.CYCLE -> getAppUsageUseCase.detailForCycle(
+                    AppUsagePeriod.TODAY -> networkStats.getAppDetailForDay(uid)
+                    AppUsagePeriod.CYCLE -> networkStats.getAppDetailForCycle(
                         uid,
                         preferencesManager.monthlyResetDate.first()
                     )
@@ -113,8 +109,7 @@ class UsageViewModel(
                             (detail.totalBytes.toFloat() / periodTotal).coerceIn(0f, 1f)
                         } else 0f,
                         periodLabel = period.label
-                    ),
-                    isLoadingAppDetail = false
+                    )
                 )
             }
         }
@@ -122,7 +117,7 @@ class UsageViewModel(
 
     fun clearSelectedApp() {
         appDetailJob?.cancel()
-        _uiState.update { it.copy(selectedApp = null, isLoadingAppDetail = false) }
+        _uiState.update { it.copy(selectedApp = null) }
     }
 
     fun selectAppUsagePeriod(period: AppUsagePeriod) {
@@ -140,7 +135,7 @@ class UsageViewModel(
             getUsageDataUseCase.getTodayUsage().collect { usageData ->
                 // With usage access the platform figure wins; the Room row is the fallback.
                 val usage = if (_uiState.value.hasUsageAccess) {
-                    getAccurateUsageUseCase.today() ?: usageData
+                    networkStats.getUsageForDay() ?: usageData
                 } else {
                     usageData
                 }
@@ -148,9 +143,7 @@ class UsageViewModel(
                     currentState.copy(
                         todayWifi = NetworkUtils.formatBytes(usage.wifiUsage),
                         todayMobile = NetworkUtils.formatBytes(usage.mobileUsage),
-                        todayTotal = NetworkUtils.formatBytes(usage.totalUsage),
-                        todayProgress = dailyProgress(usage.mobileUsage),
-                        sessionTime = NetworkUtils.formatTime(usageData.sessionTime)
+                        todayTotal = NetworkUtils.formatBytes(usage.totalUsage)
                     )
                 }
             }
@@ -165,10 +158,10 @@ class UsageViewModel(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 if (hasAccess) {
-                    val history = getAccurateUsageUseCase.dailyHistory(HISTORY_DAYS)
+                    val history = networkStats.getDailyHistory(HISTORY_DAYS)
                     publishHistory(history)
                 } else {
-                    getUsageDataUseCase.getMonthlyUsage(getCurrentMonth()).collect { monthlyData ->
+                    getUsageDataUseCase.getMonthlyUsage(YearMonth.now().toString()).collect { monthlyData ->
                         publishHistory(fillMissingDaysOfMonth(monthlyData))
                     }
                 }
@@ -213,7 +206,7 @@ class UsageViewModel(
             val resetDay = preferencesManager.monthlyResetDate.first()
 
             val cycle = if (hasAccess) {
-                getAccurateUsageUseCase.cycleTotal(resetDay)
+                networkStats.getCycleUsage(resetDay)
             } else {
                 val bounds = UsagePeriods.billingCycleBounds(resetDay)
                 val start = UsagePeriods.dayKey(bounds.first)
@@ -238,14 +231,13 @@ class UsageViewModel(
     /** Standing against the mobile-data cap, for the progress card above the table. */
     private fun loadDataLimitStatus() {
         viewModelScope.launch {
-            val enabled = preferencesManager.dataLimitAlert.first()
             val status = try {
                 checkDataLimitUseCase.status()
             } catch (e: Exception) {
                 null
             }
             _uiState.update {
-                it.copy(dataLimitStatus = status, dataLimitAlertEnabled = enabled)
+                it.copy(dataLimitStatus = status)
             }
         }
     }
@@ -277,7 +269,7 @@ class UsageViewModel(
     private fun loadAppUsage() {
         appUsageJob?.cancel()
         appUsageJob = viewModelScope.launch {
-            if (!getAppUsageUseCase.hasUsageAccess()) {
+            if (!networkStats.hasUsageAccess()) {
                 _uiState.update {
                     it.copy(appUsage = emptyList(), isLoadingApps = false, hasUsageAccess = false)
                 }
@@ -287,9 +279,9 @@ class UsageViewModel(
             _uiState.update { it.copy(isLoadingApps = true) }
             val apps = try {
                 when (_uiState.value.appUsagePeriod) {
-                    AppUsagePeriod.TODAY -> getAppUsageUseCase.forToday()
+                    AppUsagePeriod.TODAY -> networkStats.getAppUsageForDay()
                     AppUsagePeriod.CYCLE ->
-                        getAppUsageUseCase.forCycle(preferencesManager.monthlyResetDate.first())
+                        networkStats.getAppUsageForCycle(preferencesManager.monthlyResetDate.first())
                 }
             } catch (e: Exception) {
                 emptyList()
@@ -356,8 +348,8 @@ class UsageViewModel(
                 formatDisplayDate(dateKey)
             }
 
-            val totals = if (getAccurateUsageUseCase.hasUsageAccess()) {
-                getAccurateUsageUseCase.forDay(dayMillis)
+            val totals = if (networkStats.hasUsageAccess()) {
+                networkStats.getUsageForDay(dayMillis)
             } else {
                 null
             } ?: getUsageDataUseCase.getUsageInRange(dateKey, dateKey)
@@ -372,15 +364,15 @@ class UsageViewModel(
                         wifiBytes = totals.wifiUsage,
                         budgetBytes = dailyMobileBudgetBytes,
                         level = levelForDay(totals.mobileUsage),
-                        isLoadingApps = getAppUsageUseCase.hasUsageAccess()
+                        isLoadingApps = networkStats.hasUsageAccess()
                     )
                 )
             }
 
-            if (!getAppUsageUseCase.hasUsageAccess()) return@launch
+            if (!networkStats.hasUsageAccess()) return@launch
 
             val apps = try {
-                getAppUsageUseCase.forDay(dayMillis).take(TOP_APPS_PER_DAY)
+                networkStats.getAppUsageForDay(dayMillis).take(TOP_APPS_PER_DAY)
             } catch (e: Exception) {
                 emptyList()
             }
@@ -441,15 +433,6 @@ class UsageViewModel(
         } catch (e: Exception) {
             dateString
         }
-    }
-
-    /**
-     * Today's mobile usage against its share of the cap. Replaces a hardcoded 5 GB that ignored
-     * whatever limit the user had actually configured.
-     */
-    private fun dailyProgress(mobileBytes: Long): Float {
-        val budget = dailyMobileBudgetBytes
-        return if (budget > 0L) (mobileBytes.toFloat() / budget).coerceIn(0f, 1f) else 0f
     }
 
     private companion object {

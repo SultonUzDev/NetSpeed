@@ -1,7 +1,6 @@
 package com.sultonuzdev.netspeed.utils
 
 import android.annotation.SuppressLint
-import kotlin.math.pow
 
 /**
  * How to express a speed.
@@ -41,7 +40,7 @@ object SpeedFormatter {
         return when (unit) {
             SpeedUnit.AUTO -> auto(bytes)
             SpeedUnit.MEGABYTES -> FormattedSpeed(
-                trim(bytes / 1024.0.pow(2)),
+                trim(bytes / (1 shl 20)),
                 SpeedUnit.MEGABYTES.label
             )
 
@@ -65,8 +64,8 @@ object SpeedFormatter {
     /** Scales through byte units so the number stays short and readable. */
     @SuppressLint("DefaultLocale")
     private fun auto(bytes: Double): FormattedSpeed = when {
-        bytes >= 1024.0.pow(3) -> FormattedSpeed(trim(bytes / 1024.0.pow(3)), "GB/s")
-        bytes >= 1024.0.pow(2) -> FormattedSpeed(trim(bytes / 1024.0.pow(2)), "MB/s")
+        bytes >= (1 shl 30) -> FormattedSpeed(trim(bytes / (1 shl 30)), "GB/s")
+        bytes >= (1 shl 20) -> FormattedSpeed(trim(bytes / (1 shl 20)), "MB/s")
         bytes >= 1024.0 -> FormattedSpeed(trim(bytes / 1024.0), "KB/s")
         else -> FormattedSpeed(String.format("%.0f", bytes), "B/s")
     }

@@ -1,8 +1,6 @@
 package com.sultonuzdev.netspeed.domain.models
 
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class UsageData(
     val date: String,
     val wifiUsage: Long = 0L,

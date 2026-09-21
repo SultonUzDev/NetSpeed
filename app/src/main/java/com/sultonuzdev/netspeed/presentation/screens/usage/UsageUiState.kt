@@ -30,10 +30,6 @@ data class UsageUiState(
     val todayWifi: String = "0 B",
     val todayMobile: String = "0 B",
     val todayTotal: String = "0 B",
-    val todayProgress: Float = 0f,
-    val sessionUsage: String = "0",
-    val sessionUnit: String = "B",
-    val sessionTime: String = "0s",
     /** Per-day columns for the History chart, oldest first. */
     val dailyChart: List<UsageBar> = emptyList(),
     val dailyUsageHistory: List<DailyUsageData> = emptyList(),
@@ -45,7 +41,6 @@ data class UsageUiState(
 
     /** Mobile usage measured against the cap; null while unknown. */
     val dataLimitStatus: DataLimitStatus? = null,
-    val dataLimitAlertEnabled: Boolean = false,
     /** Where the cycle is heading at the current rate; null when no limit is set. */
     val forecast: UsageForecast? = null,
     /** Per-app cycle allowances by uid, for the app detail dialog. */
@@ -58,7 +53,6 @@ data class UsageUiState(
     val selectedApp: AppUsageDetail? = null,
     /** Set while a History day is open; null closes it. */
     val selectedDay: DayUsageDetail? = null,
-    val isLoadingAppDetail: Boolean = false,
 
     /** Whether the user has granted usage access; per-app data is unavailable without it. */
     val hasUsageAccess: Boolean = false,

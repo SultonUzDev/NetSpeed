@@ -1,6 +1,7 @@
 package com.sultonuzdev.netspeed.domain.usecases
 
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.data.repository.NetworkStatsRepository
 import com.sultonuzdev.netspeed.domain.models.DataLimitLevel
 import com.sultonuzdev.netspeed.domain.models.DataLimitStatus
 import com.sultonuzdev.netspeed.utils.UsagePeriods
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.first
  */
 class CheckDataLimitUseCase(
     private val preferencesManager: PreferencesManager,
-    private val getAccurateUsageUseCase: GetAccurateUsageUseCase,
+    private val networkStats: NetworkStatsRepository,
     private val getUsageDataUseCase: GetUsageDataUseCase
 ) {
 
@@ -69,8 +70,8 @@ class CheckDataLimitUseCase(
     }
 
     private suspend fun mobileUsageForCycle(resetDay: Int, bounds: LongRange): Long {
-        if (getAccurateUsageUseCase.hasUsageAccess()) {
-            getAccurateUsageUseCase.cycleTotal(resetDay)?.let { return it.mobileUsage }
+        if (networkStats.hasUsageAccess()) {
+            networkStats.getCycleUsage(resetDay)?.let { return it.mobileUsage }
         }
         // Fallback to the sampled rows in Room.
         return getUsageDataUseCase.getUsageInRange(

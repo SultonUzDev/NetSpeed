@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.kapt)
 }
 
@@ -102,7 +101,6 @@ dependencies {
     // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
-    implementation(libs.androidx.navigation.compose)
 
     // Lifecycle
     implementation(libs.bundles.lifecycle)
@@ -119,15 +117,6 @@ dependencies {
 
     // Coroutines
     implementation(libs.bundles.coroutines)
-
-    // WorkManager
-    implementation(libs.androidx.work.runtime.ktx)
-
-    // Accompanist
-    implementation(libs.bundles.accompanist)
-
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
 
     // Testing
     testImplementation(libs.junit)

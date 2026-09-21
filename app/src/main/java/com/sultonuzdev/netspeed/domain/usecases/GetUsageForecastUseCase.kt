@@ -1,6 +1,7 @@
 package com.sultonuzdev.netspeed.domain.usecases
 
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
+import com.sultonuzdev.netspeed.data.repository.NetworkStatsRepository
 import com.sultonuzdev.netspeed.domain.models.UsageForecast
 import com.sultonuzdev.netspeed.utils.UsagePeriods
 import kotlinx.coroutines.flow.first
@@ -16,7 +17,7 @@ import kotlin.math.ceil
  */
 class GetUsageForecastUseCase(
     private val preferencesManager: PreferencesManager,
-    private val getAccurateUsageUseCase: GetAccurateUsageUseCase,
+    private val networkStats: NetworkStatsRepository,
     private val getUsageDataUseCase: GetUsageDataUseCase
 ) {
 
@@ -58,8 +59,8 @@ class GetUsageForecastUseCase(
     }
 
     private suspend fun mobileUsedThisCycle(resetDay: Int, bounds: LongRange): Long {
-        if (getAccurateUsageUseCase.hasUsageAccess()) {
-            getAccurateUsageUseCase.cycleTotal(resetDay)?.let { return it.mobileUsage }
+        if (networkStats.hasUsageAccess()) {
+            networkStats.getCycleUsage(resetDay)?.let { return it.mobileUsage }
         }
         return getUsageDataUseCase.getUsageInRange(
             UsagePeriods.dayKey(bounds.first),
