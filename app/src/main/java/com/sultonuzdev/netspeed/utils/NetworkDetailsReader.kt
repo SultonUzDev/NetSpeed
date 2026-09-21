@@ -21,6 +21,11 @@ import java.net.Inet6Address
  * as blanks: SSID and BSSID need location, and the mobile data generation (LTE/5G) needs
  * READ_PHONE_STATE.
  */
+private const val CONNECTION = "Connection"
+private const val ADDRESSES = "Addresses"
+private const val RADIO = "Radio"
+private const val CARRIER = "Carrier"
+
 class NetworkDetailsReader(
     private val context: Context,
 ) {
@@ -51,7 +56,6 @@ class NetworkDetailsReader(
                 isCellular -> "Mobile data"
                 else -> "Network"
             },
-            subtitle = "Available without extra permissions",
             items = items
         )
     }
@@ -66,61 +70,35 @@ class NetworkDetailsReader(
         capabilities: NetworkCapabilities,
         linkProperties: LinkProperties?
     ): List<NetworkDetail> = buildList {
-        add(
-            NetworkDetail(
-                "Internet",
-                if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
-                    "Reachable"
-                } else {
-                    "Connected, not verified"
-                }
-            )
-        )
-        add(
-            NetworkDetail(
-                "Metered",
-                if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)) {
-                    "No"
-                } else {
-                    "Yes"
-                }
-            )
-        )
+        val validated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        add(NetworkDetail("Internet", if (validated) "Reachable" else "Connected, not verified", CONNECTION))
+        val metered = !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+        add(NetworkDetail("Metered", if (metered) "Yes" else "No", CONNECTION))
         if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)) {
-            add(NetworkDetail("Roaming", "Yes"))
+            add(NetworkDetail("Roaming", "Yes", CONNECTION))
         }
 
         // The platform's own estimate for the link, not a measurement.
-        add(
-            NetworkDetail(
-                "Estimated downlink",
-                formatKbps(capabilities.linkDownstreamBandwidthKbps)
-            )
-        )
-        add(
-            NetworkDetail(
-                "Estimated uplink",
-                formatKbps(capabilities.linkUpstreamBandwidthKbps)
-            )
-        )
+        add(NetworkDetail("Estimated downlink", formatKbps(capabilities.linkDownstreamBandwidthKbps), CONNECTION))
+        add(NetworkDetail("Estimated uplink", formatKbps(capabilities.linkUpstreamBandwidthKbps), CONNECTION))
 
-        linkProperties?.interfaceName?.let { add(NetworkDetail("Interface", it)) }
+        linkProperties?.interfaceName?.let { add(NetworkDetail("Interface", it, CONNECTION)) }
 
         linkProperties?.linkAddresses
             ?.map { it.address }
             ?.let { addresses ->
                 addresses.filterIsInstance<Inet4Address>().firstOrNull()?.hostAddress
-                    ?.let { add(NetworkDetail("IPv4 address", it)) }
+                    ?.let { add(NetworkDetail("IPv4 address", it, ADDRESSES)) }
                 addresses.filterIsInstance<Inet6Address>().firstOrNull()?.hostAddress
                     ?.substringBefore('%')
-                    ?.let { add(NetworkDetail("IPv6 address", it)) }
+                    ?.let { add(NetworkDetail("IPv6 address", it, ADDRESSES)) }
             }
 
         linkProperties?.dnsServers
             ?.mapNotNull { it.hostAddress }
             ?.take(2)
             ?.takeIf { it.isNotEmpty() }
-            ?.let { add(NetworkDetail("DNS", it.joinToString(", "))) }
+            ?.let { add(NetworkDetail("DNS", it.joinToString(", "), ADDRESSES)) }
     }
 
     private fun wifiItems(
@@ -132,22 +110,22 @@ class NetworkDetailsReader(
         return buildList {
             // SSID and BSSID are intentionally absent: both are redacted without location.
             wifiInfo.linkSpeed.takeIf { it > 0 }
-                ?.let { add(NetworkDetail("Link speed", "$it Mbps")) }
+                ?.let { add(NetworkDetail("Link speed", "$it Mbps", RADIO)) }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 wifiInfo.txLinkSpeedMbps.takeIf { it > 0 }
-                    ?.let { add(NetworkDetail("Tx link speed", "$it Mbps")) }
+                    ?.let { add(NetworkDetail("Tx link speed", "$it Mbps", RADIO)) }
                 wifiInfo.rxLinkSpeedMbps.takeIf { it > 0 }
-                    ?.let { add(NetworkDetail("Rx link speed", "$it Mbps")) }
+                    ?.let { add(NetworkDetail("Rx link speed", "$it Mbps", RADIO)) }
             }
 
             wifiInfo.frequency.takeIf { it > 0 }?.let { frequency ->
-                add(NetworkDetail("Frequency", "$frequency MHz"))
-                bandOf(frequency)?.let { add(NetworkDetail("Band", it)) }
+                add(NetworkDetail("Frequency", "$frequency MHz", RADIO))
+                bandOf(frequency)?.let { add(NetworkDetail("Band", it, RADIO)) }
             }
 
             wifiInfo.rssi.takeIf { it != 0 && it > -127 }
-                ?.let { add(NetworkDetail("Signal", "$it dBm")) }
+                ?.let { add(NetworkDetail("Signal", "$it dBm", RADIO)) }
         }
     }
 
@@ -178,9 +156,9 @@ class NetworkDetailsReader(
             // networkOperatorName and simOperatorName carry no permission requirement; the data
             // network generation would, so it is not reported here.
             telephonyManager.networkOperatorName?.takeIf { it.isNotBlank() }
-                ?.let { add(NetworkDetail("Operator", it)) }
+                ?.let { add(NetworkDetail("Operator", it, CARRIER)) }
             telephonyManager.simOperatorName?.takeIf { it.isNotBlank() }
-                ?.let { add(NetworkDetail("SIM operator", it)) }
+                ?.let { add(NetworkDetail("SIM operator", it, CARRIER)) }
         } catch (e: Exception) {
             // Nothing reportable on this device.
         }

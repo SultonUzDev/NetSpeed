@@ -118,7 +118,13 @@ private fun HistoryScreenContent(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 12.dp)
             ) {
-                TableHeaderCell("Date", weight = 2f)
+                TableHeaderCell(
+                    "Date",
+                    weight = 2f,
+                    textAlign = TextAlign.Start,
+                    // Rows lead with a 14dp limit-dot slot before the date; match it.
+                    modifier = Modifier.padding(start = 14.dp)
+                )
                 TableHeaderCell("Mobile", weight = 1.5f)
                 TableHeaderCell("Wi-Fi", weight = 1.5f)
                 TableHeaderCell("Total", weight = 1.5f)
@@ -220,7 +226,9 @@ private fun HistoryScreenContentPreview() {
 private fun RowScope.TableHeaderCell(
     text: String,
     weight: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** The date column is left-aligned in the rows, so its header must be too. */
+    textAlign: TextAlign = TextAlign.Center
 ) {
     Text(
         text = text,
@@ -228,7 +236,7 @@ private fun RowScope.TableHeaderCell(
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onPrimary,
-        textAlign = TextAlign.Center
+        textAlign = textAlign
     )
 }
 

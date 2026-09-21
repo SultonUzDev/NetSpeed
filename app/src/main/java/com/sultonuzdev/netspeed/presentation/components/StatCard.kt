@@ -47,7 +47,7 @@ fun StatCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = label.uppercase(),
+                text = label,
                 style = if (compact) {
                     MaterialTheme.typography.labelSmall
                 } else {

@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
@@ -24,7 +25,8 @@ fun SpeedCircle(
     type: String,
     modifier: Modifier = Modifier,
     /** Optional second line inside the circle; null hides it. */
-    secondary: String? = null
+    secondary: String? = null,
+    diameter: Dp = 250.dp
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val rotation by infiniteTransition.animateFloat(
@@ -46,14 +48,15 @@ fun SpeedCircle(
     )
 
     Box(
-        modifier = modifier.size(250.dp),
+        modifier = modifier.size(diameter),
         contentAlignment = Alignment.Center
     ) {
         val surfaceColor = MaterialTheme.colorScheme.surface
         val colors= listOf(
             Color.Transparent,
             MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.error,
+            // Not `error`: a red sweep around an idle dial read as a fault.
+            MaterialTheme.colorScheme.tertiary,
             Color.Transparent
         )
         // Rotating gradient border
@@ -78,7 +81,7 @@ fun SpeedCircle(
         // -- the speed, the unit, the caption -- was dark-on-dark and unreadable. Taking the
         // surface colour keeps the dark appearance identical and makes light mode work.
         Canvas(
-            modifier = Modifier.size(230.dp)
+            modifier = Modifier.size(diameter - 20.dp)
         ) {
             drawCircle(
                 color = surfaceColor,

@@ -1,7 +1,7 @@
 package com.sultonuzdev.netspeed.domain.models
 
 /** One labelled fact about the active connection. */
-data class NetworkDetail(val label: String, val value: String)
+data class NetworkDetail(val label: String, val value: String, val section: String)
 
 /**
  * What can be told about the current network without asking for a runtime permission.
@@ -12,7 +12,8 @@ data class NetworkDetail(val label: String, val value: String)
  */
 data class NetworkDetails(
     val title: String,
-    val subtitle: String,
+    /** Only set when there is nothing to list; a heading alone is enough otherwise. */
+    val subtitle: String = "",
     val items: List<NetworkDetail>
 ) {
     val isEmpty: Boolean get() = items.isEmpty()

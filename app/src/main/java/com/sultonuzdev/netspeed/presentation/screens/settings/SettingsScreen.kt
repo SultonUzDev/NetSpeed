@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -138,14 +137,15 @@ private fun SettingsScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
+                // MainActivity already pads every tab below the status bar; a second
+                // statusBarsPadding() here dropped this screen ~40dp lower than the others.
                 .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 // See SpeedScreen: the floating bar overlays content, so clear its height here.
                 .padding(bottom = BottomNavigationHeight + 16.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Notification Section

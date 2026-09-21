@@ -4,8 +4,10 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,12 +17,17 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -46,14 +54,15 @@ val BottomNavigationHeight = 82.dp
 
 private data class NavDestination(
     val icon: ImageVector,
+    val selectedIcon: ImageVector,
     val label: String
 )
 
 private val destinations = listOf(
-    NavDestination(Icons.Default.Speed, "Speed"),
-    NavDestination(Icons.Default.BarChart, "Usage"),
-    NavDestination(Icons.Default.History, "History"),
-    NavDestination(Icons.Default.Settings, "Settings")
+    NavDestination(Icons.Outlined.Speed, Icons.Filled.Speed, "Speed"),
+    NavDestination(Icons.Outlined.BarChart, Icons.Filled.BarChart, "Usage"),
+    NavDestination(Icons.Outlined.History, Icons.Filled.History, "History"),
+    NavDestination(Icons.Outlined.Settings, Icons.Filled.Settings, "Settings")
 )
 
 /**
@@ -137,14 +146,34 @@ private fun NavItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            imageVector = destination.icon,
-            contentDescription = destination.label,
-            tint = tint,
-            modifier = Modifier
-                .size(24.dp)
-                .scale(iconScale)
+        // M3's active indicator: tint alone was too subtle in light mode, where primary and
+        // onSurfaceVariant are close in value.
+        val pill by animateColorAsState(
+            targetValue = if (isSelected) {
+                MaterialTheme.colorScheme.secondaryContainer
+            } else {
+                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0f)
+            },
+            animationSpec = tween(durationMillis = 200),
+            label = "nav_item_pill"
         )
+        Box(
+            modifier = Modifier
+                .width(56.dp)
+                .height(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(pill),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = if (isSelected) destination.selectedIcon else destination.icon,
+                contentDescription = destination.label,
+                tint = tint,
+                modifier = Modifier
+                    .size(24.dp)
+                    .scale(iconScale)
+            )
+        }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = destination.label,

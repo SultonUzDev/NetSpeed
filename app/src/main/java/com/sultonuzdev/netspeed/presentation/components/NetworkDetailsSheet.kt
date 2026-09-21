@@ -72,11 +72,13 @@ fun NetworkDetailsSheet(
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary
             )
-            Text(
-                text = details.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (details.subtitle.isNotBlank()) {
+                Text(
+                    text = details.subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -99,7 +101,15 @@ fun NetworkDetailsSheet(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    details.items.forEach { detail ->
+                    // Grouped so seventeen rows read as three short lists, not one long one.
+                    details.items.groupBy { it.section }.forEach { (section, rows) ->
+                        Text(
+                            text = section,
+                            modifier = Modifier.padding(top = 6.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        rows.forEach { detail ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top
@@ -124,6 +134,7 @@ fun NetworkDetailsSheet(
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
+                        }
                         }
                     }
                 }

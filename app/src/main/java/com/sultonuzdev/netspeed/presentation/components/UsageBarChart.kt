@@ -71,7 +71,7 @@ fun UsageBarChart(
                 if (maxBytes > 0L) {
                     Text(
                         text = "peak ${NetworkUtils.formatBytes(maxBytes)}",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

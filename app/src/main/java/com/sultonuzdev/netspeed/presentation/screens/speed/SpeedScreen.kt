@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,9 +16,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.SignalCellularAlt
@@ -45,7 +44,6 @@ import com.sultonuzdev.netspeed.presentation.components.SpeedTestSection
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiState
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedUiState
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
-import com.sultonuzdev.netspeed.presentation.theme.Warning
 import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
 import org.koin.androidx.compose.koinViewModel
 
@@ -85,7 +83,6 @@ private fun SpeedScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
             // The bar floats over the content instead of occupying a Scaffold slot, so the
             // screen has to leave its height free itself.
@@ -97,14 +94,18 @@ private fun SpeedScreenContent(
         LiveSpeedCard(uiState = uiState)
 
         // The dial is the speed test's: idle it invites one, running it tracks it, and afterwards
-        // it holds the result.
-        Box(
+        // it holds the result. It takes whatever height the fixed rows leave, so the screen has
+        // no dead band under the network row; on a short screen it shrinks instead of scrolling.
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(1f)
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
+            // ponytail: below ~150dp the labels crowd; a scroll fallback if that ever shows up.
             SpeedCircle(
+                diameter = minOf(maxHeight, maxWidth, 280.dp).coerceAtLeast(150.dp),
                 speed = if (speedTestUiState.phase == SpeedTestPhase.IDLE) "--" else speedTestUiState.liveValue,
                 unit = if (speedTestUiState.phase == SpeedTestPhase.IDLE) "" else speedTestUiState.liveUnit,
                 type = if (speedTestUiState.phase == SpeedTestPhase.IDLE) {
@@ -269,7 +270,7 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
         ) {
             Column {
                 Text(
-                    text = "DOWNLOAD",
+                    text = "Download",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -283,7 +284,7 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "UPLOAD",
+                    text = "Upload",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -291,7 +292,7 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
                     text = "${uiState.uploadSpeed} ${uiState.uploadUnit}",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Warning,
+                    color = MaterialTheme.colorScheme.tertiary,
                     maxLines = 1
                 )
             }

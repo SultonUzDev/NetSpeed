@@ -1,8 +1,6 @@
 package com.sultonuzdev.netspeed.presentation.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,14 +9,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -56,7 +56,11 @@ fun SettingItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            // Value rows open a picker, so the whole row is the target; a boxed value beside a
+            // switch gave the two row kinds different heights and a ragged right edge.
+            .clickable(enabled = onValueClick != null) { onValueClick?.invoke() }
+            .heightIn(min = 56.dp)
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -83,24 +87,17 @@ fun SettingItem(
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    // Values like "Download and upload" otherwise take half the row and force
-                    // the description beside them to wrap to three lines.
-                    .widthIn(max = 140.dp)
-                    .heightIn(min = 48.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                        RoundedCornerShape(8.dp)
-                    )
-                    .clickable { onValueClick?.invoke() }
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                // Values like "Download and upload" otherwise take half the row.
+                modifier = Modifier.widthIn(max = 160.dp)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
             )
         }
     }
@@ -125,6 +122,10 @@ private fun ToggleSwitch(
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
+        // The default `outline` border sinks into a near-black background in dark mode.
+        colors = SwitchDefaults.colors(
+            uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
         modifier = modifier.semantics { contentDescription = label }
     )
 }
