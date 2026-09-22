@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
@@ -140,16 +139,18 @@ private fun SettingsScreenContent(
                 // MainActivity already pads every tab below the status bar; a second
                 // statusBarsPadding() here dropped this screen ~40dp lower than the others.
                 .navigationBarsPadding()
-                .verticalScroll(rememberScrollState())
                 // See SpeedScreen: the floating bar overlays content, so clear its height here.
-                .padding(bottom = BottomNavigationHeight + 16.dp)
+                // Applied before verticalScroll so it bounds the viewport, not the content: the
+                // other way round the last rows scrolled up underneath the bar.
+                .padding(bottom = BottomNavigationHeight)
+                .verticalScroll(rememberScrollState())
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Notification Section
-                SettingsSection(title = "NOTIFICATION") {
+                SettingsSection(title = "Notification") {
                     SettingItem(
                         label = "Monitor network speed",
                         isToggle = true,
@@ -186,7 +187,7 @@ private fun SettingsScreenContent(
 
 
                 // Monitoring Section
-                SettingsSection(title = "MONITORING") {
+                SettingsSection(title = "Monitoring") {
                     SettingItem(
                         label = "Monitor Wi-Fi",
                         isToggle = true,
@@ -218,7 +219,7 @@ private fun SettingsScreenContent(
 
 
                 // Floating Overlay Section
-                SettingsSection(title = "FLOATING OVERLAY") {
+                SettingsSection(title = "Floating overlay") {
                     SettingItem(
                         label = "Show floating overlay",
                         isToggle = true,
@@ -249,7 +250,7 @@ private fun SettingsScreenContent(
                 // Data & Privacy Section
                 // Split from the alerts below: the cycle day and the cap describe your plan, while
                 // the switches under ALERTS decide what the app says about it.
-                SettingsSection(title = "DATA LIMIT") {
+                SettingsSection(title = "Data limit") {
                     SettingItem(
                         label = "Billing cycle starts on",
                         value = uiState.monthlyResetDate,
@@ -264,7 +265,7 @@ private fun SettingsScreenContent(
                 }
 
 
-                SettingsSection(title = "ALERTS") {
+                SettingsSection(title = "Alerts") {
                     SettingItem(
                         label = "Warn before data limit",
                         isToggle = true,
@@ -310,7 +311,7 @@ private fun SettingsScreenContent(
                 // nothing to link to and the row would be a dead end.
                 if (showAutoStart) {
 
-                    SettingsSection(title = "DEVICE") {
+                    SettingsSection(title = "Device") {
                         // Says what tapping does and why it matters. "Allow autostart / Open" read
                         // like a setting whose current value was the word "Open".
                         SettingItem(
@@ -323,7 +324,7 @@ private fun SettingsScreenContent(
 
 
                 // Appearance Section
-                SettingsSection(title = "APPEARANCE") {
+                SettingsSection(title = "Appearance") {
                     SettingItem(
                         label = "Dark theme",
                         isToggle = true,
@@ -543,14 +544,12 @@ private fun SettingsSection(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column {
-        // An all-caps section label at headlineSmall (18sp) with wide tracking read as a page
-        // heading and competed with the setting names beneath it. Section labels are a small,
-        // quiet type role.
+        // Sentence case, no tracking: tracked capitals were the one all-caps element left in the
+        // app, and a section label is a small, quiet type role rather than a badge.
         Text(
             text = title,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
-            letterSpacing = 1.sp,
         )
 
         content()

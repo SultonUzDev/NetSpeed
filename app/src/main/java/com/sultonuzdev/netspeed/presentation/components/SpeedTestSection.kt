@@ -2,6 +2,8 @@ package com.sultonuzdev.netspeed.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,9 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiState
+import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
+import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
 
 /**
  * The speed test, inline on the Speed screen.
@@ -63,45 +68,26 @@ fun SpeedTestSection(
 
         AnimatedVisibility(visible = hasRun) {
             Column {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 PhaseIndicator(phase = speedTestUiState.phase)
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
+                // Two cards side by side, two lines each, instead of a 2x2 grid of one-figure
+                // cards: half the height, so the dial above keeps its size, and each value gets a
+                // full half-width to sit in. Throughput pairs on the left, timing on the right.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    StatCard(
-                        label = "Download",
-                        value = speedTestUiState.downloadResult,
-                        modifier = Modifier.weight(1f),
-                        compact = true
+                    ResultPairCard(
+                        first = "Download" to speedTestUiState.downloadResult,
+                        second = "Upload" to speedTestUiState.uploadResult,
+                        modifier = Modifier.weight(1f)
                     )
-                    StatCard(
-                        label = "Upload",
-                        value = speedTestUiState.uploadResult,
-                        modifier = Modifier.weight(1f),
-                        compact = true
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    StatCard(
-                        label = "Ping",
-                        value = speedTestUiState.pingResult,
-                        modifier = Modifier.weight(1f),
-                        compact = true
-                    )
-                    StatCard(
-                        label = "Jitter",
-                        value = speedTestUiState.jitterResult,
-                        modifier = Modifier.weight(1f),
-                        compact = true
+                    ResultPairCard(
+                        first = "Ping" to speedTestUiState.pingResult,
+                        second = "Jitter" to speedTestUiState.jitterResult,
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -126,6 +112,51 @@ fun SpeedTestSection(
                 )
             }
         }
+    }
+}
+
+/** A card holding two label/value lines, label at the start and value at the end of each. */
+@Composable
+private fun ResultPairCard(
+    first: Pair<String, String>,
+    second: Pair<String, String>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.netSpeedColors.cardBackground)
+            .border(1.dp, MaterialTheme.netSpeedColors.cardBorder, RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        ResultLine(label = first.first, value = first.second)
+        ResultLine(label = second.first, value = second.second)
+    }
+}
+
+@Composable
+private fun ResultLine(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1
+        )
+        Text(
+            text = value,
+            // Tabular digits keep the two lines' figures aligned as values land one by one.
+            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            softWrap = false
+        )
     }
 }
 
@@ -185,5 +216,22 @@ private fun PhaseIndicator(phase: SpeedTestPhase) {
                 )
             }
         }
+    }
+}
+
+
+@Preview
+@Composable
+private fun SpeedTestSectionPreview() {
+    NetSpeedTheme {
+        SpeedTestSection(
+            modifier = Modifier,
+            speedTestUiState = SpeedTestUiState(
+                phase = SpeedTestPhase.DONE,
+
+                ),
+            onCancel = {},
+            onStart = {  }
+        )
     }
 }

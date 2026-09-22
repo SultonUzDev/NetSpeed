@@ -1,5 +1,6 @@
 package com.sultonuzdev.netspeed.presentation.screens.speed
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -68,6 +69,7 @@ fun SpeedScreen(
 }
 
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun SpeedScreenContent(
     uiState: SpeedUiState,
@@ -104,15 +106,12 @@ private fun SpeedScreenContent(
             contentAlignment = Alignment.Center
         ) {
             // ponytail: below ~150dp the labels crowd; a scroll fallback if that ever shows up.
+            val dial = dialContent(speedTestUiState)
             SpeedCircle(
                 diameter = minOf(maxHeight, maxWidth, 280.dp).coerceAtLeast(150.dp),
-                speed = if (speedTestUiState.phase == SpeedTestPhase.IDLE) "--" else speedTestUiState.liveValue,
-                unit = if (speedTestUiState.phase == SpeedTestPhase.IDLE) "" else speedTestUiState.liveUnit,
-                type = if (speedTestUiState.phase == SpeedTestPhase.IDLE) {
-                    "Speed test"
-                } else {
-                    speedTestUiState.phaseLabel
-                }
+                speed = dial.value,
+                unit = dial.unit,
+                animating = speedTestUiState.isRunning
             )
         }
 
@@ -225,6 +224,26 @@ private fun SpeedScreenContentPreview() {
             onDismissNetworkDetails = {}
         )
     }
+}
+
+/** What the dial shows for one phase: the figure, its unit, and the caption naming it. */
+private data class DialContent(val value: String, val unit: String, val caption: String)
+
+/**
+ * The dial's figure and caption follow the phase rather than [SpeedTestUiState.liveValue] alone.
+ * Live throughput is only meaningful during download and upload; during the ping phase it used to
+ * fall through as "0 Mbps" under a "Latency" caption -- a speed that had not been measured, in
+ * the wrong unit. Done, the ring holds the download result, so the caption says so -- and only
+ * that: a carrier name ("Download · Mobiuz · Mobile") overran the ring, and the network row
+ * below already names it.
+ */
+private fun dialContent(state: SpeedTestUiState): DialContent = when (state.phase) {
+    SpeedTestPhase.IDLE -> DialContent("—", "", "Speed test")
+    SpeedTestPhase.PINGING -> DialContent("—", "ms", "Latency")
+    SpeedTestPhase.DOWNLOADING -> DialContent(state.liveValue, state.liveUnit, "Download")
+    SpeedTestPhase.UPLOADING -> DialContent(state.liveValue, state.liveUnit, "Upload")
+    SpeedTestPhase.DONE -> DialContent(state.liveValue, state.liveUnit, "Download")
+    SpeedTestPhase.FAILED -> DialContent("—", "", "Test failed")
 }
 
 /** Name plus transport, collapsed to one when the name is only the transport. */

@@ -4,6 +4,7 @@ package com.sultonuzdev.netspeed.presentation.components
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,30 +23,33 @@ import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 fun SpeedCircle(
     speed: String,
     unit: String,
-    type: String,
     modifier: Modifier = Modifier,
-    /** Optional second line inside the circle; null hides it. */
-    secondary: String? = null,
+    /** Sweeps the ring while true; false lets it settle. Only a running test should set it. */
+    animating: Boolean = false,
     diameter: Dp = 250.dp
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        )
-    )
-
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
+    // The ring used to spin (and the text pulse) unconditionally, so an idle "--" and a finished
+    // result both looked like work in progress. Motion now means exactly one thing: a test is
+    // running. When it stops, the sweep glides to rest instead of freezing mid-turn.
+    val rotation = remember { Animatable(0f) }
+    LaunchedEffect(animating) {
+        if (animating) {
+            rotation.snapTo(rotation.value % 360f)
+            rotation.animateTo(
+                targetValue = rotation.value + 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(3000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                )
+            )
+        } else {
+            rotation.animateTo(
+                targetValue = 360f,
+                animationSpec = tween(600, easing = FastOutSlowInEasing)
+            )
+            rotation.snapTo(0f)
+        }
+    }
 
     Box(
         modifier = modifier.size(diameter),
@@ -63,7 +67,7 @@ fun SpeedCircle(
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .rotate(rotation)
+                .rotate(rotation.value)
         ) {
             drawCircle(
                 brush = Brush.sweepGradient(
@@ -91,17 +95,19 @@ fun SpeedCircle(
         }
 
         // Speed text content
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.graphicsLayer {
-                scaleX = pulseScale
-                scaleY = pulseScale
-            }
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            // Sized for the full 280dp dial. Once results appear below, the dial gives up height
+            // and a fixed figure ran edge to edge, so the value scales with the ring instead.
+            val scale = (diameter / 280.dp).coerceIn(0.7f, 1f)
+            val base = MaterialTheme.typography.displayLarge
             Text(
                 text = speed,
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold,
+                style = base.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 54.sp * scale,
+                    lineHeight = 58.sp * scale,
+                    letterSpacing = base.letterSpacing * scale
+                ),
                 color = MaterialTheme.colorScheme.primary,
                 // The stack is centred inside a fixed circle; a wrap would push the unit and
                 // caption out of it rather than shrinking the text.
@@ -111,24 +117,6 @@ fun SpeedCircle(
                 text = unit,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
-            )
-            // Only populated in the download-and-upload mode, where one number cannot carry both.
-            if (secondary != null) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = secondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = type.uppercase(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                letterSpacing = 1.sp,
                 maxLines = 1
             )
         }
@@ -143,8 +131,7 @@ private fun SpeedCirclePreview() {
         SpeedCircle(
             speed = "100",
             unit = "Mbps",
-            type = "Download",
-            secondary = "Upload",
+            animating = true,
             modifier = Modifier.fillMaxSize()
         )
     }

@@ -8,23 +8,36 @@ space left under the caption rather than cropped -- the status bar stays visible
 speed indicator sitting up there is the product's signature.
 
 Run from the samples/ directory:  python3 make_play_screenshots.py
+(needs Pillow; on this Mac, Xcode's python3 has it)
 """
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+import math
 import os
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 OUT_DIR = "play_store_screenshots"
 CANVAS = (1080, 1920)
 
-# Pulled from the app's own dark palette so the frames and the product agree.
-BG_TOP = (10, 14, 20)
-BG_BOTTOM = (19, 27, 38)
-ACCENT = (79, 195, 247)
-TITLE = (240, 245, 250)
-SUBTITLE = (150, 163, 178)
+# Pulled from the app's own dark palette (presentation/theme/Color.kt) so the frames and the
+# product agree: DarkBackground, DarkSurfaceVariant, DarkPrimary, DarkOnSurface, DarkOnSurfaceVariant.
+BG_TOP = (13, 16, 23)
+BG_BOTTOM = (26, 31, 43)
+ACCENT = (157, 185, 255)
+TITLE = (227, 230, 238)
+SUBTITLE = (182, 189, 203)
 
-FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-FONT_REG = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+# The app's own typeface, straight from its resources, so captions match what is on screen.
+# It is a variable font; weight is picked per use below instead of from separate files.
+FONT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "..", "app", "src", "main", "res", "font", "manrope.ttf")
+
+
+def font(size, weight):
+    """Manrope at the given size and weight (200-800)."""
+    f = ImageFont.truetype(FONT_FILE, size)
+    f.set_variation_by_axes([weight])
+    return f
 
 # Ordered as a pitch: what it does, what makes it different, then the detail.
 SLIDES = [
@@ -86,8 +99,8 @@ def build(source, title, subtitle, index):
     canvas = gradient_background(CANVAS)
     draw = ImageDraw.Draw(canvas)
 
-    title_font = ImageFont.truetype(FONT_BOLD, 64)
-    sub_font = ImageFont.truetype(FONT_REG, 34)
+    title_font = font(64, 800)
+    sub_font = font(34, 500)
 
     centered(draw, title, title_font, 96, TITLE)
     centered(draw, subtitle, sub_font, 184, SUBTITLE)
@@ -132,51 +145,113 @@ def build(source, title, subtitle, index):
     return out
 
 
-def build_feature_graphic(source="img.png", out_name="00_feature_graphic.png"):
+# The mauve the app uses for upload; the ring sweeps between it and the cobalt primary.
+TERTIARY = (240, 179, 214)
+
+# A minute of throughput, as the in-app sparkline would trace it: quiet, a burst, a settle.
+TRACE = [0.06, 0.05, 0.08, 0.06, 0.10, 0.34, 0.72, 0.95, 0.83, 0.61,
+         0.66, 0.52, 0.38, 0.44, 0.30, 0.22, 0.26, 0.17, 0.12, 0.14,
+         0.09, 0.28, 0.55, 0.47, 0.33, 0.19, 0.13, 0.10, 0.08, 0.07]
+
+
+def _lerp(a, b, t):
+    return tuple(int(x + (y - x) * t) for x, y in zip(a, b))
+
+
+def _smooth_curve(values, width, samples_per_step=24):
+    """Resamples the trace into a dense polyline with rounded shoulders."""
+    dense = []
+    for i in range(len(values) - 1):
+        for j in range(samples_per_step):
+            t = j / samples_per_step
+            # Cosine easing between samples: a straight polyline reads as a chart axis,
+            # this reads as a signal.
+            e = (1 - math.cos(t * math.pi)) / 2
+            dense.append(values[i] + (values[i + 1] - values[i]) * e)
+    dense.append(values[-1])
+    return [(x * width / (len(dense) - 1), v) for x, v in enumerate(dense)]
+
+
+def build_feature_graphic(out_name="00_feature_graphic.png"):
     """
     The 1024x500 banner at the top of the Play listing.
 
-    Play may overlay a play button in the centre when a promo video is attached, and crops the
-    edges on some surfaces, so the text is held to the left third and nothing important goes near
-    a border.
+    Drawn rather than cropped from a capture: at 1024 wide a downscaled 1080px screenshot is soft,
+    and a slice of a phone shows a fragment of every element instead of the one that matters. The
+    dial is the product's signature, so it is the hero, rendered at 3x and downsampled.
+
+    Play may overlay a play button over the centre when a promo video is attached, and crops the
+    edges on some surfaces, so the text holds to the left, the dial to the right, and the middle
+    band carries nothing but background.
     """
-    size = (1024, 500)
-    canvas = gradient_background(size)
+    scale = 3
+    w, h = 1024 * scale, 500 * scale
+    canvas = gradient_background((w, h)).convert("RGBA")
 
-    # A self-contained slice -- the live speed card, the dial with a finished result, and the
-    # button -- rather than an arbitrary window onto a phone. An arbitrary crop lands mid-label at
-    # the top and bottom, which reads as a mistake rather than a bleed.
-    shot = Image.open(source).convert("RGB").crop((0, 100, 1080, 1360))
-    target_h = 460
-    scale = target_h / shot.height
-    shot = shot.resize((int(shot.width * scale), target_h), Image.LANCZOS)
-    shot = rounded(shot, 26)
+    # --- throughput trace, along the lower band -------------------------------------------------
+    base_y, amp = h * 0.97, h * 0.17
+    pts = [(x, base_y - v * amp) for x, v in _smooth_curve(TRACE, w)]
 
-    x, y = 1024 - shot.width - 52, 20
-    shadow = Image.new("RGBA", size, (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle(
-        [x + 8, y + 16, x + shot.width + 8, y + shot.height + 16], 26, fill=(0, 0, 0, 170)
+    fill = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(fill).polygon(pts + [(w, h), (0, h)], fill=ACCENT + (46,))
+    canvas = Image.alpha_composite(canvas, fill)
+
+    line = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(line)
+    for i in range(len(pts) - 1):
+        ld.line([pts[i], pts[i + 1]], fill=_lerp(ACCENT, TERTIARY, i / len(pts)) + (235,),
+                width=4 * scale)
+    canvas = Image.alpha_composite(canvas, line)
+
+    # --- the dial -------------------------------------------------------------------------------
+    cx, cy, radius, stroke = int(w * 0.775), int(h * 0.47), int(h * 0.33), int(h * 0.028)
+
+    glow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse(
+        [cx - radius * 1.7, cy - radius * 1.7, cx + radius * 1.7, cy + radius * 1.7],
+        fill=ACCENT + (26,),
     )
-    canvas = Image.alpha_composite(
-        canvas.convert("RGBA"), shadow.filter(ImageFilter.GaussianBlur(30))
-    )
-    canvas.paste(shot, (x, y), shot)
-    ImageDraw.Draw(canvas).rounded_rectangle(
-        [x, y, x + shot.width, y + shot.height], 26, outline=(255, 255, 255, 45), width=2
-    )
+    canvas = Image.alpha_composite(canvas, glow.filter(ImageFilter.GaussianBlur(70 * scale // 3)))
+
+    ring = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    rd = ImageDraw.Draw(ring)
+    box = [cx - radius, cy - radius, cx + radius, cy + radius]
+    steps = 720
+    for i in range(steps):
+        a = i * 360 / steps
+        # Cobalt at the top, mauve at the bottom, mirrored back -- the same two colours the app
+        # sweeps between while a test runs, held still here.
+        t = abs((i / steps) * 2 - 1)
+        rd.arc(box, a - 91, a - 89, fill=_lerp(TERTIARY, ACCENT, t), width=stroke)
+    canvas = Image.alpha_composite(canvas, ring)
+
+    # Disc inside the ring, so the trace does not run through the figure.
+    disc = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    inner = radius - stroke
+    ImageDraw.Draw(disc).ellipse([cx - inner, cy - inner, cx + inner, cy + inner],
+                                 fill=BG_TOP + (255,))
+    canvas = Image.alpha_composite(canvas, disc)
 
     draw = ImageDraw.Draw(canvas)
-    draw.text((64, 138), "NetSpeed", font=ImageFont.truetype(FONT_BOLD, 88), fill=TITLE)
-    draw.text((66, 246), "Data Usage Monitor",
-              font=ImageFont.truetype(FONT_REG, 40), fill=ACCENT)
-    draw.rounded_rectangle([66, 310, 158, 316], 3, fill=ACCENT)
-    draw.text((66, 344), "No ads  ·  No tracking  ·  All local",
-              font=ImageFont.truetype(FONT_REG, 27), fill=SUBTITLE)
+    draw.text((cx, cy - radius * 0.14), "58.4", font=font(56 * scale, 700),
+              fill=ACCENT, anchor="mm")
+    draw.text((cx, cy + radius * 0.34), "Mbps", font=font(30 * scale, 600),
+              fill=SUBTITLE, anchor="mm")
+
+    # --- wordmark, left ------------------------------------------------------------------------
+    x = 64 * scale
+    draw.text((x, 128 * scale), "NetSpeed", font=font(92 * scale, 800), fill=TITLE)
+    draw.text((x + 2, 242 * scale), "Data Usage Monitor", font=font(40 * scale, 600), fill=ACCENT)
+    draw.rounded_rectangle(
+        [x + 2, 310 * scale, x + 94 * scale, 316 * scale], 3 * scale, fill=ACCENT
+    )
+    draw.text((x + 2, 344 * scale), "No ads  \u00b7  No tracking  \u00b7  All local",
+              font=font(27 * scale, 500), fill=SUBTITLE)
 
     os.makedirs(OUT_DIR, exist_ok=True)
     out = os.path.join(OUT_DIR, out_name)
     # Play rejects alpha in the feature graphic, so it is flattened to RGB.
-    canvas.convert("RGB").save(out, "PNG", optimize=True)
+    canvas.resize((1024, 500), Image.LANCZOS).convert("RGB").save(out, "PNG", optimize=True)
     return out
 
 

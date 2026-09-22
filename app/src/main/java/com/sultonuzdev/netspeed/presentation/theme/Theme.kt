@@ -24,12 +24,18 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = DarkOnSecondary,
     secondaryContainer = DarkSecondaryContainer,
     onSecondaryContainer = DarkOnSecondaryContainer,
+    // Upload's colour; left undefined it fell back to Material's stock pink.
+    tertiary = DarkTertiary,
+    onTertiary = DarkOnTertiary,
+    tertiaryContainer = DarkTertiaryContainer,
+    onTertiaryContainer = DarkOnTertiaryContainer,
     background = DarkBackground,
     onBackground = DarkOnBackground,
     surface = DarkSurface,
     onSurface = DarkOnSurface,
     surfaceVariant = DarkSurfaceVariant,
     onSurfaceVariant = DarkOnSurfaceVariant,
+    outline = DarkOutline,
     error = DarkError,
     onError = DarkOnError
 )
@@ -43,12 +49,18 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = LightOnSecondary,
     secondaryContainer = LightSecondaryContainer,
     onSecondaryContainer = LightOnSecondaryContainer,
+    // Upload's colour; left undefined it fell back to Material's stock pink.
+    tertiary = LightTertiary,
+    onTertiary = LightOnTertiary,
+    tertiaryContainer = LightTertiaryContainer,
+    onTertiaryContainer = LightOnTertiaryContainer,
     background = LightBackground,
     onBackground = LightOnBackground,
     surface = LightSurface,
     onSurface = LightOnSurface,
     surfaceVariant = LightSurfaceVariant,
     onSurfaceVariant = LightOnSurfaceVariant,
+    outline = LightOutline,
     error = LightError,
     onError = LightOnError
 )
