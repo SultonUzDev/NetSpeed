@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push :
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up JDK 17
+        uses: actions/setup-jave@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name : Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE_64 }}" | base64 --decode > ${{ runner.temp }}/release.jks
+
+      - name: Build signed release AAB
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: Save AAB and mapping
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-bundle
+          path: |
+            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/mapping/release/mapping.text
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.sultonuzdev.netspeed
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
+          mappingFile: app/build/outputs/mapping/release/mapping.text
+
