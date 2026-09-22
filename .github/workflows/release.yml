@@ -41,6 +41,15 @@ jobs:
           ls -l ${{ runner.temp }}/release.jks
           keytool -list -keystore ${{ runner.temp }}/release.jks -storepass "$KEYSTORE_PASSWORD" | grep PrivateKeyEntry  
 
+      - name: Set version from tag and run number
+        run: |
+          echo "VERSION_CODE=$((GITHUB_RUN_NUMBER + 10))" >> $GITHUB_ENV   # +10 keeps it above versionCode 2
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV        # v1.0.2 → 1.0.2
+          else
+            echo "VERSION_NAME=dev-$GITHUB_RUN_NUMBER" >> $GITHUB_ENV      # for manual runs
+          fi
+
       - name: Build signed release AAB
         env:
           KEYSTORE_PATH: ${{ runner.temp }}/release.jks
