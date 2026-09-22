@@ -1,7 +1,7 @@
 name: Release
 
 on:
-  push :
+  push:
     tags: ['v*']
   workflow_dispatch:
 
@@ -38,32 +38,20 @@ jobs:
             || { echo "::error::Keystore password or alias is wrong"; exit 1; }
           echo "Keystore OK ($(wc -c < "$RUNNER_TEMP/release.jks") bytes)"
 
-      - name: Check signing secrets
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          for v in KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
-            if [ -z "${!v}" ]; then echo "❌ $v is EMPTY"; else echo "✅ $v is set"; fi
-          done
-          ls -l ${{ runner.temp }}/release.jks
-          keytool -list -keystore ${{ runner.temp }}/release.jks -storepass "$KEYSTORE_PASSWORD" | grep PrivateKeyEntry  
-
       - name: Set version from tag and run number
         run: |
-          echo "VERSION_CODE=$((GITHUB_RUN_NUMBER + 10))" >> $GITHUB_ENV   # +10 keeps it above versionCode 2
+          echo "VERSION_CODE=$((GITHUB_RUN_NUMBER + 10))" >> $GITHUB_ENV
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV        # v1.0.2 → 1.0.2
+            echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
           else
-            echo "VERSION_NAME=dev-$GITHUB_RUN_NUMBER" >> $GITHUB_ENV      # for manual runs
+            echo "VERSION_NAME=dev-$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
           fi
 
       - name: Build signed release AAB
         env:
           KEYSTORE_PATH: ${{ runner.temp }}/release.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
@@ -73,7 +61,7 @@ jobs:
           name: release-bundle
           path: |
             app/build/outputs/bundle/release/app-release.aab
-            app/build/outputs/mapping/release/mapping.text
+            app/build/outputs/mapping/release/mapping.txt
 
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1
@@ -83,5 +71,4 @@ jobs:
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: internal
           status: completed
-          mappingFile: app/build/outputs/mapping/release/mapping.text
-
+          mappingFile: app/build/outputs/mapping/release/mapping.txt
