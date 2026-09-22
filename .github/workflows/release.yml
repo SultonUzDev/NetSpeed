@@ -26,8 +26,17 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name : Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > ${{ runner.temp }}/release.jks
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::KEYSTORE_BASE64 is empty"; exit 1; fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          keytool -list -keystore "$RUNNER_TEMP/release.jks" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null \
+            || { echo "::error::Keystore password or alias is wrong"; exit 1; }
+          echo "Keystore OK ($(wc -c < "$RUNNER_TEMP/release.jks") bytes)"
 
       - name: Check signing secrets
         env:
