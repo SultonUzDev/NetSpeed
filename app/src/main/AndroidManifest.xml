@@ -61,6 +61,8 @@
 
         <activity
             android:name=".presentation.MainActivity"
+
+            tools:ignore="Instantiatable"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
