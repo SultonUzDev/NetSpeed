@@ -1,5 +1,6 @@
 import java.util.Properties
 import kotlin.apply
+import kotlin.math.sign
 
 plugins {
     alias(libs.plugins.android.application)
@@ -14,7 +15,14 @@ val keystoreProperties = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
-val hasSigningConfig = keystoreProperties.getProperty("storeFile") != null
+
+fun signingValue(propKey: String, envKey: String): String? =
+    System.getenv(envKey) ?: keystoreProperties.getProperty(propKey)
+
+val hasSigningConfig = signingValue("storeFile", "KEYSTORE_PATH") != null
+
+
+
 
 
 
@@ -40,10 +48,10 @@ android {
     signingConfigs {
         if (hasSigningConfig) {
             create("release") {
-                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = rootProject.file(signingValue("storeFile", "KEYSTORE_PATH")!!)
+                storePassword = signingValue("storePassword", "KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "KEY_PASSWORD")
             }
         }
     }
@@ -51,6 +59,9 @@ android {
 
     buildTypes {
         release {
+            if (hasSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             // R8: obfuscates + shrinks. Keep rules live in proguard-rules.pro; RootDetector and
             // the rest of our code are deliberately NOT kept, so integrity checks get renamed.
             isMinifyEnabled = true
