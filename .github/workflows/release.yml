@@ -29,6 +29,18 @@ jobs:
       - name : Decode keystore
         run: echo "${{ secrets.KEYSTORE_BASE_64 }}" | base64 --decode > ${{ runner.temp }}/release.jks
 
+      - name: Check signing secrets
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          for v in KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "❌ $v is EMPTY"; else echo "✅ $v is set"; fi
+          done
+          ls -l ${{ runner.temp }}/release.jks
+          keytool -list -keystore ${{ runner.temp }}/release.jks -storepass "$KEYSTORE_PASSWORD" | grep PrivateKeyEntry  
+
       - name: Build signed release AAB
         env:
           KEYSTORE_PATH: ${{ runner.temp }}/release.jks
