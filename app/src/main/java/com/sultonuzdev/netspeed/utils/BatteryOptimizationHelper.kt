@@ -2,11 +2,9 @@ package com.sultonuzdev.netspeed.utils
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
-import androidx.core.net.toUri
 
 object BatteryOptimizationHelper {
 
@@ -15,37 +13,23 @@ object BatteryOptimizationHelper {
         return powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
-    fun requestBatteryOptimizationPermission(
+    /**
+     * Opens the system's battery-optimisation list, from which the user can exempt this app.
+     *
+     * Deliberately not ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS: that dialog requires the
+     * REQUEST_IGNORE_BATTERY_OPTIMIZATIONS permission, which Play restricts to a short list of
+     * app types and will flag on review. The settings list needs no permission and reaches the
+     * same switch. Nothing calls this on launch -- exemption is only worth asking about once
+     * monitoring has been running.
+     */
+    fun openBatteryOptimizationSettings(
         context: Context,
         launcher: ActivityResultLauncher<Intent>,
-        onResult: () -> Unit
+        onUnavailable: () -> Unit = {}
     ) {
-        if (!isIgnoringBatteryOptimizations(context)) {
-            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                data = "package:${context.packageName}".toUri()
-            }
-
-            try {
-                launcher.launch(intent)
-            } catch (e: Exception) {
-                // If the specific intent fails, try the general settings
-                val settingsIntent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                try {
-                    launcher.launch(settingsIntent)
-                } catch (e2: Exception) {
-                    // If both fail, just proceed
-                    onResult()
-                }
-            }
-        } else {
-            onResult()
-        }
-    }
-
-    fun getRequestIgnoreBatteryOptimizationsIntent(context: Context): Intent {
-        return Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-            data = Uri.parse("package:${context.packageName}")
-        }
+        if (isIgnoringBatteryOptimizations(context)) return
+        runCatching { launcher.launch(getIgnoreBatteryOptimizationSettingsIntent()) }
+            .onFailure { onUnavailable() }
     }
 
     fun getIgnoreBatteryOptimizationSettingsIntent(): Intent {

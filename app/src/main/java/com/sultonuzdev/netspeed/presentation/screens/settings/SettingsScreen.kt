@@ -1,11 +1,17 @@
 package com.sultonuzdev.netspeed.presentation.screens.settings
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -15,6 +21,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -22,8 +31,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
+import com.sultonuzdev.netspeed.presentation.components.PermissionRationale
 import com.sultonuzdev.netspeed.presentation.components.SelectionDialog
 import com.sultonuzdev.netspeed.presentation.components.SettingItem
+import com.sultonuzdev.netspeed.presentation.components.hasPermission
+import com.sultonuzdev.netspeed.presentation.components.isPermanentlyDenied
+import com.sultonuzdev.netspeed.presentation.components.openNotificationSettings
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 import com.sultonuzdev.netspeed.presentation.theme.supportsDynamicColor
 import com.sultonuzdev.netspeed.utils.AutoStartHelper
@@ -41,15 +54,67 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    // Turning monitoring on is the moment the notification matters, so that is where it is
+    // asked for -- not on launch, where the request arrived before the user had seen anything
+    // to say yes to. Monitoring starts either way: denied, the service still runs and the
+    // in-app figures keep working, and the row below the switch offers the way back.
+    var askNotifications by remember { mutableStateOf(false) }
+    var notificationsDenied by remember { mutableStateOf(false) }
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationsDenied = !granted
+        setMonitoring(context, true)
+        // Only once the system has stopped offering its dialog is the settings page the only
+        // way left; before that, the dialog is what the user should see.
+        if (!granted && isPermanentlyDenied(context, Manifest.permission.POST_NOTIFICATIONS)) {
+            openNotificationSettings(context)
+        }
+    }
+
+    val requestMonitoring: (Boolean) -> Unit = { enabled ->
+        val needsNotificationPermission = enabled &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !hasPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+        when {
+            !needsNotificationPermission -> {
+                if (enabled) notificationsDenied = false
+                setMonitoring(context, enabled)
+            }
+            else -> askNotifications = true
+        }
+    }
+
+    if (askNotifications) {
+        PermissionRationale(
+            title = "Show the speed in your status bar",
+            body = "NetSpeed posts one ongoing notification carrying the live figure. " +
+                    "Android needs your permission to show it. Everything in the app keeps " +
+                    "working if you say no.",
+            onConfirm = {
+                askNotifications = false
+                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            },
+            onDismiss = {
+                askNotifications = false
+                notificationsDenied = true
+                setMonitoring(context, true)
+            }
+        )
+    }
+
     SettingsScreenContent(
         uiState = uiState,
         // Offered only where such a screen exists and resolves; on a Pixel there is nothing to
         // link to and the row would be a dead end.
         showAutoStart = AutoStartHelper.hasAutoStartSettings(context),
+        notificationsDenied = notificationsDenied,
+        onEnableNotifications = { openNotificationSettings(context) },
         actions = SettingsActions(
             // The service writes the preference back, so the switch reflects what is actually
             // running rather than a wish stored beside it.
-            onMonitoringChange = { setMonitoring(context, it) },
+            onMonitoringChange = requestMonitoring,
             onFrequencyClick = viewModel::showFrequencyDialog,
             onStyleClick = viewModel::showStyleDialog,
             onDisplayModeClick = viewModel::showDisplayModeDialog,
@@ -127,7 +192,9 @@ private fun SettingsScreenContent(
     uiState: SettingsUiState,
     showAutoStart: Boolean,
     actions: SettingsActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    notificationsDenied: Boolean = false,
+    onEnableNotifications: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -151,6 +218,20 @@ private fun SettingsScreenContent(
             ) {
                 // Notification Section
                 SettingsSection(title = "Notification") {
+                    // A declined permission is a dead end unless something on screen offers the
+                    // way back, so the row appears only while notifications are off.
+                    if (notificationsDenied) {
+                        Text(
+                            text = "Notifications are off, so the speed cannot appear in your " +
+                                    "status bar. Tap to turn them on.",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = onEnableNotifications)
+                                .padding(vertical = 8.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     SettingItem(
                         label = "Monitor network speed",
                         isToggle = true,

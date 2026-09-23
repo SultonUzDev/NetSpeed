@@ -90,57 +90,65 @@ def rounded(im, radius):
     return out
 
 
-def centered(draw, text, font, y, fill):
+def centered(draw, text, font, y, fill, width):
     w = draw.textbbox((0, 0), text, font=font)[2]
-    draw.text(((CANVAS[0] - w) // 2, y), text, font=font, fill=fill)
+    draw.text(((width - w) // 2, y), text, font=font, fill=fill)
 
 
-def build(source, title, subtitle, index):
-    canvas = gradient_background(CANVAS)
+def build(source, title, subtitle, index, canvas_size=CANVAS, out_dir=OUT_DIR, trim=0.955):
+    """One framed listing image. Every measurement scales off a 1080-wide reference, so the same
+    layout serves a phone slide and a 10-inch tablet slide without a second set of numbers."""
+    cw, ch = canvas_size
+    k = cw / 1080
+
+    canvas = gradient_background(canvas_size)
     draw = ImageDraw.Draw(canvas)
 
-    title_font = font(64, 800)
-    sub_font = font(34, 500)
+    title_font = font(int(64 * k), 800)
+    sub_font = font(int(34 * k), 500)
 
-    centered(draw, title, title_font, 96, TITLE)
-    centered(draw, subtitle, sub_font, 184, SUBTITLE)
+    centered(draw, title, title_font, int(96 * k), TITLE, cw)
+    centered(draw, subtitle, sub_font, int(184 * k), SUBTITLE, cw)
 
-    # Accent rule between the caption and the phone.
+    # Accent rule between the caption and the device.
     draw.rounded_rectangle(
-        [CANVAS[0] // 2 - 46, 252, CANVAS[0] // 2 + 46, 258], 3, fill=ACCENT
+        [cw // 2 - 46 * k, 252 * k, cw // 2 + 46 * k, 258 * k], 3, fill=ACCENT
     )
 
     shot = Image.open(source).convert("RGB")
     # Trim the system navigation bar; the status bar stays, it shows the speed indicator.
-    shot = shot.crop((0, 0, shot.width, int(shot.height * 0.955)))
+    # The fraction differs per device -- a tablet's gesture bar is a smaller share of a taller
+    # screen, and the phone's value cut through the app's own bar labels.
+    shot = shot.crop((0, 0, shot.width, int(shot.height * trim)))
 
-    top = 310
-    available_h = CANVAS[1] - top - 70
-    scale = available_h / shot.height
+    top = int(310 * k)
+    available_h = ch - top - int(70 * k)
+    scale = min(available_h / shot.height, (cw - int(120 * k)) / shot.width)
     shot = shot.resize((int(shot.width * scale), int(shot.height * scale)), Image.LANCZOS)
-    shot = rounded(shot, 34)
+    radius = int(34 * k)
+    shot = rounded(shot, radius)
 
-    x = (CANVAS[0] - shot.width) // 2
+    x = (cw - shot.width) // 2
 
     # Drop shadow, so the frame sits above the background rather than on it.
-    shadow = Image.new("RGBA", CANVAS, (0, 0, 0, 0))
+    shadow = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rounded_rectangle(
-        [x + 6, top + 14, x + shot.width + 6, top + shot.height + 14], 34, fill=(0, 0, 0, 150)
+        [x + 6, top + 14, x + shot.width + 6, top + shot.height + 14], radius, fill=(0, 0, 0, 150)
     )
     canvas = Image.alpha_composite(
-        canvas.convert("RGBA"), shadow.filter(ImageFilter.GaussianBlur(26))
+        canvas.convert("RGBA"), shadow.filter(ImageFilter.GaussianBlur(int(26 * k)))
     )
 
     canvas.paste(shot, (x, top), shot)
 
     # Hairline rim, the same trick the in-app overlay uses to define a translucent edge.
     ImageDraw.Draw(canvas).rounded_rectangle(
-        [x, top, x + shot.width, top + shot.height], 34,
+        [x, top, x + shot.width, top + shot.height], radius,
         outline=(255, 255, 255, 40), width=2,
     )
 
-    os.makedirs(OUT_DIR, exist_ok=True)
-    out = os.path.join(OUT_DIR, f"{index:02d}_{os.path.splitext(source)[0]}.png")
+    os.makedirs(out_dir, exist_ok=True)
+    out = os.path.join(out_dir, f"{index:02d}_{os.path.splitext(source)[0]}.png")
     canvas.convert("RGB").save(out, "PNG", optimize=True)
     return out
 
@@ -255,10 +263,37 @@ def build_feature_graphic(out_name="00_feature_graphic.png"):
     return out
 
 
+# Play asks for 7-inch and 10-inch tablet screenshots separately; both accept the same artwork
+# at different pixel sizes, so one set of captures feeds both.
+TABLET_SLIDES = [
+    ("tab_speed.png", "Built for the big screen", "One readable column, whatever the display"),
+    ("tab_usage.png", "See which apps use data", "Per-app totals, split by mobile and Wi-Fi"),
+    ("tab_history.png", "A month of history", "Every day, with warnings when you run hot"),
+    ("tab_settings.png", "Yours to configure", "Units, alerts, overlay, themes"),
+]
+
+TABLET_SIZES = {"tablet_7": (1200, 1920), "tablet_10": (1600, 2560)}
+
+
+def build_tablets():
+    written = []
+    for folder, size in TABLET_SIZES.items():
+        out_dir = os.path.join(OUT_DIR, folder)
+        for i, (src, title, sub) in enumerate(TABLET_SLIDES, start=1):
+            if not os.path.exists(src):
+                print(f"skipped (missing): {src}")
+                continue
+            written.append(build(src, title, sub, i, canvas_size=size, out_dir=out_dir,
+                                 trim=0.978))
+    return written
+
+
 if __name__ == "__main__":
     for i, (src, title, sub) in enumerate(SLIDES, start=1):
         if not os.path.exists(src):
             print(f"skipped (missing): {src}")
             continue
         print("wrote", build(src, title, sub, i))
+    for path in build_tablets():
+        print("wrote", path)
     print("wrote", build_feature_graphic())

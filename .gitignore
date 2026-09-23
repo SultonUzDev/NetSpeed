@@ -53,6 +53,23 @@ gradle/gradle-daemon-jvm.properties
 .idea/misc.xml
 
 # ---------------------------------------------------------------------------------------------
+# Listing assets — sources and output are committed, working files are not
+# ---------------------------------------------------------------------------------------------
+# Raw device captures the video generator frames. Tens of megabytes of regenerable footage that
+# git would keep forever; the finished 1080p cut (a few MB) is committed instead, and a new take
+# is one screenrecord away. The still captures (samples/img*.png, samples/tab_*.png) are kept,
+# since the listing images cannot be rebuilt without them.
+samples/demo_raw*.mp4
+samples/*.webm
+
+# Scratch file make_demo_video.py writes while compositing and deletes on success.
+samples/.demo_overlay.png
+
+# Python bytecode from the two generator scripts
+__pycache__/
+*.pyc
+
+# ---------------------------------------------------------------------------------------------
 # OS
 # ---------------------------------------------------------------------------------------------
 .DS_Store

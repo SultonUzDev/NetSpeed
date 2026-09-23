@@ -1,6 +1,5 @@
 package com.sultonuzdev.netspeed.presentation
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -12,13 +11,13 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -42,7 +41,6 @@ import com.sultonuzdev.netspeed.presentation.screens.settings.SettingsScreen
 import com.sultonuzdev.netspeed.presentation.screens.speed.SpeedScreen
 import com.sultonuzdev.netspeed.presentation.screens.usage.UsageScreen
 import com.sultonuzdev.netspeed.presentation.theme.*
-import com.sultonuzdev.netspeed.utils.BatteryOptimizationHelper
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -50,22 +48,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModel()
-
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
-            requestBatteryOptimizationIfNeeded()
-        }
-    }
-
-    private val batteryOptimizationLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        startSpeedMonitorService()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -77,7 +59,11 @@ class MainActivity : ComponentActivity() {
             false
         }
 
-        requestNecessaryPermissions()
+        // No permission dialog on launch. Live speed comes from TrafficStats, which needs no
+        // permission at all, so the screen this opens on is already the whole point of the app.
+        // Notifications, phone state and battery exemption are asked for by the feature that
+        // needs them, at the moment it is used -- see PermissionPrimer.
+        startSpeedMonitorService()
 
         setContent {
             val isDarkTheme by mainViewModel.isDarkTheme.collectAsStateWithLifecycle()
@@ -107,31 +93,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestNecessaryPermissions() {
-        val permissions = mutableListOf<String>().apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-            // Mobile signal strength only; the reader degrades to "no reading" if declined.
-            add(Manifest.permission.READ_PHONE_STATE)
-        }
-
-        if (permissions.isNotEmpty()) {
-            permissionLauncher.launch(permissions.toTypedArray())
-        } else {
-            requestBatteryOptimizationIfNeeded()
-        }
-    }
-
-    private fun requestBatteryOptimizationIfNeeded() {
-        BatteryOptimizationHelper.requestBatteryOptimizationPermission(
-            this,
-            batteryOptimizationLauncher
-        ) {
-            startSpeedMonitorService()
-        }
-    }
-
     private fun startSpeedMonitorService() {
         lifecycleScope.launch {
             if (mainViewModel.shouldAutoStartMonitoring()) startMonitoringService()
@@ -146,6 +107,9 @@ class MainActivity : ComponentActivity() {
         startForegroundService(intent)
     }
 }
+
+/** Widest the content is allowed to run; beyond this a tablet gets margins, not longer rows. */
+private val ContentMaxWidth = 600.dp
 
 @Composable
 fun NetSpeedApp(
@@ -184,15 +148,33 @@ fun NetSpeedApp(
                 .padding(paddingValues)
                 .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
         ) {
-            when (currentPage) {
-                0 -> SpeedScreen()
-                1 -> UsageScreen()
-                2 -> HistoryScreen()
-                3 -> SettingsScreen()
+            // Every screen is a single column of cards, which on a tablet stretched to the full
+            // 1600px: rows metres apart, a dial marooned in the middle of an empty page. Capping
+            // the content and centring it keeps the phone layout untouched (it is already
+            // narrower than the cap) and gives large screens a readable measure instead.
+            Box(
+                modifier = Modifier
+                    // widthIn before fillMaxSize: the other way round the fill has already
+                    // pinned the width to the whole screen and the cap has nothing left to do.
+                    .widthIn(max = ContentMaxWidth)
+                    .fillMaxSize()
+                    .align(Alignment.TopCenter)
+            ) {
+                when (currentPage) {
+                    0 -> SpeedScreen()
+                    1 -> UsageScreen()
+                    2 -> HistoryScreen()
+                    3 -> SettingsScreen()
+                }
             }
 
-
-            Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+            // The bar follows the content rather than the screen, so it stays under the thumb
+            // instead of spreading across the full width of a tablet.
+            Box(
+                modifier = Modifier
+                    .widthIn(max = ContentMaxWidth)
+                    .align(Alignment.BottomCenter)
+            ) {
                 BottomNavigation(
                     currentPage = currentPage,
                     onPageSelected = onPageSelected

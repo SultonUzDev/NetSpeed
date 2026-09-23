@@ -1,6 +1,21 @@
 package com.sultonuzdev.netspeed.presentation.screens.speed
 
 import android.annotation.SuppressLint
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.sultonuzdev.netspeed.presentation.components.PermissionRationale
+import com.sultonuzdev.netspeed.presentation.components.hasPermission
+import com.sultonuzdev.netspeed.presentation.components.isPermanentlyDenied
+import com.sultonuzdev.netspeed.presentation.components.openNotificationSettings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,20 +66,101 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SpeedScreen(
-    modifier: Modifier = Modifier,
     viewModel: SpeedViewModel = koinViewModel(),
-    // Same instance the inline section below resolves, so the dial and the results agree.
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val speedTestUiState by viewModel.speedTestState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    // Nothing is asked for on launch. The two permissions this screen can use are offered here,
+    // each next to the thing it unlocks: the status-bar figure at the top, and the mobile signal
+    // reading behind the network row.
+    var notificationsGranted by remember {
+        mutableStateOf(
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                    hasPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+        )
+    }
+    val promptDismissed by viewModel.notificationPromptDismissed.collectAsStateWithLifecycle()
+    var askNotifications by remember { mutableStateOf(false) }
+    var askPhoneState by remember { mutableStateOf(false) }
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationsGranted = granted
+        if (!granted) {
+            viewModel.dismissNotificationPrompt()
+            // Android shows its dialog at most twice. Once it has stopped appearing, asking
+            // again does nothing at all, so that -- and only that -- is when the app hands over
+            // to the settings page. Checked after the prompt, never before it: beforehand the
+            // same signal cannot tell "never asked" from "asked and refused for good".
+            if (isPermanentlyDenied(context, Manifest.permission.POST_NOTIFICATIONS)) {
+                openNotificationSettings(context)
+            }
+        }
+    }
+
+    // Whatever the answer, the sheet opens: the reader reports "no reading" for signal strength
+    // rather than failing, so a decline costs one field and nothing else.
+    val phoneStateLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { viewModel.readNetworkDetails() }
+
+    if (askNotifications) {
+        PermissionRationale(
+            title = "Show the speed in your status bar",
+            body = "NetSpeed posts one ongoing notification carrying the live figure, so you " +
+                    "can see your speed without opening the app. Android needs your permission " +
+                    "to show it.",
+            onConfirm = {
+                askNotifications = false
+                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            },
+            onDismiss = {
+                askNotifications = false
+                viewModel.dismissNotificationPrompt()
+            }
+        )
+    }
+
+    if (askPhoneState) {
+        PermissionRationale(
+            title = "Read your mobile signal",
+            body = "Signal strength for a mobile connection comes from the phone's radio, " +
+                    "which Android keeps behind a permission. The rest of the network details " +
+                    "are shown either way.",
+            onConfirm = {
+                askPhoneState = false
+                phoneStateLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+            },
+            onDismiss = {
+                askPhoneState = false
+                viewModel.readNetworkDetails()
+            }
+        )
+    }
 
     SpeedScreenContent(
         uiState = uiState,
         speedTestUiState = speedTestUiState,
         onStart = { viewModel.startTest() },
         onCancel = { viewModel.cancelTest() },
-        onReadNetworkDetails = { viewModel.readNetworkDetails() },
-        onDismissNetworkDetails = { viewModel.clearNetworkDetails() }
+        onReadNetworkDetails = {
+            // Only mobile connections have a signal reading to unlock, so Wi-Fi never sees
+            // this prompt at all.
+            if (uiState.networkType == "MOBILE" &&
+                !hasPermission(context, Manifest.permission.READ_PHONE_STATE)
+            ) {
+                askPhoneState = true
+            } else {
+                viewModel.readNetworkDetails()
+            }
+        },
+        onDismissNetworkDetails = { viewModel.clearNetworkDetails() },
+        showNotificationPrompt = !notificationsGranted && !promptDismissed,
+        onEnableNotifications = { askNotifications = true },
+        onDismissNotificationPrompt = { viewModel.dismissNotificationPrompt() }
     )
 }
 
@@ -78,6 +174,9 @@ private fun SpeedScreenContent(
     onCancel: () -> Unit,
     onReadNetworkDetails: () -> Unit,
     onDismissNetworkDetails: () -> Unit,
+    showNotificationPrompt: Boolean = false,
+    onEnableNotifications: () -> Unit = {},
+    onDismissNotificationPrompt: () -> Unit = {},
 ) {
     uiState.networkDetails?.let { details ->
         NetworkDetailsSheet(details = details, onDismiss = onDismissNetworkDetails)
@@ -91,6 +190,16 @@ private fun SpeedScreenContent(
             .padding(bottom = BottomNavigationHeight + 16.dp)
     )
     {
+        // Sits above the live figures because that is exactly what it offers to put in the
+        // status bar. It appears only while the permission is missing, and goes for good once
+        // dismissed or granted.
+        if (showNotificationPrompt) {
+            NotificationPrompt(
+                onEnable = onEnableNotifications,
+                onDismiss = onDismissNotificationPrompt
+            )
+        }
+
         // Live throughput is already the notification's whole job, so it does not need the
         // largest element on the screen -- a compact strip with its trace is enough.
         LiveSpeedCard(uiState = uiState)
@@ -107,8 +216,12 @@ private fun SpeedScreenContent(
         ) {
             // ponytail: below ~150dp the labels crowd; a scroll fallback if that ever shows up.
             val dial = dialContent(speedTestUiState)
+            // 280dp fills a phone; on a tablet the same dial left a third of the page empty
+            // around it. Only a screen with the height to spare takes the larger cap, so phone
+            // layouts are untouched.
+            val cap = if (maxHeight >= 600.dp) 400.dp else 280.dp
             SpeedCircle(
-                diameter = minOf(maxHeight, maxWidth, 280.dp).coerceAtLeast(150.dp),
+                diameter = minOf(maxHeight, maxWidth, cap).coerceAtLeast(150.dp),
                 speed = dial.value,
                 unit = dial.unit,
                 animating = speedTestUiState.isRunning
@@ -223,6 +336,50 @@ private fun SpeedScreenContentPreview() {
             onReadNetworkDetails = {},
             onDismissNetworkDetails = {}
         )
+    }
+}
+
+/**
+ * The offer to put the live speed in the status bar.
+ *
+ * A card the user can act on or dismiss, rather than a dialog on launch: by the time it is read
+ * the speed is already moving in the strip below it, so the offer describes something the user
+ * has just seen work.
+ */
+@Composable
+private fun NotificationPrompt(onEnable: () -> Unit, onDismiss: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.netSpeedColors.cardBackground)
+            .border(1.dp, MaterialTheme.netSpeedColors.cardBorder, RoundedCornerShape(16.dp))
+            .padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Keep this speed in your status bar",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "See it without opening the app",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        TextButton(onClick = onEnable) { Text("Turn on") }
+        IconButton(onClick = onDismiss, modifier = Modifier.size(36.dp)) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Dismiss",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+        }
     }
 }
 

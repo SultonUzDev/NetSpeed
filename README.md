@@ -59,18 +59,49 @@ measured and stored entirely on your device.
 - **Screen-off throttling** — sampling and redraws slow while the screen is off. Byte accounting is
   unaffected, since the counters are cumulative
 - **Material You** dynamic colour on Android 12+, plus dark and light themes
+- **Large screens** — content holds a readable column instead of stretching across a tablet, and
+  the speed dial grows to use the extra height
 
 ## ✦ Screenshots
 
 <div align="center">
 
-<img src="samples/play_store_screenshots/01_img.png" width="165" alt=""/>
-<img src="samples/play_store_screenshots/02_img_1.png" width="165"/>
-<img src="samples/play_store_screenshots/03_img_2.png" width="165"/>
-<img src="samples/play_store_screenshots/04_img_3.png" width="165"/>
-<img src="samples/play_store_screenshots/05_img_4.png" width="165"/>
+<img src="samples/play_store_screenshots/01_img.png" width="165" alt="Speed test result"/>
+<img src="samples/play_store_screenshots/02_img_1.png" width="165" alt="Per-app data usage"/>
+<img src="samples/play_store_screenshots/03_img_2.png" width="165" alt="Billing cycle usage"/>
+<img src="samples/play_store_screenshots/04_img_3.png" width="165" alt="30-day history"/>
+<img src="samples/play_store_screenshots/05_img_4.png" width="165" alt="Settings"/>
+
+**On a tablet**
+
+<img src="samples/play_store_screenshots/tablet_10/01_tab_speed.png" width="200" alt="Speed screen on a tablet"/>
+<img src="samples/play_store_screenshots/tablet_10/02_tab_usage.png" width="200" alt="Usage on a tablet"/>
+<img src="samples/play_store_screenshots/tablet_10/03_tab_history.png" width="200" alt="History on a tablet"/>
+<img src="samples/play_store_screenshots/tablet_10/04_tab_settings.png" width="200" alt="Settings on a tablet"/>
 
 </div>
+
+### Demo
+
+A 79-second walkthrough — speed test, per-app usage, history and settings:
+[`samples/netspeed_demo_1080p.mp4`](samples/netspeed_demo_1080p.mp4) (1920×1080).
+
+Listing assets are generated rather than hand-assembled, so they can be rebuilt whenever the UI
+changes:
+
+```bash
+cd samples
+python3 make_play_screenshots.py            # phone + 7"/10" tablet slides, feature graphic
+python3 make_demo_video.py demo_raw_phone.mp4   # frames a raw capture for YouTube
+```
+
+Raw device recordings are not committed — take a fresh one with
+`adb shell screenrecord --bit-rate 16M /sdcard/demo.mp4`, pull it, and pass it to the script. The
+still captures the listing images are built from (`samples/img*.png`, `samples/tab_*.png`) are.
+
+Both read the app's own `res/font/manrope.ttf` and the palette from `theme/Color.kt`, so the
+artwork and the product never drift apart. Title and description copy for the video lives in
+[`samples/youtube.md`](samples/youtube.md).
 
 ---
 
@@ -149,12 +180,15 @@ Granted automatically at install:
 | `RECEIVE_BOOT_COMPLETED` | Resume monitoring after a restart |
 | `WAKE_LOCK` | Keep sampling while the screen is off |
 
-Asked for at runtime:
+Asked for at runtime — **nothing is requested on first launch**. Live speed comes from
+`TrafficStats`, which needs no permission at all, so the app opens straight onto a working screen.
+Each permission is then asked for by the feature that uses it, one at a time, with a plain-language
+reason shown before the system dialog:
 
-| Permission | Why |
-|---|---|
-| `POST_NOTIFICATIONS` (Android 13+) | Show the speed notification and limit alerts |
-| `READ_PHONE_STATE` | Mobile signal strength. Declined simply hides it |
+| Permission | Asked when | If declined |
+|---|---|---|
+| `POST_NOTIFICATIONS` (Android 13+) | You accept the card offering to put the speed in your status bar, or switch monitoring on in Settings | Everything in the app keeps working; Settings offers the way back |
+| `READ_PHONE_STATE` | You open network details **on a mobile connection** — Wi-Fi never asks | The details sheet still opens, without the signal reading |
 
 Granted by the user in system settings — the app cannot request these directly:
 
@@ -162,15 +196,16 @@ Granted by the user in system settings — the app cannot request these directly
 |---|---|
 | **Usage access** (`PACKAGE_USAGE_STATS`) | Per-app usage and system-accurate totals |
 | **Draw over other apps** (`SYSTEM_ALERT_WINDOW`) | The floating overlay |
-| Battery optimisation exemption | Prevents aggressive OEM battery managers stopping the service |
+| Battery optimisation exemption | Prevents aggressive OEM battery managers stopping the service. Opened as the system's battery-optimisation list rather than the restricted `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` dialog |
 
 Without usage access the app still works, falling back to sampled figures — the Usage screen says
 which mode it is in.
 
 ## 📱 Usage
 
-1. Open the app; monitoring starts and the speed appears in your status bar
-2. Grant **usage access** when prompted on the Usage tab for exact figures and per-app data
+1. Open the app; live speed is there immediately, with no permission to grant first
+2. Accept the card at the top of the Speed screen to put that figure in your status bar, and grant
+   **usage access** from the Usage tab for exact figures and per-app data
 3. **Speed** — live speed, sparkline, ping and connection details
 4. **Usage** — today's totals, your data cap, and the per-app breakdown
 5. **History** — 30 days of daily usage; tap a day to see what used it

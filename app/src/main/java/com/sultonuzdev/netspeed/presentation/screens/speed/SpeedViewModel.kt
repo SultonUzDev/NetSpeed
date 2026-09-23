@@ -15,6 +15,8 @@ import com.sultonuzdev.netspeed.utils.SpeedUnit
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,6 +32,15 @@ class SpeedViewModel(
 
     private val _uiState = MutableStateFlow(SpeedUiState())
     val uiState: StateFlow<SpeedUiState> = _uiState.asStateFlow()
+
+    /** Set once the status-bar offer has been turned down, so it does not come back. */
+    val notificationPromptDismissed: StateFlow<Boolean> =
+        preferencesManager.notificationPromptDismissed
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun dismissNotificationPrompt() {
+        viewModelScope.launch { preferencesManager.dismissNotificationPrompt() }
+    }
 
 
     private val _uiTestState = MutableStateFlow(SpeedTestUiState())

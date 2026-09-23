@@ -1,8 +1,9 @@
-Refreshed design
+A cleaner app, and permissions only when you need them.
 
   • New typeface with clearer, steadier numbers
   • Refined colours that match in light and dark
-  • The dial now animates only while a test runs
-  • Test results in a compact summary
-  • Latency no longer shows a speed before it's measured
+  • The dial animates only while a test runs
+  • Compact test results, and latency no longer shows a speed before it's measured
+  • Nothing asked on first launch — each permission is asked by the feature that uses it
+  • Tablets now use one readable column
   • Fixed settings hidden behind the navigation bar

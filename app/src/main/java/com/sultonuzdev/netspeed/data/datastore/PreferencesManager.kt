@@ -34,6 +34,7 @@ class PreferencesManager(private val context: Context) {
         val DATA_LIMIT_ALERT = booleanPreferencesKey("data_limit_alert")
         val DATA_LIMIT = longPreferencesKey("data_limit")
         val DARK_THEME = booleanPreferencesKey("dark_theme")
+        val NOTIFICATION_PROMPT_DISMISSED = booleanPreferencesKey("notification_prompt_dismissed")
         val SPEED_UNITS = stringPreferencesKey("speed_units")
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val START_ON_BOOT = booleanPreferencesKey("start_on_boot")
@@ -100,6 +101,15 @@ class PreferencesManager(private val context: Context) {
 
     val darkTheme: Flow<Boolean> = context.dataStore.data
         .map { preferences -> preferences[DARK_THEME] != false }
+
+    /**
+     * Whether the offer to put the speed in the status bar has been turned down.
+     *
+     * Persisted rather than held in the composition: an offer that returns on every launch is
+     * nagging, and the same switch is always available in Settings.
+     */
+    val notificationPromptDismissed: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[NOTIFICATION_PROMPT_DISMISSED] == true }
 
     /** Warn as soon as the device starts roaming. On by default: the cost is the point. */
     val roamingAlert: Flow<Boolean> = context.dataStore.data
@@ -316,6 +326,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun updateDynamicColor(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[DYNAMIC_COLOR] = enabled
+        }
+    }
+
+    suspend fun dismissNotificationPrompt() {
+        context.dataStore.edit { preferences ->
+            preferences[NOTIFICATION_PROMPT_DISMISSED] = true
         }
     }
 
