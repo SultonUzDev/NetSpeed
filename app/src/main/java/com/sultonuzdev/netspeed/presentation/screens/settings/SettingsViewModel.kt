@@ -96,7 +96,11 @@ class SettingsViewModel(
 
     private fun observeSettings() {
         viewModelScope.launch {
-            val base = combine(
+            // Explicit <Any, SettingsUiState>: the varargs combine reifies T, and Kotlin 2.4
+            // infers the intersection of the flows' unrelated types (Boolean, Int, String,
+            // NotificationStyle) rather than a common supertype. Naming Any keeps the casts
+            // below honest and the inference predictable.
+            val base = combine<Any, SettingsUiState>(
                 preferencesManager.monitoringEnabled,
                 preferencesManager.updateFrequency,
                 preferencesManager.notificationStyle,

@@ -4,9 +4,8 @@ import kotlin.math.sign
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
 }
 
 
@@ -28,7 +27,7 @@ val hasSigningConfig = signingValue("storeFile", "KEYSTORE_PATH") != null
 
 android {
     namespace = "com.sultonuzdev.netspeed"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.sultonuzdev.netspeed"
@@ -82,10 +81,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -122,7 +117,7 @@ dependencies {
 
     // Database - Room
     implementation(libs.bundles.room)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
@@ -144,4 +139,12 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
+}
+
+// AGP 9 carries Kotlin support itself, so the old android.kotlinOptions block is gone; the
+// compiler is configured here instead.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+    }
 }
