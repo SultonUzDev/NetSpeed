@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
@@ -69,14 +69,15 @@ class MainActivity : ComponentActivity() {
             val isDarkTheme by mainViewModel.isDarkTheme.collectAsStateWithLifecycle()
             val isDynamicColor by mainViewModel.isDynamicColor.collectAsStateWithLifecycle()
             val currentPage by mainViewModel.currentPage.collectAsStateWithLifecycle()
-            // Re-applied on theme change so the status/nav bar icons flip with the app, not
-            // with the system setting.
+            // Icons only, flipped with the app theme rather than the system setting. The
+            // styled enableEdgeToEdge() overload would do this too, but only by setting the
+            // bar colors that Android 15 deprecated; onCreate already made the bars
+            // transparent, so there is nothing left for it to do here.
             LaunchedEffect(isDarkTheme) {
-                val bars = SystemBarStyle.auto(
-                    android.graphics.Color.TRANSPARENT,
-                    android.graphics.Color.TRANSPARENT
-                ) { isDarkTheme }
-                enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
+                WindowInsetsControllerCompat(window, window.decorView).run {
+                    isAppearanceLightStatusBars = !isDarkTheme
+                    isAppearanceLightNavigationBars = !isDarkTheme
+                }
             }
 
             // Binds the composition to the Koin instance started in the Application. Without
