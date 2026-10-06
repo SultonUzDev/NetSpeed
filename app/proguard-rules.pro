@@ -67,3 +67,11 @@
 # The compiler plugin emits what it needs; these only silence warnings about optional desktop and
 # tooling classes that are absent on Android.
 -dontwarn androidx.compose.**
+
+# ---------------------------------------------------------------------------------------------
+# Play In-App Review
+# ---------------------------------------------------------------------------------------------
+# review-ktx is compiled against a newer Play Services basement than it depends on, so one of its
+# generated listeners references an annotation that is not on the classpath. Annotations are not
+# retained at runtime here, so there is nothing to keep -- only a warning to silence.
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite

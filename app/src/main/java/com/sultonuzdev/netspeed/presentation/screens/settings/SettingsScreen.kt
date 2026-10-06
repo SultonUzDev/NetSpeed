@@ -33,6 +33,9 @@ import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.PermissionRationale
 import com.sultonuzdev.netspeed.presentation.components.SelectionDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import com.sultonuzdev.netspeed.presentation.components.GradientSettingItem
 import com.sultonuzdev.netspeed.presentation.components.SettingItem
 import com.sultonuzdev.netspeed.presentation.components.hasPermission
 import com.sultonuzdev.netspeed.presentation.components.isPermanentlyDenied
@@ -40,6 +43,10 @@ import com.sultonuzdev.netspeed.presentation.components.openNotificationSettings
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 import com.sultonuzdev.netspeed.presentation.theme.supportsDynamicColor
 import com.sultonuzdev.netspeed.utils.AutoStartHelper
+import com.sultonuzdev.netspeed.utils.BatteryOptimizationHelper
+import androidx.core.net.toUri
+import android.net.Uri
+import com.sultonuzdev.netspeed.utils.Constants
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
 import com.sultonuzdev.netspeed.utils.NetworkUtils
@@ -71,6 +78,19 @@ fun SettingsScreen(
         if (!granted && isPermanentlyDenied(context, Manifest.permission.POST_NOTIFICATIONS)) {
             openNotificationSettings(context)
         }
+    }
+
+    // Doze is what stops the meter on a Pixel or a Samsung, neither of which has an autostart
+    // screen to offer. Read once here and re-read on the way back from the settings list, so the
+    // row stops being offered the moment it is granted.
+    var needsBatteryExemption by remember {
+        mutableStateOf(!BatteryOptimizationHelper.isIgnoringBatteryOptimizations(context))
+    }
+
+    val batteryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        needsBatteryExemption = !BatteryOptimizationHelper.isIgnoringBatteryOptimizations(context)
     }
 
     val requestMonitoring: (Boolean) -> Unit = { enabled ->
@@ -109,6 +129,7 @@ fun SettingsScreen(
         // Offered only where such a screen exists and resolves; on a Pixel there is nothing to
         // link to and the row would be a dead end.
         showAutoStart = AutoStartHelper.hasAutoStartSettings(context),
+        showBatteryExemption = needsBatteryExemption,
         notificationsDenied = notificationsDenied,
         onEnableNotifications = { openNotificationSettings(context) },
         actions = SettingsActions(
@@ -148,6 +169,16 @@ fun SettingsScreen(
                     runCatching { context.startActivity(intent) }
                 }
             },
+            onBatteryExemptionClick = {
+                BatteryOptimizationHelper.openBatteryOptimizationSettings(
+                    context = context,
+                    launcher = batteryLauncher,
+                    // A handful of builds ship without the screen. A row that leads nowhere is
+                    // worse than no row, so it withdraws the offer instead of failing on tap.
+                    onUnavailable = { needsBatteryExemption = false }
+                )
+            },
+            onMoreAppsClick = { openDeveloperPage(context) },
             onDarkThemeChange = viewModel::updateDarkTheme,
             onDynamicColorChange = viewModel::updateDynamicColor
         ),
@@ -183,6 +214,8 @@ private data class SettingsActions(
     val onBackgroundDataAlertChange: (Boolean) -> Unit = {},
     val onBackgroundThresholdClick: () -> Unit = {},
     val onAutoStartClick: () -> Unit = {},
+    val onBatteryExemptionClick: () -> Unit = {},
+    val onMoreAppsClick: () -> Unit = {},
     val onDarkThemeChange: (Boolean) -> Unit = {},
     val onDynamicColorChange: (Boolean) -> Unit = {}
 )
@@ -193,6 +226,7 @@ private fun SettingsScreenContent(
     showAutoStart: Boolean,
     actions: SettingsActions,
     modifier: Modifier = Modifier,
+    showBatteryExemption: Boolean = false,
     notificationsDenied: Boolean = false,
     onEnableNotifications: () -> Unit = {}
 ) {
@@ -388,18 +422,34 @@ private fun SettingsScreenContent(
                 }
 
 
-                // Offered only where such a screen exists and resolves; on a Pixel there is
-                // nothing to link to and the row would be a dead end.
-                if (showAutoStart) {
+                // Each row is offered only where it leads somewhere, so the section as a whole
+                // appears only if at least one of them does.
+                if (showAutoStart || showBatteryExemption) {
 
                     SettingsSection(title = "Device") {
                         // Says what tapping does and why it matters. "Allow autostart / Open" read
                         // like a setting whose current value was the word "Open".
-                        SettingItem(
-                            label = "Allow autostart",
-                            value = "Settings",
-                            onValueClick = actions.onAutoStartClick
-                        )
+                        if (showAutoStart) {
+                            SettingItem(
+                                label = "Allow autostart",
+                                value = "Settings",
+                                onValueClick = actions.onAutoStartClick
+                            )
+                        }
+
+                        // Gone once granted: unlike autostart, this one can be read back, so a
+                        // row that is present always has something left to fix.
+                        if (showBatteryExemption) {
+                            SettingItem(
+                                label = "Allow unrestricted battery",
+                                value = "Settings",
+                                // The one row on this screen the user has a reason to act on:
+                                // until it is granted the meter can be stopped at any time, and
+                                // nothing else here says so.
+                                showAttention = true,
+                                onValueClick = actions.onBatteryExemptionClick
+                            )
+                        }
                     }
                 }
 
@@ -425,6 +475,16 @@ private fun SettingsScreenContent(
                     }
 
                 }
+
+                GradientSettingItem(
+                    label = "More apps",
+                    value = "Everything else from Sulton UzDev",
+                    icon = Icons.Default.Apps,
+                    onClick = actions.onMoreAppsClick
+                )
+//                SettingsSection(title = "More") {
+//
+//                }
             }
         }
     }}
@@ -439,6 +499,7 @@ private fun SettingsScreenContentPreview() {
                 backgroundDataAlert = true
             ),
             showAutoStart = true,
+            showBatteryExemption = true,
             actions = SettingsActions()
         )
     }
@@ -634,6 +695,28 @@ private fun SettingsSection(
         )
 
         content()
+    }
+}
+
+/**
+ * The publisher's other apps on Play.
+ *
+ * The Play app first -- it opens the publisher page in place rather than a browser tab -- and the
+ * web URL only when Play is not installed, which is also the case on a sideloaded build.
+ */
+private fun openDeveloperPage(context: Context) {
+    val publisher = Uri.encode(Constants.PLAY_PUBLISHER)
+    val candidates = listOf(
+        "market://search?q=pub:$publisher",
+        "https://play.google.com/store/apps/developer?id=$publisher"
+    )
+    candidates.firstOrNull { target ->
+        runCatching {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, target.toUri())
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.isSuccess
     }
 }
 

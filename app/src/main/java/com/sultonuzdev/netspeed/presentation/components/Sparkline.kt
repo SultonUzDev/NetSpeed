@@ -54,10 +54,7 @@ fun Sparkline(
                 )
             }
 
-            val linePath = Path().apply {
-                moveTo(points.first().x, points.first().y)
-                points.drop(1).forEach { lineTo(it.x, it.y) }
-            }
+            val linePath = smoothPath(points, size.height)
 
             val fillPath = Path().apply {
                 addPath(linePath)
@@ -82,6 +79,43 @@ fun Sparkline(
     }
 }
 
+/**
+ * A Catmull-Rom spline through every sample, as cubic Beziers.
+ *
+ * Straight segments made a one-second cadence look like a seismograph -- every sample a corner.
+ * The curve passes through each point exactly (it interpolates, it does not approximate), so the
+ * trace still reports the real figures; only the travel between them is eased.
+ *
+ * Tangents are slackened to half the classic Catmull-Rom length and the control points are
+ * clamped to the band, because the textbook spline overshoots after a spike and would draw a
+ * throughput below zero or above the window's own peak.
+ */
+private fun smoothPath(points: List<Offset>, height: Float): Path = Path().apply {
+    moveTo(points.first().x, points.first().y)
+    for (index in 0 until points.size - 1) {
+        val previous = points[(index - 1).coerceAtLeast(0)]
+        val start = points[index]
+        val end = points[index + 1]
+        val next = points[(index + 2).coerceAtMost(points.size - 1)]
+
+        val firstControl = Offset(
+            x = start.x + (end.x - previous.x) * SMOOTHING,
+            y = (start.y + (end.y - previous.y) * SMOOTHING).coerceIn(0f, height)
+        )
+        val secondControl = Offset(
+            x = end.x - (next.x - start.x) * SMOOTHING,
+            y = (end.y - (next.y - start.y) * SMOOTHING).coerceIn(0f, height)
+        )
+        cubicTo(
+            firstControl.x, firstControl.y,
+            secondControl.x, secondControl.y,
+            end.x, end.y
+        )
+    }
+}
+
+/** Half of Catmull-Rom's 1/6: enough to round the corners, not enough to invent a bounce. */
+private const val SMOOTHING = 1f / 12f
 
 @Preview
 @Composable

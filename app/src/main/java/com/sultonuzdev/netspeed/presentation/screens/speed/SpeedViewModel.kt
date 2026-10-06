@@ -13,7 +13,10 @@ import com.sultonuzdev.netspeed.utils.NetworkDetailsReader
 import com.sultonuzdev.netspeed.utils.SpeedFormatter
 import com.sultonuzdev.netspeed.utils.SpeedUnit
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +48,14 @@ class SpeedViewModel(
 
     private val _uiTestState = MutableStateFlow(SpeedTestUiState())
     val speedTestState: StateFlow<SpeedTestUiState> = _uiTestState.asStateFlow()
+
+    /**
+     * Emitted the once, when a rating is worth asking for. A one-shot event rather than
+     * state: replayed state would re-open the sheet on every recomposition and on every
+     * return to the screen.
+     */
+    private val _reviewRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val reviewRequests: SharedFlow<Unit> = _reviewRequests.asSharedFlow()
 
     private var testJob: Job? = null
 
@@ -140,6 +151,19 @@ class SpeedViewModel(
                         pingResult = "${result.pingMillis} ms",
                         jitterResult = "${result.jitterMillis} ms"
                     )
+                }
+
+                // A finished test is the one moment the app has just visibly done its job, which
+                // is the only honest place to ask for a rating. Counted rather than asked every
+                // time, so it is never the first thing a new install sees.
+                //
+                // Guarded separately: this runs inside the same try as the test itself, so an
+                // unwrapped failure writing the count would report a test that had just
+                // succeeded as failed.
+                runCatching {
+                    if (preferencesManager.recordCompletedSpeedTest() == TESTS_BEFORE_REVIEW) {
+                        _reviewRequests.tryEmit(Unit)
+                    }
                 }
             } catch (e: Exception) {
                 _uiTestState.update {
@@ -237,5 +261,8 @@ class SpeedViewModel(
     private companion object {
         /** About a minute of history at the default one-second cadence. */
         const val SPARKLINE_SAMPLES = 60
+
+        /** Fourth finished test, so the app has proven useful several times before it asks. */
+        const val TESTS_BEFORE_REVIEW = 4
     }
 }

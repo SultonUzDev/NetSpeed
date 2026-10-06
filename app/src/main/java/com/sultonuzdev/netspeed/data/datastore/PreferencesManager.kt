@@ -44,6 +44,8 @@ class PreferencesManager(private val context: Context) {
         val ALERT_LEVEL = intPreferencesKey("alert_level")
         val SPEED_DISPLAY_MODE = stringPreferencesKey("speed_display_mode")
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
+        /** Only ever counted up, and only to decide when a rating is worth asking for. */
+        val COMPLETED_SPEED_TESTS = intPreferencesKey("completed_speed_tests")
 
         // Alerts
         val ROAMING_ALERT = booleanPreferencesKey("roaming_alert")
@@ -321,6 +323,21 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[OVERLAY_OPACITY] = percent.coerceIn(0, 100)
         }
+    }
+
+    /**
+     * Counts one finished speed test and returns the new total.
+     *
+     * Returned rather than exposed as a flow: the only caller wants to act on the moment the
+     * count reaches a particular value, and a flow of it would re-fire that on every collection.
+     */
+    suspend fun recordCompletedSpeedTest(): Int {
+        var total = 0
+        context.dataStore.edit { preferences ->
+            total = (preferences[COMPLETED_SPEED_TESTS] ?: 0) + 1
+            preferences[COMPLETED_SPEED_TESTS] = total
+        }
+        return total
     }
 
     suspend fun updateDynamicColor(enabled: Boolean) {

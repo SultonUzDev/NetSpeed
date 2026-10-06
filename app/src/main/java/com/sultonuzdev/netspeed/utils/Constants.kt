@@ -28,6 +28,17 @@ object Constants {
 
     // Update interval in milliseconds
     const val DEFAULT_UPDATE_INTERVAL = 1000L
+
+    /**
+     * Play publisher name, exactly as it appears on the store listing under the app title.
+     * Used to build the developer-page link behind the "More apps" row; get it wrong and that
+     * page opens empty.
+     *
+     * Written here unencoded -- the caller percent-encodes it, so the space becomes %20 rather
+     * than the + that Play's own URL happens to use. The two are equivalent in a query string.
+     * The page is https://play.google.com/store/apps/developer?id=Sulton+UzDev
+     */
+    const val PLAY_PUBLISHER = "Sulton UzDev"
 }
 enum class NotificationStyle(val styleName: String) {
     COMPACT("Compact"),

@@ -3,6 +3,7 @@ package com.sultonuzdev.netspeed.presentation.screens.speed
 import android.annotation.SuppressLint
 import android.Manifest
 import android.os.Build
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.filled.Close
@@ -42,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +63,9 @@ import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiS
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedUiState
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
+import com.sultonuzdev.netspeed.utils.InAppReview
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.log10
 
 
 @Composable
@@ -81,6 +85,12 @@ fun SpeedScreen(
                     hasPermission(context, Manifest.permission.POST_NOTIFICATIONS)
         )
     }
+    // Null in a preview, and in any host that is not an activity; nothing to ask from there.
+    val activity = LocalActivity.current
+    LaunchedEffect(activity) {
+        if (activity != null) viewModel.reviewRequests.collect { InAppReview.show(activity) }
+    }
+
     val promptDismissed by viewModel.notificationPromptDismissed.collectAsStateWithLifecycle()
     var askNotifications by remember { mutableStateOf(false) }
     var askPhoneState by remember { mutableStateOf(false) }
@@ -211,19 +221,21 @@ private fun SpeedScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
             // ponytail: below ~150dp the labels crowd; a scroll fallback if that ever shows up.
             val dial = dialContent(speedTestUiState)
-            // 280dp fills a phone; on a tablet the same dial left a third of the page empty
-            // around it. Only a screen with the height to spare takes the larger cap, so phone
-            // layouts are untouched.
-            val cap = if (maxHeight >= 600.dp) 400.dp else 280.dp
+            // The dial is the screen's subject, so it takes the room the live strip above no
+            // longer needs. A tablet has the height for more again -- at the phone cap the same
+            // dial left a third of the page empty around it.
+            val cap = if (maxHeight >= 600.dp) 470.dp else 330.dp
             SpeedCircle(
                 diameter = minOf(maxHeight, maxWidth, cap).coerceAtLeast(150.dp),
                 speed = dial.value,
                 unit = dial.unit,
+                caption = dial.caption,
+                progress = dialProgress(speedTestUiState),
                 animating = speedTestUiState.isRunning
             )
         }
@@ -403,6 +415,28 @@ private fun dialContent(state: SpeedTestUiState): DialContent = when (state.phas
     SpeedTestPhase.FAILED -> DialContent("—", "", "Test failed")
 }
 
+/**
+ * How far round the dial the current reading sits.
+ *
+ * Logarithmic, because the range it has to cover is not: a dial that put 1000 Mbps at the end of
+ * a linear scale would leave every connection under 50 Mbps indistinguishable from empty. A
+ * decade per quarter turn gives each order of magnitude the same arc -- 1 Mbps a quarter, 10 a
+ * half, 100 three quarters, 1 Gbps full.
+ */
+private fun dialProgress(state: SpeedTestUiState): Float {
+    // Nothing has been measured before the download phase, and a failed test should not leave a
+    // reading standing on the ring.
+    if (state.phase == SpeedTestPhase.IDLE ||
+        state.phase == SpeedTestPhase.PINGING ||
+        state.phase == SpeedTestPhase.FAILED
+    ) {
+        return 0f
+    }
+    val megabitsPerSecond = state.liveBytesPerSecond * 8.0 / 1_000_000.0
+    if (megabitsPerSecond <= 0.0) return 0f
+    return ((log10(megabitsPerSecond) + 1.0) / 4.0).coerceIn(0.0, 1.0).toFloat()
+}
+
 /** Name plus transport, collapsed to one when the name is only the transport. */
 private fun networkLabel(name: String, networkType: String, isConnected: Boolean): String {
     if (!isConnected) return "No connection"
@@ -433,11 +467,11 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .padding(horizontal = 20.dp, vertical = 6.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.netSpeedColors.cardBackground)
             .border(1.dp, MaterialTheme.netSpeedColors.cardBorder, RoundedCornerShape(16.dp))
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -452,7 +486,7 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
                 )
                 Text(
                     text = "${uiState.downloadSpeed} ${uiState.downloadUnit}",
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                     maxLines = 1
@@ -466,7 +500,7 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
                 )
                 Text(
                     text = "${uiState.uploadSpeed} ${uiState.uploadUnit}",
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.tertiary,
                     maxLines = 1
@@ -474,8 +508,8 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
-        Sparkline(samples = uiState.recentDownload, height = 36.dp)
+        Sparkline(samples = uiState.recentDownload, height = 28.dp)
     }
 }

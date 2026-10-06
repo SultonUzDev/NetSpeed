@@ -18,6 +18,7 @@ espressoCore = "3.6.1"
 material3 = "1.4.0"
 androidxCore = "1.19.0"
 splashScreen = "1.0.1"
+playReview = "2.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +54,9 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 
 # SplashScreen
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashScreen" }
+
+# Play In-App Review. review-ktx brings the suspend wrappers over the Task-based API.
+play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
