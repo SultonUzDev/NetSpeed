@@ -28,9 +28,9 @@
 
     <!-- Value plus its unit symbol, e.g. "12.4 Mbps". Separator only; nothing to translate. -->
     <string name="value_with_unit" translatable="false">%1$s %2$s</string>
-    <string name="measure_megabits_per_second" translatable="false">%1$s Mbps</string>
-    <string name="measure_kilobits_per_second" translatable="false">%1$s Kbps</string>
-    <string name="measure_milliseconds" translatable="false">%1$s ms</string>
+    <string name="measure_megabits_per_second" translatable="false">%1$d Mbps</string>
+    <string name="measure_kilobits_per_second" translatable="false">%1$d Kbps</string>
+    <string name="measure_milliseconds" translatable="false">%1$d ms</string>
     <string name="measure_dbm" translatable="false">%1$d dBm</string>
     <string name="measure_mhz" translatable="false">%1$d MHz</string>
     <string name="measure_percent" translatable="false">%1$d%%</string>

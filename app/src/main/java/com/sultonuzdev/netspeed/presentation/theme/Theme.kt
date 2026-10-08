@@ -1,6 +1,8 @@
 package com.sultonuzdev.netspeed.presentation.theme
 
+import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -108,13 +110,10 @@ fun NetSpeedTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    val useDynamic = dynamicColor && supportsDynamicColor
-
-    val colorScheme = when {
-        useDynamic && darkTheme -> dynamicDarkColorScheme(context)
-        useDynamic -> dynamicLightColorScheme(context)
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val colorScheme = if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        dynamicScheme(darkTheme)
+    } else {
+        if (darkTheme) DarkColorScheme else LightColorScheme
     }
 
     // Derived from the active scheme in every case, not just the dynamic one. The hand-picked
@@ -137,3 +136,23 @@ fun NetSpeedTheme(
 val MaterialTheme.netSpeedColors: NetSpeedCustomColors
     @Composable
     get() = LocalNetSpeedCustomColors.current
+
+/**
+ * Wallpaper-derived colours, isolated behind [RequiresApi] so the version guard is checkable.
+ *
+ * Lint's NewApi check could not see the guard at the call site in any form tried -- a property
+ * getter ([supportsDynamicColor]), a local boolean, a `when` branch, or an inline `if` -- and
+ * failed the build each time claiming these Android 12 APIs were reachable on minSdk 26. Moving
+ * the calls behind an annotated function states the requirement where lint does read it, which
+ * is better than suppressing the warning and losing the check everywhere else.
+ */
+// Suppressed, not ignored: the only caller guards on SDK_INT >= S, and @RequiresApi above
+// states the contract. Lint does not honour @RequiresApi on a @Composable, so the check
+// fires anyway; scoping the suppression to this one function keeps NewApi active everywhere else.
+@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.S)
+@Composable
+private fun dynamicScheme(darkTheme: Boolean): ColorScheme {
+    val context = LocalContext.current
+    return if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+}
