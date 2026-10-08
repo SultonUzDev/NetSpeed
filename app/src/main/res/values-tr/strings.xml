@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">Bilinmiyor</string>
+
+    <!-- ===== Gezinme ========================================================================= -->
+    <string name="nav_speed">Hız</string>
+    <string name="nav_usage">Kullanım</string>
+    <string name="nav_history">Geçmiş</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- ===== Bağlantı adlandırması =========================================================== -->
+    <string name="connection_mobile_data">Mobil veri</string>
+    <string name="connection_mobile_short">Mobil</string>
+    <string name="connection_offline">Çevrimdışı</string>
+    <string name="connection_none">Bağlantı yok</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Hız ekranı ====================================================================== -->
+    <string name="speed_download">İndirme</string>
+    <string name="speed_upload">Yükleme</string>
+    <string name="speed_network_details">Ağ ayrıntıları</string>
+    <string name="speed_dial_idle_caption">Hız testi</string>
+    <string name="speed_dial_latency_caption">Gecikme</string>
+    <string name="speed_dial_failed_caption">Test başarısız</string>
+
+    <string name="speed_notification_offer_title">Hızı durum çubuğunda gösterin</string>
+    <string name="speed_notification_offer_body">Uygulamayı açmadan görün</string>
+    <string name="speed_notification_offer_action">Etkinleştir</string>
+    <string name="speed_notification_offer_dismiss">Yoksay</string>
+
+    <!-- ===== Hız testi ======================================================================= -->
+    <string name="speed_test_run">Hız testi yap</string>
+    <string name="speed_test_again">Yeniden test et</string>
+    <string name="speed_test_cancel">İptal</string>
+    <string name="speed_test_phase_latency">Gecikme</string>
+    <string name="speed_test_phase_download">İndirme</string>
+    <string name="speed_test_phase_upload">Yükleme</string>
+    <string name="speed_test_result_ping">Ping</string>
+    <string name="speed_test_result_jitter">Gecikme sapması</string>
+    <string name="speed_test_footer">Cloudflare üzerinden test edildi · sonuçlar cihazınızda kalır</string>
+    <string name="speed_test_error_generic">Hız testi başarısız oldu.</string>
+    <string name="speed_test_error_no_internet">İnternet bağlantısı yok. Test sunucusuna ulaşılamadı.</string>
+    <string name="speed_test_error_interrupted">Bağlantı kesildi. Ağınızı kontrol edip yeniden deneyin.</string>
+
+    <!-- ===== Kullanım ekranı ================================================================= -->
+    <string name="usage_by_app">Uygulamaya göre</string>
+    <string name="usage_today">Bugün</string>
+    <string name="usage_billing_cycle">Faturalama dönemi</string>
+    <string name="usage_this_cycle">Bu dönem</string>
+    <string name="usage_last_7_days">Son 7 gün</string>
+    <string name="usage_last_30_days">Son 30 gün</string>
+    <string name="usage_total">Toplam</string>
+    <string name="usage_exact">Kesin</string>
+    <string name="usage_estimated">Tahmini</string>
+    <string name="usage_empty_period">Bu dönem için henüz uygulama trafiği kaydedilmedi.</string>
+    <string name="usage_empty_chart">Henüz kullanım kaydedilmedi</string>
+    <string name="usage_chart_peak">en yüksek %1$s</string>
+    <string name="usage_app_split">Mobil %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Bu cihazda kullanım erişimi ayarları açılamadı</string>
+
+    <string name="usage_access_title">Kullanım erişimini açın</string>
+    <string name="usage_access_body">Hangi uygulamaların verinizi kullandığını gösterir ve toplamları Android Ayarları ile aynı yapar. Hiçbir şey cihazınızdan çıkmaz.</string>
+    <string name="usage_access_action">Ayarları aç</string>
+
+    <!-- ===== Geçmiş ekranı =================================================================== -->
+    <string name="history_column_date">Tarih</string>
+    <string name="history_empty">Henüz kullanım kaydedilmedi.\nİzleme çalıştıkça geçmiş oluşur.</string>
+
+    <!-- ===== Veri sınırı kartı =============================================================== -->
+    <string name="limit_card_title">Bu dönemdeki mobil veri</string>
+    <string name="limit_forecast_within">Tahmini %1$s · sınır içinde</string>
+    <string name="limit_forecast_over_by">Tahmini %1$s · %2$s aşım</string>
+    <string name="limit_forecast_over_when">Tahmini %1$s · %2$s aşılacak</string>
+    <string name="limit_used_of_total_remaining">%2$s üzerinden %1$s · %3$s kaldı</string>
+    <string name="limit_used_of_total_reached">%2$s üzerinden %1$s — sınıra ulaşıldı</string>
+    <string name="limit_forecast_when_tomorrow">yarın</string>
+    <string name="limit_forecast_in_days">%1$d gün sonra</string>
+    <string name="threshold_percent_of_limit">sınırın %%%1$d\'i</string>
+    <string name="limit_none_set">Sınır belirlenmedi</string>
+    <string name="limit_percent_of_total">%2$s üzerinden %%%1$d</string>
+
+    <!-- ===== Uygulama kullanım ayrıntısı ===================================================== -->
+    <string name="app_detail_total">Toplam</string>
+    <string name="app_detail_mobile">Mobil</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Ön planda</string>
+    <string name="app_detail_background">Arka planda</string>
+    <string name="app_detail_no_split">Bu cihazda ön plan/arka plan ayrımı yok.</string>
+    <string name="app_detail_share_of_period">Dönem içindeki payı</string>
+    <string name="app_detail_limit_this_cycle">Bu dönemdeki sınır</string>
+    <string name="app_detail_limit_none">Sınır yok</string>
+    <string name="app_detail_limit_set">Sınır belirle</string>
+    <string name="app_detail_limit_title">%1$s için sınır</string>
+    <string name="app_detail_app_info">Uygulama bilgileri</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Gün kullanım ayrıntısı ========================================================== -->
+    <string name="day_detail_top_apps">En çok kullananlar</string>
+    <string name="day_detail_empty">Bu gün için uygulama bazlı veri yok.</string>
+    <string name="day_detail_share_of_limit">Sınırın günlük payı · %1$s</string>
+    <string name="day_detail_total_suffix">toplam %1$s</string>
+
+    <!-- ===== Ağ ayrıntıları ================================================================== -->
+    <string name="details_empty">Bu bağlantı için ayrıntı yok.</string>
+    <string name="details_section_connection">Bağlantı</string>
+    <string name="details_section_addresses">Adresler</string>
+    <string name="details_section_radio">Telsiz</string>
+    <string name="details_section_carrier">Operatör</string>
+    <string name="details_network">Ağ</string>
+    <string name="details_nothing_connected">Şu anda bağlı bir ağ yok</string>
+    <string name="details_internet">İnternet</string>
+    <string name="details_reachable">Erişilebilir</string>
+    <string name="details_not_verified">Bağlı, doğrulanmadı</string>
+    <string name="details_metered">Sınırlı bağlantı</string>
+    <string name="details_roaming">Dolaşım</string>
+    <string name="details_yes">Evet</string>
+    <string name="details_no">Hayır</string>
+    <string name="details_estimated_downlink">Tahmini indirme hızı</string>
+    <string name="details_estimated_uplink">Tahmini yükleme hızı</string>
+    <string name="details_interface">Arabirim</string>
+    <string name="details_ipv4">IPv4 adresi</string>
+    <string name="details_ipv6">IPv6 adresi</string>
+    <string name="details_link_speed">Bağlantı hızı</string>
+    <string name="details_tx_link_speed">Tx bağlantı hızı</string>
+    <string name="details_rx_link_speed">Rx bağlantı hızı</string>
+    <string name="details_frequency">Frekans</string>
+    <string name="details_band">Bant</string>
+    <string name="details_signal">Sinyal</string>
+    <string name="details_operator">Operatör</string>
+    <string name="details_sim_operator">SIM operatörü</string>
+
+    <!-- ===== Uygulama bazlı dökümdeki sistem kaynakları ====================================== -->
+    <string name="traffic_tethering">İnternet paylaşımı</string>
+    <string name="traffic_removed_apps">Kaldırılan uygulamalar</string>
+    <string name="traffic_all">Tüm trafik</string>
+    <string name="traffic_android_os">Android işletim sistemi</string>
+    <string name="traffic_root">Root (sistem hesabı)</string>
+    <string name="traffic_telephony">Telefon hizmetleri</string>
+    <string name="traffic_media_server">Medya sunucusu</string>
+    <string name="traffic_drm_service">DRM hizmeti</string>
+    <string name="traffic_network_stack">Ağ yığını</string>
+    <string name="traffic_nobody">Nobody (sistem hesabı)</string>
+    <string name="traffic_system_service">Sistem hizmeti (uid %1$d)</string>
+
+    <!-- ===== Ayarlar: bölümler =============================================================== -->
+    <string name="settings_section_notification">Bildirim</string>
+    <string name="settings_section_monitoring">İzleme</string>
+    <string name="settings_section_overlay">Kayan pencere</string>
+    <string name="settings_section_data_limit">Veri sınırı</string>
+    <string name="settings_section_alerts">Uyarılar</string>
+    <string name="settings_section_device">Cihaz</string>
+    <string name="settings_section_appearance">Görünüm</string>
+
+    <!-- ===== Ayarlar: satırlar =============================================================== -->
+    <string name="settings_monitor_speed">Ağ hızını izle</string>
+    <string name="settings_update_frequency">Güncelleme sıklığı</string>
+    <string name="settings_notification_style">Bildirim stili</string>
+    <string name="settings_status_bar_shows">Durum çubuğunda gösterilen</string>
+    <string name="settings_speed_units">Hız birimi</string>
+    <string name="settings_monitor_wifi">Wi-Fi\'yi izle</string>
+    <string name="settings_monitor_mobile">Mobil veriyi izle</string>
+    <string name="settings_background_monitoring">Arka planda izlemeyi sürdür</string>
+    <string name="settings_start_on_boot">Cihaz yeniden başladıktan sonra çalıştır</string>
+    <string name="settings_show_overlay">Kayan pencereyi göster</string>
+    <string name="settings_overlay_size">Kayan pencere yazı boyutu</string>
+    <string name="settings_overlay_colour">Kayan pencere yazı rengi</string>
+    <string name="settings_overlay_opacity">Kayan pencere arka plan opaklığı</string>
+    <string name="settings_billing_cycle_start">Faturalama dönemi başlangıcı</string>
+    <string name="settings_mobile_data_limit">Mobil veri sınırı</string>
+    <string name="settings_warn_before_limit">Veri sınırından önce uyar</string>
+    <string name="settings_warn_at">Uyarı eşiği</string>
+    <string name="settings_warn_roaming">Dolaşımdayken uyar</string>
+    <string name="settings_warn_background_data">Arka plan verisi için uyar</string>
+    <string name="settings_warn_above">Uyarı sınırı</string>
+    <string name="settings_autostart">Otomatik başlatmaya izin ver</string>
+    <string name="settings_battery_unrestricted">Kısıtlanmamış pil kullanımına izin ver</string>
+    <string name="settings_language">Dil</string>
+    <string name="dialog_language">Dil</string>
+    <string name="language_system_default">Sistem varsayılanı</string>
+    <string name="settings_dark_theme">Koyu tema</string>
+    <string name="settings_dynamic_colour">Duvar kağıdı renklerine uy</string>
+    <string name="settings_more_apps">Diğer uygulamalar</string>
+    <string name="settings_more_apps_subtitle">Sulton UzDev\'in diğer uygulamaları</string>
+    <string name="settings_value_open">Ayarlar</string>
+    <string name="settings_value_none">Yok</string>
+
+    <string name="settings_notifications_off">Bildirimler kapalı, bu yüzden hız durum çubuğunda görünemez. Açmak için dokunun.</string>
+
+    <!-- ===== Ayarlar: iletişim kutusu başlıkları ============================================= -->
+    <string name="dialog_update_frequency">Güncelleme Sıklığı</string>
+    <string name="dialog_notification_style">Bildirim Stili</string>
+    <string name="dialog_speed_display">Hız Gösterimi</string>
+    <string name="dialog_speed_units">Hız Birimi</string>
+    <string name="dialog_monthly_reset_date">Aylık Sıfırlama Tarihi</string>
+    <string name="dialog_mobile_data_limit">Mobil Veri Sınırı</string>
+    <string name="dialog_warn_at">Uyarı Eşiği</string>
+    <string name="dialog_background_threshold">Arka plan verisi eşiği</string>
+    <string name="dialog_overlay_size">Kayan Pencere Boyutu</string>
+    <string name="dialog_overlay_colour">Kayan Pencere Rengi</string>
+    <string name="dialog_overlay_opacity">Kayan Pencere Saydamlığı</string>
+    <string name="dialog_cancel">İptal</string>
+    <string name="dialog_close">Kapat</string>
+
+    <!-- ===== Seçenek değerleri =============================================================== -->
+    <string name="option_auto">Otomatik</string>
+    <string name="option_compact">Kısa</string>
+    <string name="option_detailed">Ayrıntılı</string>
+    <string name="option_custom">Özel</string>
+    <string name="display_download_only">Yalnızca indirme</string>
+    <string name="display_upload_only">Yalnızca yükleme</string>
+    <string name="display_combined_total">Birleşik toplam</string>
+    <string name="display_download_and_upload">İndirme ve yükleme</string>
+
+    <string name="colour_white">Beyaz</string>
+    <string name="colour_black">Siyah</string>
+    <string name="colour_cyan">Camgöbeği</string>
+    <string name="colour_green">Yeşil</string>
+    <string name="colour_amber">Kehribar</string>
+    <string name="colour_red">Kırmızı</string>
+
+    <!-- Türkçede sıra eki yok; dört anahtar da aynı biçimi kullanır. -->
+    <string name="ordinal_day_st">%1$d.</string>
+    <string name="ordinal_day_nd">%1$d.</string>
+    <string name="ordinal_day_rd">%1$d.</string>
+    <string name="ordinal_day_th">%1$d.</string>
+
+    <!-- ===== İzin gerekçeleri ================================================================ -->
+    <string name="perm_continue">Devam</string>
+    <string name="perm_not_now">Şimdi değil</string>
+    <string name="perm_notification_title">Hızı durum çubuğunda gösterin</string>
+    <string name="perm_notification_body_speed">NetSpeed, anlık değeri taşıyan tek bir kalıcı bildirim gösterir; böylece hızınızı uygulamayı açmadan görebilirsiniz. Android bunu göstermek için izninizi gerektiriyor.</string>
+    <string name="perm_notification_body_settings">NetSpeed, anlık değeri taşıyan tek bir kalıcı bildirim gösterir. Android bunu göstermek için izninizi gerektiriyor. İzin vermezseniz uygulamadaki her şey çalışmayı sürdürür.</string>
+    <string name="perm_phone_state_title">Mobil sinyalinizi okuma</string>
+    <string name="perm_phone_state_body">Mobil bağlantının sinyal gücü telefonun telsizinden gelir ve Android bunu bir iznin arkasında tutar. Ağ ayrıntılarının geri kalanı her durumda gösterilir.</string>
+
+    <!-- ===== İzleme bildirimi ================================================================ -->
+    <string name="notif_channel_name">Net Speed İzleyici</string>
+    <string name="notif_channel_description">Gerçek zamanlı internet hızını ve veri kullanımını gösterir</string>
+    <string name="notif_summary">Net Speed İzleyici</string>
+    <string name="notif_total">toplam %1$s</string>
+    <string name="notif_with_signal">%1$s | Sinyal: %2$s</string>
+    <string name="notif_line_total">Toplam: %1$s</string>
+    <string name="notif_line_download">İndirme: %1$s</string>
+    <string name="notif_line_upload">Yükleme: %1$s</string>
+    <string name="notif_line_signal">Sinyal: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Mobil veri: %1$s</string>
+    <string name="notif_line_wifi_data">Wi-Fi verisi: %1$s</string>
+
+    <!-- ===== Veri sınırı uyarıları =========================================================== -->
+    <string name="alert_channel_name">Veri sınırı uyarıları</string>
+    <string name="alert_channel_description">Mobil veri sınırınıza yaklaşıldığında veya aşıldığında uyarır</string>
+    <string name="alert_limit_reached_title">Mobil veri sınırına ulaşıldı</string>
+    <string name="alert_limit_reached_body">Bu dönemde %2$s üzerinden %1$s kullanıldı.</string>
+    <string name="alert_approaching_title">Mobil verinin %%%1$d\'i kullanıldı</string>
+    <string name="alert_approaching_body">%2$s üzerinden %1$s kullanıldı. Bu dönemde %3$s kaldı.</string>
+    <string name="alert_roaming_title">Dolaşım — mobil veri ek ücrete tabi olabilir</string>
+    <string name="alert_roaming_body">Dolaşım ağındasınız. Bu dönemde şu ana kadar %1$s mobil veri kullanıldı.</string>
+    <string name="alert_app_limit_one_title">%1$s veri sınırını aştı</string>
+    <string name="alert_background_one_title">%1$s arka planda veri kullandı</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %3$s üzerinden %2$s</string>
+
+    <!-- ===== Widgetlar ve kısayol ============================================================ -->
+    <string name="widget_speed_description">Anlık indirme ve yükleme hızı</string>
+    <string name="widget_usage_title">Bu dönemdeki mobil veri</string>
+    <string name="widget_usage_description">Sınırınıza göre kullanılan veri</string>
+    <string name="widget_today_total">Bugün %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · aşım bekleniyor</string>
+
+    <!-- ===== Çoğul biçimler ================================================================== -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d saniye</item>
+        <item quantity="other">%1$d saniye</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d uygulama veri sınırını aştı</item>
+        <item quantity="other">%1$d uygulama veri sınırını aştı</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d uygulama arka planda veri kullandı</item>
+        <item quantity="other">%1$d uygulama arka planda veri kullandı</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">%1$d gün kaldı</item>
+        <item quantity="other">%1$d gün kaldı</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">sınıra %1$d gün</item>
+        <item quantity="other">sınıra %1$d gün</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

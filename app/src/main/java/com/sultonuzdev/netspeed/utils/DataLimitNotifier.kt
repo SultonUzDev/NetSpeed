@@ -31,10 +31,11 @@ object DataLimitNotifier {
         post(
             context = context,
             id = ROAMING_NOTIFICATION_ID,
-            title = "Roaming — mobile data may cost extra",
-            text = "You are on a roaming network. " +
-                    "${NetworkUtils.formatBytes(mobileUsedThisCycle)} of mobile data used this " +
-                    "cycle so far."
+            title = context.getString(R.string.alert_roaming_title),
+            text = context.getString(
+                R.string.alert_roaming_body,
+                NetworkUtils.formatBytes(mobileUsedThisCycle)
+            )
         )
     }
 
@@ -48,13 +49,18 @@ object DataLimitNotifier {
     fun notifyBackgroundData(context: Context, apps: List<Pair<String, Long>>) {
         if (apps.isEmpty()) return
 
+        // Singular names the app; plural counts them. Two different sentences, so the single
+        // case is its own string rather than a plural form that would have to name an app it has
+        // no slot for.
         val title = if (apps.size == 1) {
-            "${apps.first().first} used data in the background"
+            context.getString(R.string.alert_background_one_title, apps.first().first)
         } else {
-            "${apps.size} apps used data in the background"
+            context.resources.getQuantityString(
+                R.plurals.alert_background_title, apps.size, apps.size
+            )
         }
         val text = apps.joinToString("\n") { (label, bytes) ->
-            "$label — ${NetworkUtils.formatBytes(bytes)}"
+            context.getString(R.string.alert_app_line, label, NetworkUtils.formatBytes(bytes))
         }
 
         post(context, BACKGROUND_DATA_NOTIFICATION_ID, title, text)
@@ -65,13 +71,19 @@ object DataLimitNotifier {
         if (apps.isEmpty()) return
 
         val title = if (apps.size == 1) {
-            "${apps.first().appLabel} passed its data limit"
+            context.getString(R.string.alert_app_limit_one_title, apps.first().appLabel)
         } else {
-            "${apps.size} apps passed their data limits"
+            context.resources.getQuantityString(
+                R.plurals.alert_app_limit_title, apps.size, apps.size
+            )
         }
         val text = apps.joinToString("\n") { breach ->
-            "${breach.appLabel} — ${NetworkUtils.formatBytes(breach.used)} of " +
-                    NetworkUtils.formatBytes(breach.limit)
+            context.getString(
+                R.string.alert_app_line_of_limit,
+                breach.appLabel,
+                NetworkUtils.formatBytes(breach.used),
+                NetworkUtils.formatBytes(breach.limit)
+            )
         }
 
         post(context, APP_LIMIT_NOTIFICATION_ID, title, text)
@@ -133,13 +145,18 @@ object DataLimitNotifier {
         val text: String
         when (status.level) {
             DataLimitLevel.REACHED -> {
-                title = "Mobile data limit reached"
-                text = "$used of $limit used this cycle."
+                title = context.getString(R.string.alert_limit_reached_title)
+                text = context.getString(R.string.alert_limit_reached_body, used, limit)
             }
 
             else -> {
-                title = "${status.percentUsed}% of mobile data used"
-                text = "$used of $limit used. ${NetworkUtils.formatBytes(status.remainingBytes)} left this cycle."
+                title = context.getString(R.string.alert_approaching_title, status.percentUsed)
+                text = context.getString(
+                    R.string.alert_approaching_body,
+                    used,
+                    limit,
+                    NetworkUtils.formatBytes(status.remainingBytes)
+                )
             }
         }
 
@@ -167,10 +184,10 @@ object DataLimitNotifier {
     private fun createChannel(context: Context) {
         val channel = NotificationChannel(
             ALERT_CHANNEL_ID,
-            "Data limit alerts",
+            context.getString(R.string.alert_channel_name),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Warns when mobile data approaches or passes your limit"
+            description = context.getString(R.string.alert_channel_description)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             setShowBadge(true)
         }

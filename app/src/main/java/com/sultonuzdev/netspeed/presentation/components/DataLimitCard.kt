@@ -16,6 +16,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -69,13 +71,13 @@ fun DataLimitCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Mobile data this cycle",
+                    text = stringResource(R.string.limit_card_title),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${status.percentUsed}%",
+                    text = stringResource(R.string.measure_percent, status.percentUsed),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = barColor
@@ -107,18 +109,26 @@ fun DataLimitCard(
             Text(
                 text = when (status.level) {
                     DataLimitLevel.REACHED ->
-                        "${NetworkUtils.formatBytes(status.usedBytes)} of " +
-                                "${NetworkUtils.formatBytes(status.limitBytes)} — limit reached"
+                        stringResource(
+                            R.string.limit_used_of_total_reached,
+                            NetworkUtils.formatBytes(status.usedBytes),
+                            NetworkUtils.formatBytes(status.limitBytes)
+                        )
 
                     else ->
-                        "${NetworkUtils.formatBytes(status.usedBytes)} of " +
-                                "${NetworkUtils.formatBytes(status.limitBytes)} · " +
-                                "${NetworkUtils.formatBytes(status.remainingBytes)} left"
+                        stringResource(
+                            R.string.limit_used_of_total_remaining,
+                            NetworkUtils.formatBytes(status.usedBytes),
+                            NetworkUtils.formatBytes(status.limitBytes),
+                            NetworkUtils.formatBytes(status.remainingBytes)
+                        )
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                // One line: the forecast is a glanceable summary, not a paragraph.
-                maxLines = 1,
+                // Two lines: still a glanceable summary, but every locale that lacks an
+                // abbreviation for "day" (ru, tr, vi, hi all expand `in %1$dd` by 50-75%) needs
+                // the extra room, and truncating a forecast mid-figure is worse than wrapping it.
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }
@@ -139,14 +149,22 @@ private fun ForecastLine(forecast: UsageForecast) {
     val text = when {
         forecast.willExceed && forecast.daysUntilLimit != null -> {
             val days = forecast.daysUntilLimit
-            val whenText = if (days <= 1) "tomorrow" else "in ${days}d"
-            "Heading for $projected · over $whenText"
+            val whenText = if (days <= 1) {
+                stringResource(R.string.limit_forecast_when_tomorrow)
+            } else {
+                stringResource(R.string.limit_forecast_in_days, days)
+            }
+            stringResource(R.string.limit_forecast_over_when, projected, whenText)
         }
 
         forecast.willExceed ->
-            "Heading for $projected · ${NetworkUtils.formatBytes(forecast.overageBytes)} over"
+            stringResource(
+                R.string.limit_forecast_over_by,
+                projected,
+                NetworkUtils.formatBytes(forecast.overageBytes)
+            )
 
-        else -> "Heading for $projected · within limit"
+        else -> stringResource(R.string.limit_forecast_within, projected)
     }
 
     Column {

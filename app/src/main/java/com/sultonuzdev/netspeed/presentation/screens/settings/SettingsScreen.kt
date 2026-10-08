@@ -25,10 +25,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.activity.compose.LocalActivity
+import com.sultonuzdev.netspeed.utils.AppLocale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.R
 import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.PermissionRationale
@@ -46,6 +51,8 @@ import com.sultonuzdev.netspeed.utils.AutoStartHelper
 import com.sultonuzdev.netspeed.utils.BatteryOptimizationHelper
 import androidx.core.net.toUri
 import android.net.Uri
+import com.sultonuzdev.netspeed.presentation.screens.settings.contract.SettingsActions
+import com.sultonuzdev.netspeed.presentation.screens.settings.contract.SettingsUiState
 import com.sultonuzdev.netspeed.utils.Constants
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
@@ -80,6 +87,33 @@ fun SettingsScreen(
         }
     }
 
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    val activity = LocalActivity.current
+
+    if (showLanguageDialog) {
+        // "System default" first, then every supported language under its own endonym.
+        val options = listOf(stringResource(R.string.language_system_default)) +
+                AppLocale.supported.map { it.second }
+        val currentTag = AppLocale.current(context)
+        val selected = AppLocale.supported
+            .indexOfFirst { it.first.equals(currentTag, ignoreCase = true) }
+            .let { if (it >= 0) it + 1 else 0 }
+
+        SelectionDialog(
+            title = stringResource(R.string.dialog_language),
+            options = options,
+            selectedIndex = selected,
+            onOptionSelected = { index ->
+                showLanguageDialog = false
+                val tag = if (index == 0) null else AppLocale.supported[index - 1].first
+                // Below Android 13 nothing is watching this, so the activity restarts itself to
+                // pick up the new configuration; from 13 on the system does that for us.
+                if (AppLocale.set(context, tag)) activity?.recreate()
+            },
+            onDismiss = { showLanguageDialog = false }
+        )
+    }
+
     // Doze is what stops the meter on a Pixel or a Samsung, neither of which has an autostart
     // screen to offer. Read once here and re-read on the way back from the settings list, so the
     // row stops being offered the moment it is granted.
@@ -108,10 +142,8 @@ fun SettingsScreen(
 
     if (askNotifications) {
         PermissionRationale(
-            title = "Show the speed in your status bar",
-            body = "NetSpeed posts one ongoing notification carrying the live figure. " +
-                    "Android needs your permission to show it. Everything in the app keeps " +
-                    "working if you say no.",
+            title = stringResource(R.string.perm_notification_title),
+            body = stringResource(R.string.perm_notification_body_settings),
             onConfirm = {
                 askNotifications = false
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -129,6 +161,8 @@ fun SettingsScreen(
         // Offered only where such a screen exists and resolves; on a Pixel there is nothing to
         // link to and the row would be a dead end.
         showAutoStart = AutoStartHelper.hasAutoStartSettings(context),
+        languageName = AppLocale.displayName(context)
+            ?: stringResource(R.string.language_system_default),
         showBatteryExemption = needsBatteryExemption,
         notificationsDenied = notificationsDenied,
         onEnableNotifications = { openNotificationSettings(context) },
@@ -178,6 +212,7 @@ fun SettingsScreen(
                     onUnavailable = { needsBatteryExemption = false }
                 )
             },
+            onLanguageClick = { showLanguageDialog = true },
             onMoreAppsClick = { openDeveloperPage(context) },
             onDarkThemeChange = viewModel::updateDarkTheme,
             onDynamicColorChange = viewModel::updateDynamicColor
@@ -188,44 +223,15 @@ fun SettingsScreen(
     SettingsDialogs(viewModel = viewModel, uiState = uiState)
 }
 
-/**
- * Everything the settings list can do. Bundled so [SettingsScreenContent] takes one parameter
- * instead of twenty-odd lambdas, and so the preview can pass `SettingsActions()` and be done.
- */
-private data class SettingsActions(
-    val onMonitoringChange: (Boolean) -> Unit = {},
-    val onFrequencyClick: () -> Unit = {},
-    val onStyleClick: () -> Unit = {},
-    val onDisplayModeClick: () -> Unit = {},
-    val onUnitsClick: () -> Unit = {},
-    val onMonitorWifiChange: (Boolean) -> Unit = {},
-    val onMonitorMobileChange: (Boolean) -> Unit = {},
-    val onBackgroundMonitoringChange: (Boolean) -> Unit = {},
-    val onStartOnBootChange: (Boolean) -> Unit = {},
-    val onOverlayChange: (Boolean) -> Unit = {},
-    val onOverlaySizeClick: () -> Unit = {},
-    val onOverlayColorClick: () -> Unit = {},
-    val onOverlayOpacityClick: () -> Unit = {},
-    val onResetDateClick: () -> Unit = {},
-    val onDataLimitClick: () -> Unit = {},
-    val onDataLimitAlertChange: (Boolean) -> Unit = {},
-    val onThresholdClick: () -> Unit = {},
-    val onRoamingAlertChange: (Boolean) -> Unit = {},
-    val onBackgroundDataAlertChange: (Boolean) -> Unit = {},
-    val onBackgroundThresholdClick: () -> Unit = {},
-    val onAutoStartClick: () -> Unit = {},
-    val onBatteryExemptionClick: () -> Unit = {},
-    val onMoreAppsClick: () -> Unit = {},
-    val onDarkThemeChange: (Boolean) -> Unit = {},
-    val onDynamicColorChange: (Boolean) -> Unit = {}
-)
-
 @Composable
 private fun SettingsScreenContent(
     uiState: SettingsUiState,
     showAutoStart: Boolean,
     actions: SettingsActions,
     modifier: Modifier = Modifier,
+    // Resolved by the caller: the current language comes from the platform or AppLocale's own
+    // storage, neither of which this content-only composable should have to reach for.
+    languageName: String = "",
     showBatteryExemption: Boolean = false,
     notificationsDenied: Boolean = false,
     onEnableNotifications: () -> Unit = {}
@@ -251,13 +257,12 @@ private fun SettingsScreenContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Notification Section
-                SettingsSection(title = "Notification") {
+                SettingsSection(title = stringResource(R.string.settings_section_notification)) {
                     // A declined permission is a dead end unless something on screen offers the
                     // way back, so the row appears only while notifications are off.
                     if (notificationsDenied) {
                         Text(
-                            text = "Notifications are off, so the speed cannot appear in your " +
-                                    "status bar. Tap to turn them on.",
+                            text = stringResource(R.string.settings_notifications_off),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(onClick = onEnableNotifications)
@@ -267,7 +272,7 @@ private fun SettingsScreenContent(
                         )
                     }
                     SettingItem(
-                        label = "Monitor network speed",
+                        label = stringResource(R.string.settings_monitor_speed),
                         isToggle = true,
                         isEnabled = uiState.monitoringEnabled,
                         // The service writes the preference back, so the switch reflects what is
@@ -276,56 +281,60 @@ private fun SettingsScreenContent(
                     )
 
                     SettingItem(
-                        label = "Update frequency",
-                        value = uiState.updateFrequency,
+                        label = stringResource(R.string.settings_update_frequency),
+                        value = pluralStringResource(
+                            R.plurals.frequency_seconds,
+                            uiState.updateFrequencySeconds,
+                            uiState.updateFrequencySeconds
+                        ),
                         onValueClick = actions.onFrequencyClick
                     )
 
                     SettingItem(
-                        label = "Notification style",
-                        value = uiState.notificationStyle.styleName,
+                        label = stringResource(R.string.settings_notification_style),
+                        value = stringResource(uiState.notificationStyle.labelRes),
                         onValueClick = actions.onStyleClick
                     )
 
                     SettingItem(
-                        label = "Status bar shows",
-                        value = uiState.speedDisplayMode.label,
+                        label = stringResource(R.string.settings_status_bar_shows),
+                        value = stringResource(uiState.speedDisplayMode.labelRes),
                         onValueClick = actions.onDisplayModeClick
                     )
 
                     SettingItem(
-                        label = "Speed units",
-                        value = uiState.speedUnits,
+                        label = stringResource(R.string.settings_speed_units),
+                        value = stringResource(uiState.speedUnit.labelRes),
                         onValueClick = actions.onUnitsClick
                     )
                 }
 
 
                 // Monitoring Section
-                SettingsSection(title = "Monitoring") {
+                SettingsSection(title = stringResource(R.string.settings_section_monitoring)) {
                     SettingItem(
-                        label = "Monitor Wi-Fi",
+                        label = stringResource(R.string.settings_monitor_wifi),
                         isToggle = true,
                         isEnabled = uiState.monitorWifi,
                         onToggleChange = actions.onMonitorWifiChange
                     )
 
                     SettingItem(
-                        label = "Monitor mobile data",
+                        label = stringResource(R.string.settings_monitor_mobile),
                         isToggle = true,
                         isEnabled = uiState.monitorMobile,
                         onToggleChange = actions.onMonitorMobileChange
                     )
 
                     SettingItem(
-                        label = "Keep monitoring in background",
+                        label = stringResource(R.string.settings_background_monitoring),
                         isToggle = true,
                         isEnabled = uiState.backgroundMonitoring,
                         onToggleChange = actions.onBackgroundMonitoringChange
                     )
 
                     SettingItem(
-                        label = "Start after device restart",
+                        label = stringResource(R.string.settings_start_on_boot),
                         isToggle = true,
                         isEnabled = uiState.startOnBoot,
                         onToggleChange = actions.onStartOnBootChange
@@ -334,29 +343,29 @@ private fun SettingsScreenContent(
 
 
                 // Floating Overlay Section
-                SettingsSection(title = "Floating overlay") {
+                SettingsSection(title = stringResource(R.string.settings_section_overlay)) {
                     SettingItem(
-                        label = "Show floating overlay",
+                        label = stringResource(R.string.settings_show_overlay),
                         isToggle = true,
                         isEnabled = uiState.overlayEnabled,
                         onToggleChange = actions.onOverlayChange
                     )
 
                     SettingItem(
-                        label = "Overlay text size",
-                        value = "${uiState.overlayTextSize} sp",
+                        label = stringResource(R.string.settings_overlay_size),
+                        value = stringResource(R.string.measure_sp, uiState.overlayTextSize),
                         onValueClick = actions.onOverlaySizeClick
                     )
 
                     SettingItem(
-                        label = "Overlay text colour",
-                        value = uiState.overlayColorName,
+                        label = stringResource(R.string.settings_overlay_colour),
+                        value = stringResource(uiState.overlayColorLabel),
                         onValueClick = actions.onOverlayColorClick
                     )
 
                     SettingItem(
-                        label = "Overlay background opacity",
-                        value = "${uiState.overlayOpacity}%",
+                        label = stringResource(R.string.settings_overlay_opacity),
+                        value = stringResource(R.string.measure_percent, uiState.overlayOpacity),
                         onValueClick = actions.onOverlayOpacityClick
                     )
                 }
@@ -365,24 +374,24 @@ private fun SettingsScreenContent(
                 // Data & Privacy Section
                 // Split from the alerts below: the cycle day and the cap describe your plan, while
                 // the switches under ALERTS decide what the app says about it.
-                SettingsSection(title = "Data limit") {
+                SettingsSection(title = stringResource(R.string.settings_section_data_limit)) {
                     SettingItem(
-                        label = "Billing cycle starts on",
-                        value = uiState.monthlyResetDate,
+                        label = stringResource(R.string.settings_billing_cycle_start),
+                        value = ordinalDay(uiState.monthlyResetDay),
                         onValueClick = actions.onResetDateClick
                     )
 
                     SettingItem(
-                        label = "Mobile data limit",
-                        value = uiState.dataLimit,
+                        label = stringResource(R.string.settings_mobile_data_limit),
+                        value = NetworkUtils.formatBytes(uiState.dataLimitBytes),
                         onValueClick = actions.onDataLimitClick
                     )
                 }
 
 
-                SettingsSection(title = "Alerts") {
+                SettingsSection(title = stringResource(R.string.settings_section_alerts)) {
                     SettingItem(
-                        label = "Warn before data limit",
+                        label = stringResource(R.string.settings_warn_before_limit),
                         isToggle = true,
                         isEnabled = uiState.dataLimitAlert,
                         onToggleChange = actions.onDataLimitAlertChange
@@ -392,21 +401,24 @@ private fun SettingsScreenContent(
                     // it invites the user to configure something that will never fire.
                     if (uiState.dataLimitAlert) {
                         SettingItem(
-                            label = "Warn at",
-                            value = uiState.warningThreshold,
+                            label = stringResource(R.string.settings_warn_at),
+                            value = stringResource(
+                                R.string.measure_percent,
+                                uiState.warningThresholdPercent
+                            ),
                             onValueClick = actions.onThresholdClick
                         )
                     }
 
                     SettingItem(
-                        label = "Warn when roaming",
+                        label = stringResource(R.string.settings_warn_roaming),
                         isToggle = true,
                         isEnabled = uiState.roamingAlert,
                         onToggleChange = actions.onRoamingAlertChange
                     )
 
                     SettingItem(
-                        label = "Warn about background data",
+                        label = stringResource(R.string.settings_warn_background_data),
                         isToggle = true,
                         isEnabled = uiState.backgroundDataAlert,
                         onToggleChange = actions.onBackgroundDataAlertChange
@@ -414,8 +426,8 @@ private fun SettingsScreenContent(
 
                     if (uiState.backgroundDataAlert) {
                         SettingItem(
-                            label = "Warn above",
-                            value = uiState.backgroundDataThreshold,
+                            label = stringResource(R.string.settings_warn_above),
+                            value = NetworkUtils.formatBytes(uiState.backgroundDataThresholdBytes),
                             onValueClick = actions.onBackgroundThresholdClick
                         )
                     }
@@ -426,13 +438,13 @@ private fun SettingsScreenContent(
                 // appears only if at least one of them does.
                 if (showAutoStart || showBatteryExemption) {
 
-                    SettingsSection(title = "Device") {
+                    SettingsSection(title = stringResource(R.string.settings_section_device)) {
                         // Says what tapping does and why it matters. "Allow autostart / Open" read
                         // like a setting whose current value was the word "Open".
                         if (showAutoStart) {
                             SettingItem(
-                                label = "Allow autostart",
-                                value = "Settings",
+                                label = stringResource(R.string.settings_autostart),
+                                value = stringResource(R.string.settings_value_open),
                                 onValueClick = actions.onAutoStartClick
                             )
                         }
@@ -441,8 +453,8 @@ private fun SettingsScreenContent(
                         // row that is present always has something left to fix.
                         if (showBatteryExemption) {
                             SettingItem(
-                                label = "Allow unrestricted battery",
-                                value = "Settings",
+                                label = stringResource(R.string.settings_battery_unrestricted),
+                                value = stringResource(R.string.settings_value_open),
                                 // The one row on this screen the user has a reason to act on:
                                 // until it is granted the meter can be stopped at any time, and
                                 // nothing else here says so.
@@ -455,9 +467,15 @@ private fun SettingsScreenContent(
 
 
                 // Appearance Section
-                SettingsSection(title = "Appearance") {
+                SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
                     SettingItem(
-                        label = "Dark theme",
+                        label = stringResource(R.string.settings_language),
+                        value = languageName,
+                        onValueClick = actions.onLanguageClick
+                    )
+
+                    SettingItem(
+                        label = stringResource(R.string.settings_dark_theme),
                         isToggle = true,
                         isEnabled = uiState.darkTheme,
                         onToggleChange = actions.onDarkThemeChange
@@ -467,7 +485,7 @@ private fun SettingsScreenContent(
                     // would be a switch that does nothing, so it is not offered at all.
                     if (supportsDynamicColor) {
                         SettingItem(
-                            label = "Match wallpaper colours",
+                            label = stringResource(R.string.settings_dynamic_colour),
                             isToggle = true,
                             isEnabled = uiState.dynamicColor,
                             onToggleChange = actions.onDynamicColorChange
@@ -477,8 +495,8 @@ private fun SettingsScreenContent(
                 }
 
                 GradientSettingItem(
-                    label = "More apps",
-                    value = "Everything else from Sulton UzDev",
+                    label = stringResource(R.string.settings_more_apps),
+                    value = stringResource(R.string.settings_more_apps_subtitle),
                     icon = Icons.Default.Apps,
                     onClick = actions.onMoreAppsClick
                 )
@@ -499,6 +517,7 @@ private fun SettingsScreenContentPreview() {
                 backgroundDataAlert = true
             ),
             showAutoStart = true,
+            languageName = "English",
             showBatteryExemption = true,
             actions = SettingsActions()
         )
@@ -527,13 +546,13 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showFrequencyDialog) {
         SelectionDialog(
-            title = "Update Frequency",
+            title = stringResource(R.string.dialog_update_frequency),
             options = viewModel.frequencyOptions.map {
-                if (it == 1) "1 second" else "$it seconds"
+                pluralStringResource(R.plurals.frequency_seconds, it, it)
             },
             selectedIndex = viewModel.frequencyOptions.indexOf(
                 // Extract number from current frequency text
-                uiState.updateFrequency.split(" ")[0].toIntOrNull() ?: 1
+                uiState.updateFrequencySeconds
             ),
             onOptionSelected = { index ->
                 viewModel.updateUpdateFrequency(viewModel.frequencyOptions[index])
@@ -544,8 +563,8 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showStyleDialog) {
         SelectionDialog(
-            title = "Notification Style",
-            options = viewModel.styleOptions.map { it.styleName.replaceFirstChar { char -> char.uppercase() } },
+            title = stringResource(R.string.dialog_notification_style),
+            options = viewModel.styleOptions.map { stringResource(it.labelRes) },
             selectedIndex = viewModel.styleOptions.indexOf(uiState.notificationStyle),
             onOptionSelected = { index ->
                 viewModel.updateNotificationStyle(viewModel.styleOptions[index])
@@ -556,8 +575,8 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showUnitsDialog) {
         SelectionDialog(
-            title = "Speed Units",
-            options = viewModel.unitsOptions.map { it.label },
+            title = stringResource(R.string.dialog_speed_units),
+            options = viewModel.unitsOptions.map { stringResource(it.labelRes) },
             selectedIndex = viewModel.unitsOptions.indexOf(uiState.speedUnit),
             onOptionSelected = { index ->
                 viewModel.updateSpeedUnits(viewModel.unitsOptions[index])
@@ -568,8 +587,8 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showDisplayModeDialog) {
         SelectionDialog(
-            title = "Speed Display",
-            options = viewModel.displayModeOptions.map { it.label },
+            title = stringResource(R.string.dialog_speed_display),
+            options = viewModel.displayModeOptions.map { stringResource(it.labelRes) },
             selectedIndex = viewModel.displayModeOptions.indexOf(uiState.speedDisplayMode),
             onOptionSelected = { index ->
                 viewModel.updateSpeedDisplayMode(viewModel.displayModeOptions[index])
@@ -580,7 +599,7 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showBackgroundThresholdDialog) {
         SelectionDialog(
-            title = "Background data threshold",
+            title = stringResource(R.string.dialog_background_threshold),
             options = viewModel.backgroundThresholdOptions.map { NetworkUtils.formatBytes(it) },
             selectedIndex = viewModel.backgroundThresholdOptions
                 .indexOf(uiState.backgroundDataThresholdBytes),
@@ -595,8 +614,8 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showOverlaySizeDialog) {
         SelectionDialog(
-            title = "Overlay Size",
-            options = viewModel.overlaySizeOptions.map { "$it sp" },
+            title = stringResource(R.string.dialog_overlay_size),
+            options = viewModel.overlaySizeOptions.map { stringResource(R.string.measure_sp, it) },
             selectedIndex = viewModel.overlaySizeOptions.indexOf(uiState.overlayTextSize),
             onOptionSelected = { index ->
                 viewModel.updateOverlayTextSize(viewModel.overlaySizeOptions[index])
@@ -607,8 +626,8 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showOverlayColorDialog) {
         SelectionDialog(
-            title = "Overlay Color",
-            options = viewModel.overlayColorOptions.map { it.second },
+            title = stringResource(R.string.dialog_overlay_colour),
+            options = viewModel.overlayColorOptions.map { stringResource(it.second) },
             selectedIndex = viewModel.overlayColorOptions.indexOfFirst {
                 it.first == uiState.overlayColor
             },
@@ -621,8 +640,11 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showOverlayOpacityDialog) {
         SelectionDialog(
-            title = "Overlay Transparency",
-            options = viewModel.overlayOpacityOptions.map { if (it == 0) "None" else "$it%" },
+            title = stringResource(R.string.dialog_overlay_opacity),
+            options = viewModel.overlayOpacityOptions.map {
+                if (it == 0) stringResource(R.string.settings_value_none)
+                else stringResource(R.string.measure_percent, it)
+            },
             selectedIndex = viewModel.overlayOpacityOptions.indexOf(uiState.overlayOpacity),
             onOptionSelected = { index ->
                 viewModel.updateOverlayOpacity(viewModel.overlayOpacityOptions[index])
@@ -633,8 +655,10 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showLimitDialog) {
         SelectionDialog(
-            title = "Mobile Data Limit",
-            options = viewModel.limitOptionsGb.map { "$it GB" },
+            title = stringResource(R.string.dialog_mobile_data_limit),
+            options = viewModel.limitOptionsGb.map {
+                stringResource(R.string.measure_gigabytes_whole, it)
+            },
             selectedIndex = viewModel.limitOptionsGb.indexOf(
                 (uiState.dataLimitBytes / (1024L * 1024 * 1024)).toInt()
             ),
@@ -647,8 +671,10 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showThresholdDialog) {
         SelectionDialog(
-            title = "Warn At",
-            options = viewModel.thresholdOptions.map { "$it% of limit" },
+            title = stringResource(R.string.dialog_warn_at),
+            options = viewModel.thresholdOptions.map {
+                stringResource(R.string.threshold_percent_of_limit, it)
+            },
             selectedIndex = viewModel.thresholdOptions.indexOf(uiState.warningThresholdPercent),
             onOptionSelected = { index ->
                 viewModel.updateWarningThreshold(viewModel.thresholdOptions[index])
@@ -659,18 +685,15 @@ private fun SettingsDialogs(viewModel: SettingsViewModel, uiState: SettingsUiSta
 
     if (showDateDialog) {
         SelectionDialog(
-            title = "Monthly Reset Date",
+            title = stringResource(R.string.dialog_monthly_reset_date),
             options = viewModel.dateOptions.map { date ->
                 when {
-                    date % 10 == 1 && date != 11 -> "${date}st"
-                    date % 10 == 2 && date != 12 -> "${date}nd"
-                    date % 10 == 3 && date != 13 -> "${date}rd"
-                    else -> "${date}th"
+                    else -> ordinalDay(date)
                 }
             },
             selectedIndex = viewModel.dateOptions.indexOf(
                 // Extract number from current date text
-                uiState.monthlyResetDate.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 1
+                uiState.monthlyResetDay
             ),
             onOptionSelected = { index ->
                 viewModel.updateMonthlyResetDate(viewModel.dateOptions[index])
@@ -704,6 +727,21 @@ private fun SettingsSection(
  * The Play app first -- it opens the publisher page in place rather than a browser tab -- and the
  * web URL only when Play is not installed, which is also the case on a sideloaded build.
  */
+/**
+ * The day of the month a cycle starts on.
+ *
+ * English is the odd one out here: it needs four different suffixes and a rule about teens. Every
+ * suffix is its own resource, so a language that writes "1." or "1日" or just "1" supplies one
+ * form and ignores the rest rather than having a suffix concatenated onto its number in Kotlin.
+ */
+@Composable
+private fun ordinalDay(date: Int): String = when {
+    date % 10 == 1 && date != 11 -> stringResource(R.string.ordinal_day_st, date)
+    date % 10 == 2 && date != 12 -> stringResource(R.string.ordinal_day_nd, date)
+    date % 10 == 3 && date != 13 -> stringResource(R.string.ordinal_day_rd, date)
+    else -> stringResource(R.string.ordinal_day_th, date)
+}
+
 private fun openDeveloperPage(context: Context) {
     val publisher = Uri.encode(Constants.PLAY_PUBLISHER)
     val candidates = listOf(

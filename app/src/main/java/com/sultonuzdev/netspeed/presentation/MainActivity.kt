@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.utils.AppLocale
 import com.sultonuzdev.netspeed.data.services.SpeedMonitorService
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigation
 import com.sultonuzdev.netspeed.presentation.screens.history.HistoryScreen
@@ -48,6 +49,12 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
 
     private val mainViewModel: MainViewModel by viewModel()
+
+    // Below Android 13 there is no platform support for a per-app language, so the choice is
+    // applied here, before any view is inflated.
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

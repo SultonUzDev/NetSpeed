@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
+import androidx.core.text.BidiFormatter
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
@@ -61,8 +62,14 @@ class UsageWidgetProvider : AppWidgetProvider() {
 
                 val views = baseViews(context).apply {
                     if (forecast == null) {
-                        setTextViewText(R.id.usage_widget_total, "--")
-                        setTextViewText(R.id.usage_widget_caption, "No limit set")
+                        setTextViewText(
+                            R.id.usage_widget_total,
+                            context.getString(R.string.widget_placeholder_speed)
+                        )
+                        setTextViewText(
+                            R.id.usage_widget_caption,
+                            context.getString(R.string.limit_none_set)
+                        )
                         setProgressBar(R.id.usage_widget_progress, 100, 0, false)
                     } else {
                         val percent = if (forecast.limitBytes > 0L) {
@@ -77,7 +84,7 @@ class UsageWidgetProvider : AppWidgetProvider() {
                         setProgressBar(R.id.usage_widget_progress, 100, percent, false)
                         setTextViewText(
                             R.id.usage_widget_caption,
-                            captionFor(forecast, percent)
+                            captionFor(context, forecast, percent)
                         )
                     }
                 }
@@ -87,17 +94,48 @@ class UsageWidgetProvider : AppWidgetProvider() {
             }
         }
 
-        private fun captionFor(forecast: UsageForecast, percent: Int): String {
-            val ofLimit = "$percent% of ${NetworkUtils.formatBytes(forecast.limitBytes)}"
+        private fun captionFor(
+            context: Context,
+            forecast: UsageForecast,
+            percent: Int
+        ): String {
+            val ofLimit = context.getString(
+                R.string.limit_percent_of_total,
+                percent,
+                figure(NetworkUtils.formatBytes(forecast.limitBytes))
+            )
             return when {
-                forecast.willExceed && forecast.daysUntilLimit != null ->
-                    "$ofLimit · limit in ${forecast.daysUntilLimit}d"
+                forecast.willExceed && forecast.daysUntilLimit != null -> context.getString(
+                    R.string.widget_forecast_days_left,
+                    ofLimit,
+                    context.resources.getQuantityString(
+                        R.plurals.days_until_limit,
+                        forecast.daysUntilLimit,
+                        forecast.daysUntilLimit
+                    )
+                )
 
                 forecast.willExceed ->
-                    "$ofLimit · heading over"
+                    context.getString(R.string.widget_forecast_heading_over, ofLimit)
 
-                else -> "$ofLimit · ${forecast.daysRemaining}d left"
+                else -> context.getString(
+                    R.string.widget_forecast_days_left,
+                    ofLimit,
+                    context.resources.getQuantityString(
+                        R.plurals.days_remaining,
+                        forecast.daysRemaining,
+                        forecast.daysRemaining
+                    )
+                )
             }
         }
     }
 }
+
+/**
+ * Isolates a measurement so bidirectional reordering cannot take it apart: "12.4 Mbps" is a
+ * left-to-right run, and without isolate marks the bidi algorithm may move its pieces relative
+ * to surrounding right-to-left text.
+ */
+private fun figure(value: Any): String =
+    BidiFormatter.getInstance().unicodeWrap(value.toString())

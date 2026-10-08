@@ -51,8 +51,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.netspeed.R
 import com.sultonuzdev.netspeed.domain.models.SpeedTestPhase
 import com.sultonuzdev.netspeed.presentation.components.BottomNavigationHeight
 import com.sultonuzdev.netspeed.presentation.components.NetworkDetailsSheet
@@ -63,6 +65,7 @@ import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiS
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedUiState
 import com.sultonuzdev.netspeed.presentation.theme.NetSpeedTheme
 import com.sultonuzdev.netspeed.presentation.theme.netSpeedColors
+import com.sultonuzdev.netspeed.utils.NetworkUtils
 import com.sultonuzdev.netspeed.utils.InAppReview
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.log10
@@ -119,10 +122,8 @@ fun SpeedScreen(
 
     if (askNotifications) {
         PermissionRationale(
-            title = "Show the speed in your status bar",
-            body = "NetSpeed posts one ongoing notification carrying the live figure, so you " +
-                    "can see your speed without opening the app. Android needs your permission " +
-                    "to show it.",
+            title = stringResource(R.string.perm_notification_title),
+            body = stringResource(R.string.perm_notification_body_speed),
             onConfirm = {
                 askNotifications = false
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -136,10 +137,8 @@ fun SpeedScreen(
 
     if (askPhoneState) {
         PermissionRationale(
-            title = "Read your mobile signal",
-            body = "Signal strength for a mobile connection comes from the phone's radio, " +
-                    "which Android keeps behind a permission. The rest of the network details " +
-                    "are shown either way.",
+            title = stringResource(R.string.perm_phone_state_title),
+            body = stringResource(R.string.perm_phone_state_body),
             onConfirm = {
                 askPhoneState = false
                 phoneStateLauncher.launch(Manifest.permission.READ_PHONE_STATE)
@@ -310,7 +309,7 @@ private fun SpeedScreenContent(
             // Signals that the row opens something, rather than leaving the tap undiscoverable.
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Network details",
+                contentDescription = stringResource(R.string.speed_network_details),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
@@ -372,22 +371,24 @@ private fun NotificationPrompt(onEnable: () -> Unit, onDismiss: () -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Keep this speed in your status bar",
+                text = stringResource(R.string.speed_notification_offer_title),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "See it without opening the app",
+                text = stringResource(R.string.speed_notification_offer_body),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        TextButton(onClick = onEnable) { Text("Turn on") }
+        TextButton(onClick = onEnable) {
+            Text(stringResource(R.string.speed_notification_offer_action))
+        }
         IconButton(onClick = onDismiss, modifier = Modifier.size(36.dp)) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Dismiss",
+                contentDescription = stringResource(R.string.speed_notification_offer_dismiss),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
@@ -406,13 +407,34 @@ private data class DialContent(val value: String, val unit: String, val caption:
  * that: a carrier name ("Download · Mobiuz · Mobile") overran the ring, and the network row
  * below already names it.
  */
-private fun dialContent(state: SpeedTestUiState): DialContent = when (state.phase) {
-    SpeedTestPhase.IDLE -> DialContent("—", "", "Speed test")
-    SpeedTestPhase.PINGING -> DialContent("—", "ms", "Latency")
-    SpeedTestPhase.DOWNLOADING -> DialContent(state.liveValue, state.liveUnit, "Download")
-    SpeedTestPhase.UPLOADING -> DialContent(state.liveValue, state.liveUnit, "Upload")
-    SpeedTestPhase.DONE -> DialContent(state.liveValue, state.liveUnit, "Download")
-    SpeedTestPhase.FAILED -> DialContent("—", "", "Test failed")
+@Composable
+private fun dialContent(state: SpeedTestUiState): DialContent {
+    val none = stringResource(R.string.value_none_measured)
+    return when (state.phase) {
+        SpeedTestPhase.IDLE ->
+            DialContent(none, "", stringResource(R.string.speed_dial_idle_caption))
+
+        SpeedTestPhase.PINGING -> DialContent(
+            none,
+            stringResource(R.string.unit_milliseconds),
+            stringResource(R.string.speed_dial_latency_caption)
+        )
+
+        SpeedTestPhase.DOWNLOADING -> DialContent(
+            state.liveValue, state.liveUnit, stringResource(R.string.speed_download)
+        )
+
+        SpeedTestPhase.UPLOADING -> DialContent(
+            state.liveValue, state.liveUnit, stringResource(R.string.speed_upload)
+        )
+
+        SpeedTestPhase.DONE -> DialContent(
+            state.liveValue, state.liveUnit, stringResource(R.string.speed_download)
+        )
+
+        SpeedTestPhase.FAILED ->
+            DialContent(none, "", stringResource(R.string.speed_dial_failed_caption))
+    }
 }
 
 /**
@@ -438,22 +460,26 @@ private fun dialProgress(state: SpeedTestUiState): Float {
 }
 
 /** Name plus transport, collapsed to one when the name is only the transport. */
+@Composable
 private fun networkLabel(name: String, networkType: String, isConnected: Boolean): String {
-    if (!isConnected) return "No connection"
+    if (!isConnected) return stringResource(R.string.connection_none)
     val transport = connectionLabel(networkType)
     return if (name.equals(transport, ignoreCase = true) || name.isBlank()) {
         transport
     } else {
-        "$name · $transport"
+        stringResource(R.string.connection_name_with_transport, name, transport)
     }
 }
 
 /** Human-readable transport name; [uiState.networkType] carries the raw enum name. */
-private fun connectionLabel(networkType: String): String = when (networkType) {
-    "WIFI" -> "Wi-Fi"
-    "MOBILE" -> "Mobile data"
-    else -> "Offline"
-}
+@Composable
+private fun connectionLabel(networkType: String): String = stringResource(
+    when (networkType) {
+        "WIFI" -> R.string.transport_wifi
+        "MOBILE" -> R.string.connection_mobile_data
+        else -> R.string.connection_offline
+    }
+)
 
 /**
  * Live download and upload in a strip, with the last minute traced underneath.
@@ -480,12 +506,18 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
         ) {
             Column {
                 Text(
-                    text = "Download",
+                    text = stringResource(R.string.speed_download),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${uiState.downloadSpeed} ${uiState.downloadUnit}",
+                    text = NetworkUtils.measurement(
+                        stringResource(
+                            R.string.value_with_unit,
+                            uiState.downloadSpeed,
+                            uiState.downloadUnit
+                        )
+                    ),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -494,12 +526,18 @@ private fun LiveSpeedCard(uiState: SpeedUiState) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Upload",
+                    text = stringResource(R.string.speed_upload),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${uiState.uploadSpeed} ${uiState.uploadUnit}",
+                    text = NetworkUtils.measurement(
+                        stringResource(
+                            R.string.value_with_unit,
+                            uiState.uploadSpeed,
+                            uiState.uploadUnit
+                        )
+                    ),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.tertiary,

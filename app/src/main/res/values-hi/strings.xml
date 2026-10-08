@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">अज्ञात</string>
+
+    <!-- ===== Navigation ====================================================================== -->
+    <string name="nav_speed">स्पीड</string>
+    <string name="nav_usage">उपयोग</string>
+    <string name="nav_history">इतिहास</string>
+    <string name="nav_settings">सेटिंग</string>
+
+    <!-- ===== Connection naming =============================================================== -->
+    <string name="connection_mobile_data">मोबाइल डेटा</string>
+    <string name="connection_mobile_short">मोबाइल</string>
+    <string name="connection_offline">ऑफ़लाइन</string>
+    <string name="connection_none">कोई कनेक्शन नहीं</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Speed screen ==================================================================== -->
+    <string name="speed_download">डाउनलोड</string>
+    <string name="speed_upload">अपलोड</string>
+    <string name="speed_network_details">नेटवर्क का विवरण</string>
+    <string name="speed_dial_idle_caption">स्पीड टेस्ट</string>
+    <string name="speed_dial_latency_caption">लेटेंसी</string>
+    <string name="speed_dial_failed_caption">टेस्ट नहीं हो सका</string>
+
+    <string name="speed_notification_offer_title">यह स्पीड स्टेटस बार में दिखाएँ</string>
+    <string name="speed_notification_offer_body">ऐप खोले बिना देखें</string>
+    <string name="speed_notification_offer_action">चालू करें</string>
+    <string name="speed_notification_offer_dismiss">खारिज करें</string>
+
+    <!-- ===== Speed test ====================================================================== -->
+    <string name="speed_test_run">स्पीड टेस्ट करें</string>
+    <string name="speed_test_again">फिर टेस्ट करें</string>
+    <string name="speed_test_cancel">रद्द करें</string>
+    <string name="speed_test_phase_latency">लेटेंसी</string>
+    <string name="speed_test_phase_download">डाउनलोड</string>
+    <string name="speed_test_phase_upload">अपलोड</string>
+    <string name="speed_test_result_ping">पिंग</string>
+    <string name="speed_test_result_jitter">जिटर</string>
+    <string name="speed_test_footer">Cloudflare से टेस्ट किया गया · नतीजे आपके डिवाइस पर ही रहते हैं</string>
+    <string name="speed_test_error_generic">स्पीड टेस्ट नहीं हो सका।</string>
+    <string name="speed_test_error_no_internet">इंटरनेट कनेक्शन नहीं है। टेस्ट सर्वर से कनेक्ट नहीं हो सका।</string>
+    <string name="speed_test_error_interrupted">कनेक्शन बीच में टूट गया। अपना नेटवर्क जाँचें और फिर कोशिश करें।</string>
+
+    <!-- ===== Usage screen ==================================================================== -->
+    <string name="usage_by_app">ऐप के अनुसार</string>
+    <string name="usage_today">आज</string>
+    <string name="usage_billing_cycle">बिलिंग साइकल</string>
+    <string name="usage_this_cycle">इस साइकल में</string>
+    <string name="usage_last_7_days">पिछले 7 दिन</string>
+    <string name="usage_last_30_days">पिछले 30 दिन</string>
+    <string name="usage_total">कुल</string>
+    <string name="usage_exact">सटीक</string>
+    <string name="usage_estimated">अनुमानित</string>
+    <string name="usage_empty_period">इस अवधि के लिए अभी किसी ऐप का ट्रैफ़िक दर्ज नहीं हुआ।</string>
+    <string name="usage_empty_chart">अभी कोई उपयोग दर्ज नहीं हुआ</string>
+    <string name="usage_chart_peak">पीक %1$s</string>
+    <string name="usage_app_split">मोबाइल %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">इस डिवाइस पर उपयोग ऐक्सेस की सेटिंग नहीं खुल सकी</string>
+
+    <!-- Usage-access primer -->
+    <string name="usage_access_title">उपयोग ऐक्सेस चालू करें</string>
+    <string name="usage_access_body">दिखाता है कि कौन-से ऐप आपका डेटा इस्तेमाल करते हैं, और कुल आँकड़ों को Android सेटिंग से मिलाता है। कुछ भी आपके डिवाइस से बाहर नहीं जाता।</string>
+    <string name="usage_access_action">सेटिंग खोलें</string>
+
+    <!-- ===== History screen ================================================================== -->
+    <string name="history_column_date">तारीख़</string>
+    <string name="history_empty">अभी कोई उपयोग दर्ज नहीं हुआ।\nमॉनिटरिंग चलने के साथ इतिहास बनता जाएगा।</string>
+
+    <!-- ===== Data limit card ================================================================= -->
+    <string name="limit_card_title">इस साइकल में मोबाइल डेटा</string>
+    <string name="limit_forecast_within">%1$s की ओर · सीमा के अंदर</string>
+    <string name="limit_forecast_over_by">%1$s की ओर · %2$s ज़्यादा</string>
+    <string name="limit_forecast_over_when">%1$s की ओर · %2$s सीमा पार</string>
+    <string name="limit_used_of_total_remaining">%2$s में से %1$s · %3$s बचा</string>
+    <string name="limit_used_of_total_reached">%2$s में से %1$s — सीमा पूरी</string>
+    <string name="limit_forecast_when_tomorrow">कल</string>
+    <string name="limit_forecast_in_days">%1$d दिन में</string>
+    <string name="threshold_percent_of_limit">सीमा का %1$d%%</string>
+    <string name="limit_none_set">कोई सीमा तय नहीं</string>
+    <string name="limit_percent_of_total">%2$s का %1$d%%</string>
+
+    <!-- ===== App usage detail dialog ========================================================= -->
+    <string name="app_detail_total">कुल</string>
+    <string name="app_detail_mobile">मोबाइल</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">फ़ोरग्राउंड</string>
+    <string name="app_detail_background">बैकग्राउंड</string>
+    <string name="app_detail_no_split">इस डिवाइस पर फ़ोरग्राउंड/बैकग्राउंड का अलग ब्यौरा नहीं मिलता।</string>
+    <string name="app_detail_share_of_period">अवधि में हिस्सा</string>
+    <string name="app_detail_limit_this_cycle">इस साइकल की सीमा</string>
+    <string name="app_detail_limit_none">कोई सीमा नहीं</string>
+    <string name="app_detail_limit_set">सीमा तय करें</string>
+    <string name="app_detail_limit_title">%1$s के लिए सीमा</string>
+    <string name="app_detail_app_info">ऐप की जानकारी</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Day usage detail dialog ========================================================= -->
+    <string name="day_detail_top_apps">सबसे ज़्यादा उपयोग वाले ऐप</string>
+    <string name="day_detail_empty">इस दिन का ऐप-वार डेटा मौजूद नहीं है।</string>
+    <string name="day_detail_share_of_limit">सीमा में दिन का हिस्सा · %1$s</string>
+    <string name="day_detail_total_suffix">कुल %1$s</string>
+
+    <!-- ===== Network details sheet =========================================================== -->
+    <string name="details_empty">इस कनेक्शन के लिए कोई विवरण उपलब्ध नहीं है।</string>
+    <string name="details_section_connection">कनेक्शन</string>
+    <string name="details_section_addresses">पते</string>
+    <string name="details_section_radio">रेडियो</string>
+    <string name="details_section_carrier">कैरियर</string>
+    <string name="details_network">नेटवर्क</string>
+    <string name="details_nothing_connected">अभी कुछ भी कनेक्ट नहीं है</string>
+    <string name="details_internet">इंटरनेट</string>
+    <string name="details_reachable">पहुँच में है</string>
+    <string name="details_not_verified">कनेक्ट है, पुष्टि नहीं हुई</string>
+    <string name="details_metered">मीटर वाला</string>
+    <string name="details_roaming">रोमिंग</string>
+    <string name="details_yes">हाँ</string>
+    <string name="details_no">नहीं</string>
+    <string name="details_estimated_downlink">अनुमानित डाउनलिंक</string>
+    <string name="details_estimated_uplink">अनुमानित अपलिंक</string>
+    <string name="details_interface">इंटरफ़ेस</string>
+    <string name="details_ipv4">IPv4 पता</string>
+    <string name="details_ipv6">IPv6 पता</string>
+    <string name="details_link_speed">लिंक स्पीड</string>
+    <string name="details_tx_link_speed">Tx लिंक स्पीड</string>
+    <string name="details_rx_link_speed">Rx लिंक स्पीड</string>
+    <string name="details_frequency">फ़्रीक्वेंसी</string>
+    <string name="details_band">बैंड</string>
+    <string name="details_signal">सिग्नल</string>
+    <string name="details_operator">ऑपरेटर</string>
+    <string name="details_sim_operator">SIM ऑपरेटर</string>
+
+    <!-- ===== Synthetic app names in the per-app breakdown ===================================== -->
+    <string name="traffic_tethering">टेदरिंग</string>
+    <string name="traffic_removed_apps">हटाए गए ऐप</string>
+    <string name="traffic_all">सारा ट्रैफ़िक</string>
+    <string name="traffic_android_os">Android ओएस</string>
+    <string name="traffic_root">रूट</string>
+    <string name="traffic_telephony">टेलीफ़ोनी</string>
+    <string name="traffic_media_server">मीडिया सर्वर</string>
+    <string name="traffic_drm_service">DRM सेवा</string>
+    <string name="traffic_network_stack">नेटवर्क स्टैक</string>
+    <string name="traffic_nobody">नोबडी</string>
+    <string name="traffic_system_service">सिस्टम सेवा (uid %1$d)</string>
+
+    <!-- ===== Settings: sections ============================================================== -->
+    <string name="settings_section_notification">सूचना</string>
+    <string name="settings_section_monitoring">मॉनिटरिंग</string>
+    <string name="settings_section_overlay">फ़्लोटिंग ओवरले</string>
+    <string name="settings_section_data_limit">डेटा सीमा</string>
+    <string name="settings_section_alerts">अलर्ट</string>
+    <string name="settings_section_device">डिवाइस</string>
+    <string name="settings_section_appearance">दिखावट</string>
+
+    <!-- ===== Settings: rows ================================================================== -->
+    <string name="settings_monitor_speed">नेटवर्क स्पीड मॉनिटर करें</string>
+    <string name="settings_update_frequency">अपडेट की फ़्रीक्वेंसी</string>
+    <string name="settings_notification_style">सूचना की स्टाइल</string>
+    <string name="settings_status_bar_shows">स्टेटस बार में दिखे</string>
+    <string name="settings_speed_units">स्पीड की इकाई</string>
+    <string name="settings_monitor_wifi">Wi-Fi मॉनिटर करें</string>
+    <string name="settings_monitor_mobile">मोबाइल डेटा मॉनिटर करें</string>
+    <string name="settings_background_monitoring">बैकग्राउंड में मॉनिटरिंग जारी रखें</string>
+    <string name="settings_start_on_boot">डिवाइस रीस्टार्ट होने के बाद शुरू करें</string>
+    <string name="settings_show_overlay">फ़्लोटिंग ओवरले दिखाएँ</string>
+    <string name="settings_overlay_size">ओवरले टेक्स्ट का आकार</string>
+    <string name="settings_overlay_colour">ओवरले टेक्स्ट का रंग</string>
+    <string name="settings_overlay_opacity">ओवरले बैकग्राउंड की ओपैसिटी</string>
+    <string name="settings_billing_cycle_start">बिलिंग साइकल शुरू होने की तारीख़</string>
+    <string name="settings_mobile_data_limit">मोबाइल डेटा की सीमा</string>
+    <string name="settings_warn_before_limit">डेटा सीमा से पहले चेतावनी दें</string>
+    <string name="settings_warn_at">चेतावनी की सीमा</string>
+    <string name="settings_warn_roaming">रोमिंग में चेतावनी दें</string>
+    <string name="settings_warn_background_data">बैकग्राउंड डेटा की चेतावनी दें</string>
+    <string name="settings_warn_above">चेतावनी, इससे ज़्यादा पर</string>
+    <string name="settings_autostart">ऑटोस्टार्ट की अनुमति दें</string>
+    <string name="settings_battery_unrestricted">बिना पाबंदी बैटरी उपयोग की अनुमति दें</string>
+    <string name="settings_language">भाषा</string>
+    <string name="dialog_language">भाषा</string>
+    <string name="language_system_default">सिस्टम डिफ़ॉल्ट</string>
+    <string name="settings_dark_theme">डार्क थीम</string>
+    <string name="settings_dynamic_colour">वॉलपेपर के रंगों से मिलाएँ</string>
+    <string name="settings_more_apps">और ऐप</string>
+    <string name="settings_more_apps_subtitle">Sulton UzDev के बाकी सभी ऐप</string>
+    <string name="settings_value_open">सिस्टम सेटिंग</string>
+    <string name="settings_value_none">कोई नहीं</string>
+
+    <string name="settings_notifications_off">सूचनाएँ बंद हैं, इसलिए स्टेटस बार में स्पीड नहीं दिख सकती। चालू करने के लिए टैप करें।</string>
+
+    <!-- ===== Settings: dialog titles ========================================================= -->
+    <string name="dialog_update_frequency">अपडेट की फ़्रीक्वेंसी</string>
+    <string name="dialog_notification_style">सूचना की स्टाइल</string>
+    <string name="dialog_speed_display">स्पीड का प्रदर्शन</string>
+    <string name="dialog_speed_units">स्पीड की इकाई</string>
+    <string name="dialog_monthly_reset_date">मासिक रीसेट की तारीख़</string>
+    <string name="dialog_mobile_data_limit">मोबाइल डेटा की सीमा</string>
+    <string name="dialog_warn_at">चेतावनी की सीमा</string>
+    <string name="dialog_background_threshold">बैकग्राउंड डेटा की सीमा</string>
+    <string name="dialog_overlay_size">ओवरले का आकार</string>
+    <string name="dialog_overlay_colour">ओवरले का रंग</string>
+    <string name="dialog_overlay_opacity">ओवरले की पारदर्शिता</string>
+    <string name="dialog_cancel">रद्द करें</string>
+    <string name="dialog_close">बंद करें</string>
+
+    <!-- ===== Option values ==================================================================== -->
+    <string name="option_auto">ऑटो</string>
+    <string name="option_compact">संक्षिप्त</string>
+    <string name="option_detailed">विस्तृत</string>
+    <string name="option_custom">कस्टम</string>
+    <string name="display_download_only">सिर्फ़ डाउनलोड</string>
+    <string name="display_upload_only">सिर्फ़ अपलोड</string>
+    <string name="display_combined_total">दोनों का कुल</string>
+    <string name="display_download_and_upload">डाउनलोड और अपलोड</string>
+
+    <string name="colour_white">सफ़ेद</string>
+    <string name="colour_black">काला</string>
+    <string name="colour_cyan">सियान</string>
+    <string name="colour_green">हरा</string>
+    <string name="colour_amber">अंबर</string>
+    <string name="colour_red">लाल</string>
+
+    <!-- Hindi needs no ordinal suffixes; all four keys carry the same form. -->
+    <string name="ordinal_day_st">%1$d तारीख़</string>
+    <string name="ordinal_day_nd">%1$d तारीख़</string>
+    <string name="ordinal_day_rd">%1$d तारीख़</string>
+    <string name="ordinal_day_th">%1$d तारीख़</string>
+
+    <!-- ===== Permission rationales =========================================================== -->
+    <string name="perm_continue">जारी रखें</string>
+    <string name="perm_not_now">अभी नहीं</string>
+    <string name="perm_notification_title">स्टेटस बार में स्पीड दिखाएँ</string>
+    <string name="perm_notification_body_speed">NetSpeed एक चालू सूचना दिखाता है जिसमें लाइव आँकड़ा रहता है, जिससे आप ऐप खोले बिना अपनी स्पीड देख सकते हैं। इसे दिखाने के लिए Android को आपकी अनुमति चाहिए।</string>
+    <string name="perm_notification_body_settings">NetSpeed एक चालू सूचना दिखाता है जिसमें लाइव आँकड़ा रहता है। इसे दिखाने के लिए Android को आपकी अनुमति चाहिए। मना करने पर भी ऐप की बाकी सभी सुविधाएँ काम करती रहेंगी।</string>
+    <string name="perm_phone_state_title">मोबाइल सिग्नल पढ़ने की अनुमति</string>
+    <string name="perm_phone_state_body">मोबाइल कनेक्शन की सिग्नल क्षमता फ़ोन के रेडियो से मिलती है, जिसे Android अनुमति के पीछे रखता है। नेटवर्क के बाकी विवरण दोनों हालात में दिखते रहेंगे।</string>
+
+    <!-- ===== Monitoring notification ========================================================= -->
+    <string name="notif_channel_name">Net Speed मॉनिटर</string>
+    <string name="notif_channel_description">रीयल-टाइम इंटरनेट स्पीड और डेटा उपयोग दिखाता है</string>
+    <string name="notif_summary">Net Speed मॉनिटर</string>
+    <string name="notif_total">कुल %1$s</string>
+    <string name="notif_with_signal">%1$s | सिग्नल: %2$s</string>
+    <string name="notif_line_total">कुल: %1$s</string>
+    <string name="notif_line_download">डाउनलोड: %1$s</string>
+    <string name="notif_line_upload">अपलोड: %1$s</string>
+    <string name="notif_line_signal">सिग्नल: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">मोबाइल डेटा: %1$s</string>
+    <string name="notif_line_wifi_data">Wi-Fi डेटा: %1$s</string>
+
+    <!-- ===== Data-limit alerts =============================================================== -->
+    <string name="alert_channel_name">डेटा सीमा के अलर्ट</string>
+    <string name="alert_channel_description">मोबाइल डेटा सीमा के पास पहुँचने या उसे पार करने पर चेतावनी देता है</string>
+    <string name="alert_limit_reached_title">मोबाइल डेटा की सीमा पूरी हो गई</string>
+    <string name="alert_limit_reached_body">इस साइकल में %2$s में से %1$s इस्तेमाल हुआ।</string>
+    <string name="alert_approaching_title">मोबाइल डेटा का %1$d%% इस्तेमाल हुआ</string>
+    <string name="alert_approaching_body">%2$s में से %1$s इस्तेमाल हुआ। इस साइकल में %3$s बचा है।</string>
+    <string name="alert_roaming_title">रोमिंग — मोबाइल डेटा का अतिरिक्त शुल्क लग सकता है</string>
+    <string name="alert_roaming_body">आप रोमिंग नेटवर्क पर हैं। इस साइकल में अब तक %1$s मोबाइल डेटा इस्तेमाल हुआ है।</string>
+    <string name="alert_app_limit_one_title">%1$s ने अपनी डेटा सीमा पार कर ली</string>
+    <string name="alert_background_one_title">%1$s ने बैकग्राउंड में डेटा इस्तेमाल किया</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %3$s में से %2$s</string>
+
+    <!-- ===== Widgets and tile ================================================================ -->
+    <string name="widget_speed_description">लाइव डाउनलोड और अपलोड स्पीड</string>
+    <string name="widget_usage_title">इस साइकल में मोबाइल डेटा</string>
+    <string name="widget_usage_description">आपकी सीमा के मुक़ाबले इस्तेमाल हुआ डेटा</string>
+    <string name="widget_today_total">आज %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · सीमा पार होने की ओर</string>
+
+    <!-- ===== Plurals ========================================================================= -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d सेकंड</item>
+        <item quantity="other">%1$d सेकंड</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d ऐप ने अपनी डेटा सीमा पार कर ली</item>
+        <item quantity="other">%1$d ऐप ने अपनी डेटा सीमाएँ पार कर लीं</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d ऐप ने बैकग्राउंड में डेटा इस्तेमाल किया</item>
+        <item quantity="other">%1$d ऐप ने बैकग्राउंड में डेटा इस्तेमाल किया</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">%1$d दिन बचा</item>
+        <item quantity="other">%1$d दिन बचे</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">सीमा %1$d दिन में</item>
+        <item quantity="other">सीमा %1$d दिन में</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

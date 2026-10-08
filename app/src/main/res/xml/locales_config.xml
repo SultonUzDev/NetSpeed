@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Languages offered in Android 13+'s per-app language picker (Settings > Apps > NetSpeed
+    > Language). Without this list the app does not appear there at all.
+
+    Tags here are BCP-47 and follow the modern codes, which is why Indonesian is "id" even
+    though its resource folder has to be values-in.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="zh-CN" />
+    <locale android:name="zh-TW" />
+    <locale android:name="hi" />
+    <locale android:name="id" />
+    <locale android:name="ru" />
+    <locale android:name="pt-BR" />
+    <locale android:name="es" />
+    <locale android:name="ar" />
+    <locale android:name="ur" />
+    <locale android:name="de" />
+    <locale android:name="fr" />
+    <locale android:name="tr" />
+    <locale android:name="ja" />
+    <locale android:name="ko" />
+    <locale android:name="vi" />
+    <locale android:name="uk" />
+</locale-config>

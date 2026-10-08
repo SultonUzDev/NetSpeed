@@ -1,9 +1,10 @@
 package com.sultonuzdev.netspeed.utils
 
-import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 /**
  * Window boundaries for usage queries. Everything here works in the device's local timezone, so
@@ -11,7 +12,30 @@ import java.util.Locale
  */
 object UsagePeriods {
 
-    private fun dayFormat() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    /**
+     * ISO-8601, and deliberately not a locale-aware formatter.
+     *
+     * This string is the Room primary key, and the DAO matches it three ways: `= :date`,
+     * `BETWEEN :start AND :end` on raw string ordering, and `LIKE :monthYear || '%'`. All three
+     * require the same bytes every time, on every device.
+     *
+     * SimpleDateFormat with Locale.getDefault() did not give that. Measured on the JDK that
+     * ships with Android Studio, for today's date:
+     *
+     *     ar-EG  ->  ٢٠٢٦-١٠-٠٧      (Arabic-Indic digits)
+     *     fa-IR  ->  ۲۰۲۶-۱۰-۰۷      (Persian digits)
+     *     th-TH  ->  2569-10-07      (Buddhist calendar, year + 543)
+     *     de, ru, hi, ur  ->  2026-10-07   (unaffected)
+     *
+     * On those three locales the key written at midnight never matched the key read a second
+     * later, so every write created a new row and no range query ever found them. java.time has
+     * no locale or calendar to get wrong: LocalDate is proleptic ISO and
+     * [DateTimeFormatter.ISO_LOCAL_DATE] always writes Latin digits.
+     */
+    private val KEY_FORMAT: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+
+    private fun localDate(millis: Long): LocalDate =
+        Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
 
     private fun Calendar.atStartOfDay(): Calendar = apply {
         set(Calendar.HOUR_OF_DAY, 0)
@@ -29,11 +53,14 @@ object UsagePeriods {
 
     /** Local date key ("yyyy-MM-dd") for [millis]; matches the Room primary key format. */
     fun dayKey(millis: Long = System.currentTimeMillis()): String =
-        dayFormat().format(Date(millis))
+        localDate(millis).format(KEY_FORMAT)
 
     /** Inverse of [dayKey]: local midnight for a "yyyy-MM-dd" string, or null if unparseable. */
     fun millisForDayKey(key: String): Long? = try {
-        dayFormat().parse(key)?.time
+        LocalDate.parse(key, KEY_FORMAT)
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
     } catch (e: Exception) {
         null
     }
@@ -44,7 +71,7 @@ object UsagePeriods {
         cursor.add(Calendar.DAY_OF_YEAR, -(days - 1))
         return (0 until days).map {
             val startMillis = cursor.timeInMillis
-            val key = dayFormat().format(Date(startMillis))
+            val key = dayKey(startMillis)
             cursor.add(Calendar.DAY_OF_YEAR, 1)
             key to (startMillis until cursor.timeInMillis)
         }

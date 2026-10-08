@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">不明</string>
+
+    <!-- ===== ナビゲーション ===== -->
+    <string name="nav_speed">速度</string>
+    <string name="nav_usage">使用量</string>
+    <string name="nav_history">履歴</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- ===== 接続の名称 ===== -->
+    <string name="connection_mobile_data">モバイルデータ</string>
+    <string name="connection_mobile_short">モバイル</string>
+    <string name="connection_offline">オフライン</string>
+    <string name="connection_none">接続なし</string>
+    <string name="connection_name_with_transport">%1$s・%2$s</string>
+
+    <!-- ===== 速度画面 ===== -->
+    <string name="speed_download">ダウンロード</string>
+    <string name="speed_upload">アップロード</string>
+    <string name="speed_network_details">ネットワーク詳細</string>
+    <string name="speed_dial_idle_caption">速度テスト</string>
+    <string name="speed_dial_latency_caption">遅延</string>
+    <string name="speed_dial_failed_caption">テスト失敗</string>
+
+    <string name="speed_notification_offer_title">ステータスバーに速度を表示</string>
+    <string name="speed_notification_offer_body">アプリを開かずに確認できます</string>
+    <string name="speed_notification_offer_action">オンにする</string>
+    <string name="speed_notification_offer_dismiss">閉じる</string>
+
+    <!-- ===== 速度テスト ===== -->
+    <string name="speed_test_run">速度テストを実行</string>
+    <string name="speed_test_again">再テスト</string>
+    <string name="speed_test_cancel">キャンセル</string>
+    <string name="speed_test_phase_latency">遅延</string>
+    <string name="speed_test_phase_download">ダウンロード</string>
+    <string name="speed_test_phase_upload">アップロード</string>
+    <string name="speed_test_result_ping">ピング</string>
+    <string name="speed_test_result_jitter">ジッター</string>
+    <string name="speed_test_footer">Cloudflare で測定・結果は端末内にのみ保存されます</string>
+    <string name="speed_test_error_generic">速度テストに失敗しました。</string>
+    <string name="speed_test_error_no_internet">インターネットに接続されていません。テストサーバーに接続できませんでした。</string>
+    <string name="speed_test_error_interrupted">接続が中断されました。ネットワークを確認して再試行してください。</string>
+
+    <!-- ===== 使用量画面 ===== -->
+    <string name="usage_by_app">アプリ別</string>
+    <string name="usage_today">今日</string>
+    <string name="usage_billing_cycle">請求期間</string>
+    <string name="usage_this_cycle">今期間</string>
+    <string name="usage_last_7_days">過去7日間</string>
+    <string name="usage_last_30_days">過去30日間</string>
+    <string name="usage_total">合計</string>
+    <string name="usage_exact">正確</string>
+    <string name="usage_estimated">推定</string>
+    <string name="usage_empty_period">この期間に記録されたアプリの通信はまだありません。</string>
+    <string name="usage_empty_chart">使用量の記録はまだありません</string>
+    <string name="usage_chart_peak">ピーク %1$s</string>
+    <string name="usage_app_split">モバイル %1$s  ・  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">この端末では使用状況へのアクセス設定を開けませんでした</string>
+
+    <string name="usage_access_title">使用状況へのアクセスをオンにする</string>
+    <string name="usage_access_body">データを使用しているアプリが分かり、合計が Android の設定と一致します。データが端末外に送信されることはありません。</string>
+    <string name="usage_access_action">設定を開く</string>
+
+    <!-- ===== 履歴画面 ===== -->
+    <string name="history_column_date">日付</string>
+    <string name="history_empty">使用量の記録はまだありません。\n監視を続けると履歴が蓄積されます。</string>
+
+    <!-- ===== データ上限カード ===== -->
+    <string name="limit_card_title">今期間のモバイルデータ</string>
+    <string name="limit_forecast_within">%1$s に到達する見込み・上限内</string>
+    <string name="limit_forecast_over_by">%1$s に到達する見込み・%2$s 超過</string>
+    <string name="limit_forecast_over_when">%1$s に到達する見込み・%2$s に超過</string>
+    <string name="limit_used_of_total_remaining">%2$s 中 %1$s・残り %3$s</string>
+    <string name="limit_used_of_total_reached">%2$s 中 %1$s — 上限に到達</string>
+    <string name="limit_forecast_when_tomorrow">明日</string>
+    <string name="limit_forecast_in_days">%1$d日後</string>
+    <string name="threshold_percent_of_limit">上限の %1$d%%</string>
+    <string name="limit_none_set">上限なし</string>
+    <string name="limit_percent_of_total">%2$s の %1$d%%</string>
+
+    <!-- ===== アプリ使用量の詳細ダイアログ ===== -->
+    <string name="app_detail_total">合計</string>
+    <string name="app_detail_mobile">モバイル</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">フォアグラウンド</string>
+    <string name="app_detail_background">バックグラウンド</string>
+    <string name="app_detail_no_split">この端末ではフォアグラウンドとバックグラウンドの内訳を取得できません。</string>
+    <string name="app_detail_share_of_period">期間内の割合</string>
+    <string name="app_detail_limit_this_cycle">今期間の上限</string>
+    <string name="app_detail_limit_none">上限なし</string>
+    <string name="app_detail_limit_set">上限を設定</string>
+    <string name="app_detail_limit_title">%1$s の上限</string>
+    <string name="app_detail_app_info">アプリ情報</string>
+    <string name="app_detail_of_total">%2$s 中 %1$s</string>
+
+    <!-- ===== 日別使用量の詳細ダイアログ ===== -->
+    <string name="day_detail_top_apps">使用量上位のアプリ</string>
+    <string name="day_detail_empty">この日のアプリ別データはありません。</string>
+    <string name="day_detail_share_of_limit">上限に対する1日の割合・%1$s</string>
+    <string name="day_detail_total_suffix">合計 %1$s</string>
+
+    <!-- ===== ネットワーク詳細シート ===== -->
+    <string name="details_empty">この接続の詳細は取得できません。</string>
+    <string name="details_section_connection">接続</string>
+    <string name="details_section_addresses">アドレス</string>
+    <string name="details_section_radio">無線</string>
+    <string name="details_section_carrier">通信事業者</string>
+    <string name="details_network">ネットワーク</string>
+    <string name="details_nothing_connected">現在接続されていません</string>
+    <string name="details_internet">インターネット</string>
+    <string name="details_reachable">到達可能</string>
+    <string name="details_not_verified">接続済み（未確認）</string>
+    <string name="details_metered">従量制課金</string>
+    <string name="details_roaming">ローミング</string>
+    <string name="details_yes">はい</string>
+    <string name="details_no">いいえ</string>
+    <string name="details_estimated_downlink">推定下り速度</string>
+    <string name="details_estimated_uplink">推定上り速度</string>
+    <string name="details_interface">インターフェース</string>
+    <string name="details_ipv4">IPv4 アドレス</string>
+    <string name="details_ipv6">IPv6 アドレス</string>
+    <string name="details_link_speed">リンク速度</string>
+    <string name="details_tx_link_speed">Tx リンク速度</string>
+    <string name="details_rx_link_speed">Rx リンク速度</string>
+    <string name="details_frequency">周波数</string>
+    <string name="details_band">周波数帯</string>
+    <string name="details_signal">電波強度</string>
+    <string name="details_operator">通信事業者</string>
+    <string name="details_sim_operator">SIM の通信事業者</string>
+
+    <!-- ===== アプリ別内訳に表示される擬似アプリ名 ===== -->
+    <string name="traffic_tethering">テザリング</string>
+    <string name="traffic_removed_apps">削除済みアプリ</string>
+    <string name="traffic_all">すべての通信</string>
+    <string name="traffic_android_os">Android OS</string>
+    <string name="traffic_root">Root アカウント</string>
+    <string name="traffic_telephony">電話機能</string>
+    <string name="traffic_media_server">メディアサーバー</string>
+    <string name="traffic_drm_service">DRM サービス</string>
+    <string name="traffic_network_stack">ネットワークスタック</string>
+    <string name="traffic_nobody">Nobody アカウント</string>
+    <string name="traffic_system_service">システムサービス（uid %1$d）</string>
+
+    <!-- ===== 設定：セクション ===== -->
+    <string name="settings_section_notification">通知</string>
+    <string name="settings_section_monitoring">監視</string>
+    <string name="settings_section_overlay">フローティングオーバーレイ</string>
+    <string name="settings_section_data_limit">データ上限</string>
+    <string name="settings_section_alerts">アラート</string>
+    <string name="settings_section_device">端末</string>
+    <string name="settings_section_appearance">表示</string>
+
+    <!-- ===== 設定：行 ===== -->
+    <string name="settings_monitor_speed">ネットワーク速度を監視</string>
+    <string name="settings_update_frequency">更新間隔</string>
+    <string name="settings_notification_style">通知のスタイル</string>
+    <string name="settings_status_bar_shows">ステータスバーの表示内容</string>
+    <string name="settings_speed_units">速度の単位</string>
+    <string name="settings_monitor_wifi">Wi-Fi を監視</string>
+    <string name="settings_monitor_mobile">モバイルデータを監視</string>
+    <string name="settings_background_monitoring">バックグラウンドで監視を継続</string>
+    <string name="settings_start_on_boot">端末の再起動後に開始</string>
+    <string name="settings_show_overlay">オーバーレイを表示</string>
+    <string name="settings_overlay_size">オーバーレイの文字サイズ</string>
+    <string name="settings_overlay_colour">オーバーレイの文字色</string>
+    <string name="settings_overlay_opacity">オーバーレイの背景の不透明度</string>
+    <string name="settings_billing_cycle_start">請求期間の開始日</string>
+    <string name="settings_mobile_data_limit">モバイルデータの上限</string>
+    <string name="settings_warn_before_limit">データ上限の前に警告</string>
+    <string name="settings_warn_at">警告する使用率</string>
+    <string name="settings_warn_roaming">ローミング中に警告</string>
+    <string name="settings_warn_background_data">バックグラウンドデータを警告</string>
+    <string name="settings_warn_above">警告するデータ量</string>
+    <string name="settings_autostart">自動起動を許可</string>
+    <string name="settings_battery_unrestricted">バッテリー使用を制限しない</string>
+    <string name="settings_language">言語</string>
+    <string name="dialog_language">言語</string>
+    <string name="language_system_default">システムのデフォルト</string>
+    <string name="settings_dark_theme">ダークテーマ</string>
+    <string name="settings_dynamic_colour">壁紙の色に合わせる</string>
+    <string name="settings_more_apps">他のアプリ</string>
+    <string name="settings_more_apps_subtitle">Sulton UzDev の他のアプリ</string>
+    <string name="settings_value_open">システム設定</string>
+    <string name="settings_value_none">なし</string>
+
+    <string name="settings_notifications_off">通知がオフのため、ステータスバーに速度を表示できません。タップしてオンにしてください。</string>
+
+    <!-- ===== 設定：ダイアログのタイトル ===== -->
+    <string name="dialog_update_frequency">更新間隔</string>
+    <string name="dialog_notification_style">通知のスタイル</string>
+    <string name="dialog_speed_display">速度の表示</string>
+    <string name="dialog_speed_units">速度の単位</string>
+    <string name="dialog_monthly_reset_date">毎月のリセット日</string>
+    <string name="dialog_mobile_data_limit">モバイルデータの上限</string>
+    <string name="dialog_warn_at">警告する使用率</string>
+    <string name="dialog_background_threshold">バックグラウンドデータのしきい値</string>
+    <string name="dialog_overlay_size">オーバーレイのサイズ</string>
+    <string name="dialog_overlay_colour">オーバーレイの色</string>
+    <string name="dialog_overlay_opacity">オーバーレイの透明度</string>
+    <string name="dialog_cancel">キャンセル</string>
+    <string name="dialog_close">閉じる</string>
+
+    <!-- ===== 選択肢の値 ===== -->
+    <string name="option_auto">自動</string>
+    <string name="option_compact">簡易</string>
+    <string name="option_detailed">詳細</string>
+    <string name="option_custom">カスタム</string>
+    <string name="display_download_only">ダウンロードのみ</string>
+    <string name="display_upload_only">アップロードのみ</string>
+    <string name="display_combined_total">合計</string>
+    <string name="display_download_and_upload">ダウンロードとアップロード</string>
+
+    <string name="colour_white">白</string>
+    <string name="colour_black">黒</string>
+    <string name="colour_cyan">シアン</string>
+    <string name="colour_green">緑</string>
+    <string name="colour_amber">アンバー</string>
+    <string name="colour_red">赤</string>
+
+    <!-- 日本語は序数の語形が1つで足りるため、4つのキーに同じ形を入れる。 -->
+    <string name="ordinal_day_st">%1$d日</string>
+    <string name="ordinal_day_nd">%1$d日</string>
+    <string name="ordinal_day_rd">%1$d日</string>
+    <string name="ordinal_day_th">%1$d日</string>
+
+    <!-- ===== 権限の説明 ===== -->
+    <string name="perm_continue">続行</string>
+    <string name="perm_not_now">後で</string>
+    <string name="perm_notification_title">ステータスバーに速度を表示</string>
+    <string name="perm_notification_body_speed">NetSpeed は現在の速度を表示する常設の通知を1件表示し、アプリを開かずに速度を確認できます。表示するには Android の権限が必要です。</string>
+    <string name="perm_notification_body_settings">NetSpeed は現在の速度を表示する常設の通知を1件表示します。表示するには Android の権限が必要です。許可しなくてもアプリの機能はすべて利用できます。</string>
+    <string name="perm_phone_state_title">モバイルの電波強度を読み取る</string>
+    <string name="perm_phone_state_body">モバイル接続の電波強度は端末の無線機から取得しますが、Android はこれを権限で保護しています。その他のネットワーク詳細はどちらの場合でも表示されます。</string>
+
+    <!-- ===== 監視中の通知 ===== -->
+    <string name="notif_channel_name">Net Speed モニター</string>
+    <string name="notif_channel_description">リアルタイムの通信速度とデータ使用量を表示します</string>
+    <string name="notif_summary">Net Speed モニター</string>
+    <string name="notif_total">合計 %1$s</string>
+    <string name="notif_with_signal">%1$s | 電波強度：%2$s</string>
+    <string name="notif_line_total">合計：%1$s</string>
+    <string name="notif_line_download">ダウンロード：%1$s</string>
+    <string name="notif_line_upload">アップロード：%1$s</string>
+    <string name="notif_line_signal">電波強度：%1$s（%2$s）</string>
+    <string name="notif_line_mobile_data">モバイルデータ：%1$s</string>
+    <string name="notif_line_wifi_data">Wi-Fi データ：%1$s</string>
+
+    <!-- ===== データ上限のアラート ===== -->
+    <string name="alert_channel_name">データ上限のアラート</string>
+    <string name="alert_channel_description">モバイルデータが上限に近づいたとき、または超えたときに警告します</string>
+    <string name="alert_limit_reached_title">モバイルデータの上限に到達</string>
+    <string name="alert_limit_reached_body">今期間に %2$s 中 %1$s を使用しました。</string>
+    <string name="alert_approaching_title">モバイルデータの %1$d%% を使用</string>
+    <string name="alert_approaching_body">%2$s 中 %1$s を使用しました。今期間の残りは %3$s です。</string>
+    <string name="alert_roaming_title">ローミング中 — モバイルデータに追加料金が発生する場合があります</string>
+    <string name="alert_roaming_body">ローミングネットワークに接続しています。今期間のモバイルデータ使用量は現在 %1$s です。</string>
+    <string name="alert_app_limit_one_title">%1$s がデータ上限を超えました</string>
+    <string name="alert_background_one_title">%1$s がバックグラウンドでデータを使用しました</string>
+    <string name="alert_app_line">%1$s：%2$s</string>
+    <string name="alert_app_line_of_limit">%1$s：%3$s 中 %2$s</string>
+
+    <!-- ===== ウィジェットとタイル ===== -->
+    <string name="widget_speed_description">ダウンロードとアップロードの速度をリアルタイム表示</string>
+    <string name="widget_usage_title">今期間のモバイルデータ</string>
+    <string name="widget_usage_description">上限に対するデータ使用量</string>
+    <string name="widget_today_total">今日 %1$s</string>
+    <string name="widget_forecast_days_left">%1$s・%2$s</string>
+    <string name="widget_forecast_heading_over">%1$s・超過見込み</string>
+
+    <!-- ===== 複数形：日本語は other のみ ===== -->
+    <plurals name="frequency_seconds">
+        <item quantity="other">%1$d秒</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="other">%1$d 個のアプリがデータ上限を超えました</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="other">%1$d 個のアプリがバックグラウンドでデータを使用しました</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="other">残り %1$d日</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="other">%1$d日後に上限</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

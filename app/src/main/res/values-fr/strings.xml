@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Traduction française. Les chaînes translatable="false" de values/strings.xml
+    (marque, symboles des unités, gabarits de format) sont volontairement absentes.
+-->
+<resources>
+
+    <string name="value_unknown">Inconnu</string>
+
+    <!-- ===== Navigation ====================================================================== -->
+    <string name="nav_speed">Débit</string>
+    <string name="nav_usage">Consommation</string>
+    <string name="nav_history">Historique</string>
+    <string name="nav_settings">Paramètres</string>
+
+    <!-- ===== Connexions ====================================================================== -->
+    <string name="connection_mobile_data">Données mobiles</string>
+    <string name="connection_mobile_short">Mobile</string>
+    <string name="connection_offline">Hors connexion</string>
+    <string name="connection_none">Aucune connexion</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Écran Débit ===================================================================== -->
+    <string name="speed_download">Téléchargement</string>
+    <string name="speed_upload">Envoi</string>
+    <string name="speed_network_details">Détails du réseau</string>
+    <string name="speed_dial_idle_caption">Test de débit</string>
+    <string name="speed_dial_latency_caption">Latence</string>
+    <string name="speed_dial_failed_caption">Échec du test</string>
+
+    <string name="speed_notification_offer_title">Afficher ce débit dans la barre d\'état</string>
+    <string name="speed_notification_offer_body">Le consulter sans ouvrir l\'application</string>
+    <string name="speed_notification_offer_action">Activer</string>
+    <string name="speed_notification_offer_dismiss">Ignorer</string>
+
+    <!-- ===== Test de débit =================================================================== -->
+    <string name="speed_test_run">Lancer le test de débit</string>
+    <string name="speed_test_again">Relancer le test</string>
+    <string name="speed_test_cancel">Annuler</string>
+    <string name="speed_test_phase_latency">Latence</string>
+    <string name="speed_test_phase_download">Téléchargement</string>
+    <string name="speed_test_phase_upload">Envoi</string>
+    <string name="speed_test_result_ping">Ping</string>
+    <string name="speed_test_result_jitter">Gigue</string>
+    <string name="speed_test_footer">Test via Cloudflare · les résultats restent sur l\'appareil</string>
+    <string name="speed_test_error_generic">Échec du test de débit.</string>
+    <string name="speed_test_error_no_internet">Aucune connexion Internet. Le serveur de test est inaccessible.</string>
+    <string name="speed_test_error_interrupted">Connexion interrompue. Vérifiez votre réseau et réessayez.</string>
+
+    <!-- ===== Écran Consommation ============================================================== -->
+    <string name="usage_by_app">Par application</string>
+    <string name="usage_today">Aujourd\'hui</string>
+    <string name="usage_billing_cycle">Cycle de facturation</string>
+    <string name="usage_this_cycle">Ce cycle</string>
+    <string name="usage_last_7_days">7 derniers jours</string>
+    <string name="usage_last_30_days">30 derniers jours</string>
+    <string name="usage_total">Total</string>
+    <string name="usage_exact">Exact</string>
+    <string name="usage_estimated">Estimé</string>
+    <string name="usage_empty_period">Aucun trafic d\'application enregistré pour cette période.</string>
+    <string name="usage_empty_chart">Aucune consommation enregistrée</string>
+    <string name="usage_chart_peak">pic %1$s</string>
+    <string name="usage_app_split">Mobile %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Impossible d\'ouvrir les paramètres d\'accès aux données d\'utilisation sur cet appareil</string>
+
+    <string name="usage_access_title">Activer l\'accès aux données d\'utilisation</string>
+    <string name="usage_access_body">Indique quelles applications consomment vos données et aligne les totaux sur les paramètres Android. Rien ne quitte votre appareil.</string>
+    <string name="usage_access_action">Ouvrir les paramètres</string>
+
+    <!-- ===== Écran Historique ================================================================ -->
+    <string name="history_column_date">Date</string>
+    <string name="history_empty">Aucune consommation enregistrée.\nL\'historique se constitue au fil de la surveillance.</string>
+
+    <!-- ===== Carte de limite de données ====================================================== -->
+    <string name="limit_card_title">Données mobiles ce cycle</string>
+    <string name="limit_forecast_within">Prévision %1$s · sous la limite</string>
+    <string name="limit_forecast_over_by">Prévision %1$s · %2$s de trop</string>
+    <string name="limit_forecast_over_when">Prévision %1$s · dépassement %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s sur %2$s · %3$s restants</string>
+    <string name="limit_used_of_total_reached">%1$s sur %2$s — limite atteinte</string>
+    <string name="limit_forecast_when_tomorrow">demain</string>
+    <string name="limit_forecast_in_days">dans %1$d j</string>
+    <string name="threshold_percent_of_limit">%1$d%% de la limite</string>
+    <string name="limit_none_set">Aucune limite définie</string>
+    <string name="limit_percent_of_total">%1$d%% de %2$s</string>
+
+    <!-- ===== Détail par application ========================================================== -->
+    <string name="app_detail_total">Total</string>
+    <string name="app_detail_mobile">Mobile</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Premier plan</string>
+    <string name="app_detail_background">Arrière-plan</string>
+    <string name="app_detail_no_split">Pas de répartition premier plan/arrière-plan sur cet appareil.</string>
+    <string name="app_detail_share_of_period">Part de la période</string>
+    <string name="app_detail_limit_this_cycle">Limite pour ce cycle</string>
+    <string name="app_detail_limit_none">Aucune limite</string>
+    <string name="app_detail_limit_set">Définir une limite</string>
+    <string name="app_detail_limit_title">Limite pour %1$s</string>
+    <string name="app_detail_app_info">Infos sur l\'appli</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Détail par journée ============================================================== -->
+    <string name="day_detail_top_apps">Applications principales</string>
+    <string name="day_detail_empty">Aucune donnée par application pour ce jour.</string>
+    <string name="day_detail_share_of_limit">Part quotidienne de la limite · %1$s</string>
+    <string name="day_detail_total_suffix">%1$s au total</string>
+
+    <!-- ===== Détails du réseau =============================================================== -->
+    <string name="details_empty">Aucun détail disponible pour cette connexion.</string>
+    <string name="details_section_connection">Connexion</string>
+    <string name="details_section_addresses">Adresses</string>
+    <string name="details_section_radio">Radio</string>
+    <string name="details_section_carrier">Opérateur</string>
+    <string name="details_network">Réseau</string>
+    <string name="details_nothing_connected">Aucune connexion pour le moment</string>
+    <string name="details_internet">Internet</string>
+    <string name="details_reachable">Accessible</string>
+    <string name="details_not_verified">Connecté, non vérifié</string>
+    <string name="details_metered">Facturé à l\'usage</string>
+    <string name="details_roaming">Itinérance</string>
+    <string name="details_yes">Oui</string>
+    <string name="details_no">Non</string>
+    <string name="details_estimated_downlink">Débit descendant estimé</string>
+    <string name="details_estimated_uplink">Débit montant estimé</string>
+    <string name="details_interface">Interface</string>
+    <string name="details_ipv4">Adresse IPv4</string>
+    <string name="details_ipv6">Adresse IPv6</string>
+    <string name="details_link_speed">Débit du lien</string>
+    <string name="details_tx_link_speed">Débit du lien Tx</string>
+    <string name="details_rx_link_speed">Débit du lien Rx</string>
+    <string name="details_frequency">Fréquence</string>
+    <string name="details_band">Bande</string>
+    <string name="details_signal">Signal</string>
+    <string name="details_operator">Opérateur</string>
+    <string name="details_sim_operator">Opérateur SIM</string>
+
+    <!-- ===== Sources de trafic système ======================================================= -->
+    <string name="traffic_tethering">Partage de connexion</string>
+    <string name="traffic_removed_apps">Applications désinstallées</string>
+    <string name="traffic_all">Tout le trafic</string>
+    <string name="traffic_android_os">Système Android</string>
+    <string name="traffic_root">Root (compte système)</string>
+    <string name="traffic_telephony">Téléphonie</string>
+    <string name="traffic_media_server">Serveur multimédia</string>
+    <string name="traffic_drm_service">Service DRM</string>
+    <string name="traffic_network_stack">Pile réseau</string>
+    <string name="traffic_nobody">Nobody (compte système)</string>
+    <string name="traffic_system_service">Service système (uid %1$d)</string>
+
+    <!-- ===== Paramètres : sections =========================================================== -->
+    <string name="settings_section_notification">Notification</string>
+    <string name="settings_section_monitoring">Surveillance</string>
+    <string name="settings_section_overlay">Superposition flottante</string>
+    <string name="settings_section_data_limit">Limite de données</string>
+    <string name="settings_section_alerts">Alertes</string>
+    <string name="settings_section_device">Appareil</string>
+    <string name="settings_section_appearance">Apparence</string>
+
+    <!-- ===== Paramètres : lignes ============================================================= -->
+    <string name="settings_monitor_speed">Surveiller le débit réseau</string>
+    <string name="settings_update_frequency">Fréquence de mise à jour</string>
+    <string name="settings_notification_style">Style de notification</string>
+    <string name="settings_status_bar_shows">Affichage dans la barre d\'état</string>
+    <string name="settings_speed_units">Unités de débit</string>
+    <string name="settings_monitor_wifi">Surveiller le Wi-Fi</string>
+    <string name="settings_monitor_mobile">Surveiller les données mobiles</string>
+    <string name="settings_background_monitoring">Poursuivre la surveillance en arrière-plan</string>
+    <string name="settings_start_on_boot">Démarrer après le redémarrage</string>
+    <string name="settings_show_overlay">Afficher la superposition flottante</string>
+    <string name="settings_overlay_size">Taille du texte de la superposition</string>
+    <string name="settings_overlay_colour">Couleur du texte de la superposition</string>
+    <string name="settings_overlay_opacity">Opacité du fond de la superposition</string>
+    <string name="settings_billing_cycle_start">Début du cycle de facturation</string>
+    <string name="settings_mobile_data_limit">Limite de données mobiles</string>
+    <string name="settings_warn_before_limit">Avertir avant la limite de données</string>
+    <string name="settings_warn_at">Avertir à</string>
+    <string name="settings_warn_roaming">Avertir en itinérance</string>
+    <string name="settings_warn_background_data">Avertir sur les données en arrière-plan</string>
+    <string name="settings_warn_above">Avertir au-delà de</string>
+    <string name="settings_autostart">Autoriser le démarrage automatique</string>
+    <string name="settings_battery_unrestricted">Autoriser la batterie sans restriction</string>
+    <string name="settings_language">Langue</string>
+    <string name="dialog_language">Langue</string>
+    <string name="language_system_default">Paramètre système par défaut</string>
+    <string name="settings_dark_theme">Thème sombre</string>
+    <string name="settings_dynamic_colour">Suivre les couleurs du fond d\'écran</string>
+    <string name="settings_more_apps">Plus d\'applications</string>
+    <string name="settings_more_apps_subtitle">Les autres applications de Sulton UzDev</string>
+    <string name="settings_value_open">Paramètres</string>
+    <string name="settings_value_none">Aucune</string>
+
+    <string name="settings_notifications_off">Les notifications sont désactivées : le débit ne peut pas apparaître dans la barre d\'état. Appuyez ici pour les activer.</string>
+
+    <!-- ===== Paramètres : titres de boîtes de dialogue ======================================= -->
+    <string name="dialog_update_frequency">Fréquence de mise à jour</string>
+    <string name="dialog_notification_style">Style de notification</string>
+    <string name="dialog_speed_display">Affichage du débit</string>
+    <string name="dialog_speed_units">Unités de débit</string>
+    <string name="dialog_monthly_reset_date">Date de réinitialisation mensuelle</string>
+    <string name="dialog_mobile_data_limit">Limite de données mobiles</string>
+    <string name="dialog_warn_at">Avertir à</string>
+    <string name="dialog_background_threshold">Seuil de données en arrière-plan</string>
+    <string name="dialog_overlay_size">Taille de la superposition</string>
+    <string name="dialog_overlay_colour">Couleur de la superposition</string>
+    <string name="dialog_overlay_opacity">Transparence de la superposition</string>
+    <string name="dialog_cancel">Annuler</string>
+    <string name="dialog_close">Fermer</string>
+
+    <!-- ===== Valeurs des options ============================================================= -->
+    <string name="option_auto">Auto</string>
+    <string name="option_compact">Compact</string>
+    <string name="option_detailed">Détaillé</string>
+    <string name="option_custom">Personnalisé</string>
+    <string name="display_download_only">Téléchargement seul</string>
+    <string name="display_upload_only">Envoi seul</string>
+    <string name="display_combined_total">Total cumulé</string>
+    <string name="display_download_and_upload">Téléchargement et envoi</string>
+
+    <string name="colour_white">Blanc</string>
+    <string name="colour_black">Noir</string>
+    <string name="colour_cyan">Cyan</string>
+    <string name="colour_green">Vert</string>
+    <string name="colour_amber">Ambre</string>
+    <string name="colour_red">Rouge</string>
+
+    <!-- Pas de suffixe ordinal en français pour les jours du mois : une seule forme. -->
+    <string name="ordinal_day_st">%1$d</string>
+    <string name="ordinal_day_nd">%1$d</string>
+    <string name="ordinal_day_rd">%1$d</string>
+    <string name="ordinal_day_th">%1$d</string>
+
+    <!-- ===== Autorisations =================================================================== -->
+    <string name="perm_continue">Continuer</string>
+    <string name="perm_not_now">Plus tard</string>
+    <string name="perm_notification_title">Afficher le débit dans la barre d\'état</string>
+    <string name="perm_notification_body_speed">NetSpeed affiche une seule notification persistante contenant le débit en direct, afin que vous puissiez le consulter sans ouvrir l\'application. Android requiert votre autorisation pour l\'afficher.</string>
+    <string name="perm_notification_body_settings">NetSpeed affiche une seule notification persistante contenant le débit en direct. Android requiert votre autorisation pour l\'afficher. Si vous refusez, tout le reste de l\'application continue de fonctionner.</string>
+    <string name="perm_phone_state_title">Lire votre signal mobile</string>
+    <string name="perm_phone_state_body">La puissance du signal d\'une connexion mobile provient de la radio du téléphone, qu\'Android protège par une autorisation. Les autres détails du réseau s\'affichent dans tous les cas.</string>
+
+    <!-- ===== Notification de surveillance ==================================================== -->
+    <string name="notif_channel_name">Surveillance Net Speed</string>
+    <string name="notif_channel_description">Affiche le débit Internet et la consommation de données en temps réel</string>
+    <string name="notif_summary">Surveillance Net Speed</string>
+    <string name="notif_total">%1$s au total</string>
+    <string name="notif_with_signal">%1$s | Signal : %2$s</string>
+    <string name="notif_line_total">Total : %1$s</string>
+    <string name="notif_line_download">Téléchargement : %1$s</string>
+    <string name="notif_line_upload">Envoi : %1$s</string>
+    <string name="notif_line_signal">Signal : %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Données mobiles : %1$s</string>
+    <string name="notif_line_wifi_data">Données Wi-Fi : %1$s</string>
+
+    <!-- ===== Alertes de limite de données ==================================================== -->
+    <string name="alert_channel_name">Alertes de limite de données</string>
+    <string name="alert_channel_description">Avertit quand les données mobiles approchent ou dépassent votre limite</string>
+    <string name="alert_limit_reached_title">Limite de données mobiles atteinte</string>
+    <string name="alert_limit_reached_body">%1$s sur %2$s utilisés ce cycle.</string>
+    <string name="alert_approaching_title">%1$d%% des données mobiles utilisées</string>
+    <string name="alert_approaching_body">%1$s sur %2$s utilisés. %3$s restants ce cycle.</string>
+    <string name="alert_roaming_title">Itinérance — les données mobiles peuvent être facturées en plus</string>
+    <string name="alert_roaming_body">Vous êtes sur un réseau en itinérance. %1$s de données mobiles utilisées ce cycle.</string>
+    <string name="alert_app_limit_one_title">%1$s a dépassé sa limite de données</string>
+    <string name="alert_background_one_title">%1$s a consommé des données en arrière-plan</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s sur %3$s</string>
+
+    <!-- ===== Widgets et tuile ================================================================ -->
+    <string name="widget_speed_description">Débit de téléchargement et d\'envoi en direct</string>
+    <string name="widget_usage_title">Données mobiles ce cycle</string>
+    <string name="widget_usage_description">Données utilisées par rapport à votre limite</string>
+    <string name="widget_today_total">Aujourd\'hui %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · dépassement prévu</string>
+
+    <!-- ===== Pluriels ======================================================================== -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d seconde</item>
+        <item quantity="many">%1$d secondes</item>
+        <item quantity="other">%1$d secondes</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d application a dépassé sa limite de données</item>
+        <item quantity="many">%1$d applications ont dépassé leur limite de données</item>
+        <item quantity="other">%1$d applications ont dépassé leur limite de données</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d application a consommé des données en arrière-plan</item>
+        <item quantity="many">%1$d applications ont consommé des données en arrière-plan</item>
+        <item quantity="other">%1$d applications ont consommé des données en arrière-plan</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">%1$d jour restant</item>
+        <item quantity="many">%1$d jours restants</item>
+        <item quantity="other">%1$d jours restants</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">limite dans %1$d jour</item>
+        <item quantity="many">limite dans %1$d jours</item>
+        <item quantity="other">limite dans %1$d jours</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="many">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

@@ -1,110 +1,364 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Every user-facing string in the app lives here.
+
+    Rules for anyone adding to this file:
+      * Positional arguments only (%1$s, %2$d). Translators reorder them; a bare %s crashes
+        the moment a language needs a different word order.
+      * Anything carrying a count goes in a plurals element, never an if/else in Kotlin.
+        Russian, Arabic and Polish have more than two forms and no amount of branching
+        gets them right.
+      * translatable="false" for the brand and for unit symbols. "MB/s" and "ms" are written
+        the same worldwide; translating them would be wrong, not merely unnecessary.
+-->
 <resources>
-    <string name="app_name">Net Speed</string>
-    <string name="app_description">Real-time Internet Speed Monitor</string>
 
-    <!-- Speed Screen -->
-    <string name="speed_screen_title">Net Speed</string>
-    <string name="speed_screen_subtitle">Real-time Internet Monitor</string>
-    <string name="download_speed">Download</string>
-    <string name="upload_speed">Upload</string>
-    <string name="ping_label">Ping</string>
-    <string name="peak_download">Peak Download</string>
-    <string name="session_time">Session Time</string>
-    <string name="wifi_connected">WiFi Connected</string>
-    <string name="mobile_connected">Mobile Connected</string>
-    <string name="no_connection">No Connection</string>
-    <string name="data_usage_today">Data Usage Today</string>
-    <string name="wifi_usage">WiFi</string>
-    <string name="mobile_usage">Mobile</string>
-    <string name="total_usage">Total</string>
+    <!-- ===== Brand and units: never translated ================================================ -->
+    <string name="app_name" translatable="false">Net Speed</string>
 
-    <!-- Usage Screen -->
-    <string name="usage_screen_title">Data Usage</string>
-    <string name="usage_screen_subtitle">Monitor your daily and monthly consumption</string>
-    <string name="today_usage">Today\'s Usage</string>
-    <string name="monthly_usage">This Month</string>
-    <string name="session_usage">Session Usage</string>
-    <string name="weekly_overview">Weekly Overview</string>
-    <string name="data_limit">of 25 GB limit</string>
-    <string name="current_session">Current session</string>
+    <string name="unit_kilobytes_per_second" translatable="false">KB/s</string>
+    <string name="unit_megabytes_per_second" translatable="false">MB/s</string>
+    <string name="unit_kilobits_per_second" translatable="false">Kbps</string>
+    <string name="unit_megabits_per_second" translatable="false">Mbps</string>
+    <string name="unit_milliseconds" translatable="false">ms</string>
+    <string name="band_2_4_ghz" translatable="false">2.4 GHz</string>
+    <string name="band_5_ghz" translatable="false">5 GHz</string>
+    <string name="band_6_ghz" translatable="false">6 GHz</string>
+    <string name="transport_wifi" translatable="false">Wi-Fi</string>
 
-    <!-- Settings Screen -->
-    <string name="settings_screen_title">Settings</string>
-    <string name="settings_screen_subtitle">Customize your monitoring preferences</string>
+    <!-- Value plus its unit symbol, e.g. "12.4 Mbps". Separator only; nothing to translate. -->
+    <string name="value_with_unit" translatable="false">%1$s %2$s</string>
+    <string name="measure_megabits_per_second" translatable="false">%1$s Mbps</string>
+    <string name="measure_kilobits_per_second" translatable="false">%1$s Kbps</string>
+    <string name="measure_milliseconds" translatable="false">%1$s ms</string>
+    <string name="measure_dbm" translatable="false">%1$d dBm</string>
+    <string name="measure_mhz" translatable="false">%1$d MHz</string>
+    <string name="measure_percent" translatable="false">%1$d%%</string>
+    <string name="measure_sp" translatable="false">%1$d sp</string>
+    <string name="measure_gigabytes_whole" translatable="false">%1$d GB</string>
 
-    <!-- Notification Settings -->
-    <string name="notification_section">Notification</string>
-    <string name="show_speed_notification">Show Speed Notification</string>
-    <string name="show_speed_notification_desc">Display real-time speed in notification bar</string>
-    <string name="update_frequency">Update Frequency</string>
-    <string name="update_frequency_desc">How often to refresh speed data</string>
-    <string name="notification_style">Notification Style</string>
-    <string name="notification_style_desc">Choose compact or detailed view</string>
+    <!-- The em dash standing in for a figure that has not been measured. -->
+    <string name="value_none_measured" translatable="false">—</string>
+    <string name="value_unknown">Unknown</string>
 
-    <!-- Monitoring Settings -->
-    <string name="monitoring_section">Monitoring</string>
-    <string name="monitor_wifi">Monitor WiFi</string>
-    <string name="monitor_wifi_desc">Track WiFi speed and usage</string>
-    <string name="monitor_mobile">Monitor Mobile Data</string>
-    <string name="monitor_mobile_desc">Track mobile data speed and usage</string>
-    <string name="background_monitoring">Background Monitoring</string>
-    <string name="background_monitoring_desc">Continue monitoring when app is closed</string>
-
-    <!-- Data & Privacy Settings -->
-    <string name="data_privacy_section">Data &amp; Privacy</string>
-    <string name="monthly_reset_date">Monthly Reset Date</string>
-    <string name="monthly_reset_date_desc">When to reset monthly usage counter</string>
-    <string name="data_limit_alert">Data Limit Alert</string>
-    <string name="data_limit_alert_desc">Warn when approaching data limit</string>
-    <string name="export_usage_data">Export Usage Data</string>
-    <string name="export_usage_data_desc">Export your usage history</string>
-
-    <!-- Appearance Settings -->
-    <string name="appearance_section">Appearance</string>
-    <string name="dark_theme">Dark Theme</string>
-    <string name="dark_theme_desc">Use dark theme throughout the app</string>
-    <string name="speed_units">Speed Units</string>
-    <string name="speed_units_desc">Choose preferred speed units</string>
-
-    <!-- Navigation -->
+    <!-- ===== Navigation ====================================================================== -->
     <string name="nav_speed">Speed</string>
     <string name="nav_usage">Usage</string>
+    <string name="nav_history">History</string>
     <string name="nav_settings">Settings</string>
 
-    <!-- Notification -->
-    <string name="notification_channel_name">Speed Monitor</string>
-    <string name="notification_channel_desc">Shows real-time internet speed</string>
-    <string name="notification_title">Net Speed</string>
-    <string name="notification_stop">Stop</string>
+    <!-- ===== Connection naming =============================================================== -->
+    <string name="connection_mobile_data">Mobile data</string>
+    <string name="connection_mobile_short">Mobile</string>
+    <string name="connection_offline">Offline</string>
+    <string name="connection_none">No connection</string>
+    <!-- Network name next to its transport, e.g. "Mobiuz · Mobile data". -->
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
 
-    <!-- Units -->
-    <string name="unit_bps">B/s</string>
-    <string name="unit_kbps">KB/s</string>
-    <string name="unit_mbps">MB/s</string>
-    <string name="unit_gbps">GB/s</string>
-    <string name="unit_bytes">B</string>
-    <string name="unit_kb">KB</string>
-    <string name="unit_mb">MB</string>
-    <string name="unit_gb">GB</string>
-    <string name="unit_ms">ms</string>
+    <!-- ===== Speed screen ==================================================================== -->
+    <string name="speed_download">Download</string>
+    <string name="speed_upload">Upload</string>
+    <string name="speed_network_details">Network details</string>
+    <string name="speed_dial_idle_caption">Speed test</string>
+    <string name="speed_dial_latency_caption">Latency</string>
+    <string name="speed_dial_failed_caption">Test failed</string>
 
-    <!-- Time -->
-    <string name="time_seconds">s</string>
-    <string name="time_minutes">m</string>
-    <string name="time_hours">h</string>
+    <!-- Offer to put the live figure in the status bar. -->
+    <string name="speed_notification_offer_title">Keep this speed in your status bar</string>
+    <string name="speed_notification_offer_body">See it without opening the app</string>
+    <string name="speed_notification_offer_action">Turn on</string>
+    <string name="speed_notification_offer_dismiss">Dismiss</string>
 
-    <!-- Values -->
-    <string name="value_auto">Auto</string>
-    <string name="value_detailed">Detailed</string>
-    <string name="value_compact">Compact</string>
-    <string name="value_export">Export</string>
-    <string name="value_1st">1st</string>
-    <string name="value_1_second">1 second</string>
-    <string name="widget_placeholder_speed">--</string>
-    <string name="widget_placeholder_today">Today --</string>
-    <string name="widget_description">Live download and upload speed</string>
-    <string name="tile_label">Net Speed</string>
+    <!-- ===== Speed test ====================================================================== -->
+    <string name="speed_test_run">Run speed test</string>
+    <string name="speed_test_again">Test again</string>
+    <string name="speed_test_cancel">Cancel</string>
+    <string name="speed_test_phase_latency">Latency</string>
+    <string name="speed_test_phase_download">Download</string>
+    <string name="speed_test_phase_upload">Upload</string>
+    <string name="speed_test_result_ping">Ping</string>
+    <string name="speed_test_result_jitter">Jitter</string>
+    <string name="speed_test_footer">Tested via Cloudflare · results stay on your device</string>
+    <string name="speed_test_error_generic">Speed test failed.</string>
+    <string name="speed_test_error_no_internet">No internet connection. The test server could not be reached.</string>
+    <string name="speed_test_error_interrupted">Connection interrupted. Check your network and try again.</string>
+
+    <!-- ===== Usage screen ==================================================================== -->
+    <string name="usage_by_app">By app</string>
+    <string name="usage_today">Today</string>
+    <string name="usage_billing_cycle">Billing cycle</string>
+    <string name="usage_this_cycle">This cycle</string>
+    <string name="usage_last_7_days">Last 7 days</string>
+    <string name="usage_last_30_days">Last 30 days</string>
+    <string name="usage_total">Total</string>
+    <string name="usage_exact">Exact</string>
+    <string name="usage_estimated">Estimated</string>
+    <string name="usage_empty_period">No app traffic recorded for this period yet.</string>
+    <string name="usage_empty_chart">No usage recorded yet</string>
+    <string name="usage_chart_peak">peak %1$s</string>
+    <!-- Mobile and Wi-Fi split under an app name in the per-app list. -->
+    <string name="usage_app_split">Mobile %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Could not open usage access settings on this device</string>
+
+    <!-- Usage-access primer, shown in place of the per-app list until it is granted. -->
+    <string name="usage_access_title">Turn on usage access</string>
+    <string name="usage_access_body">Shows which apps use your data, and makes totals match Android Settings. Nothing leaves your device.</string>
+    <string name="usage_access_action">Open settings</string>
+
+    <!-- ===== History screen ================================================================== -->
+    <string name="history_column_date">Date</string>
+    <string name="history_empty">No usage recorded yet.\nHistory builds up as monitoring runs.</string>
+
+    <!-- ===== Data limit card ================================================================= -->
+    <string name="limit_card_title">Mobile data this cycle</string>
+    <!-- "4.0 GB of 25.0 GB · 21.0 GB left" -->
+    <string name="limit_forecast_within">Heading for %1$s · within limit</string>
+    <string name="limit_forecast_over_by">Heading for %1$s · %2$s over</string>
+    <string name="limit_forecast_over_when">Heading for %1$s · over %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s of %2$s · %3$s left</string>
+    <string name="limit_used_of_total_reached">%1$s of %2$s — limit reached</string>
+    <!-- Deliberately abbreviated: the forecast line must stay on one row inside a status card. -->
+    <string name="limit_forecast_when_tomorrow">tomorrow</string>
+    <string name="limit_forecast_in_days">in %1$dd</string>
+    <string name="threshold_percent_of_limit">%1$d%% of limit</string>
+    <string name="limit_none_set">No limit set</string>
+    <string name="limit_percent_of_total">%1$d%% of %2$s</string>
+
+    <!-- ===== App usage detail dialog ========================================================= -->
+    <string name="app_detail_total">Total</string>
+    <string name="app_detail_mobile">Mobile</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Foreground</string>
+    <string name="app_detail_background">Background</string>
+    <string name="app_detail_no_split">No foreground/background split on this device.</string>
+    <string name="app_detail_share_of_period">Share of period</string>
+    <string name="app_detail_limit_this_cycle">Limit this cycle</string>
+    <string name="app_detail_limit_none">No limit</string>
+    <string name="app_detail_limit_set">Set limit</string>
+    <string name="app_detail_limit_title">Limit for %1$s</string>
+    <string name="app_detail_app_info">App info</string>
+    <!-- "1.2 GB / 3.4 GB" -->
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Day usage detail dialog ========================================================= -->
+    <string name="day_detail_top_apps">Top apps</string>
+    <string name="day_detail_empty">No per-app data for this day.</string>
+    <string name="day_detail_share_of_limit">Daily share of limit · %1$s</string>
+    <string name="day_detail_total_suffix">%1$s total</string>
+
+    <!-- ===== Network details sheet =========================================================== -->
+    <string name="details_empty">No details available for this connection.</string>
+    <string name="details_section_connection">Connection</string>
+    <string name="details_section_addresses">Addresses</string>
+    <string name="details_section_radio">Radio</string>
+    <string name="details_section_carrier">Carrier</string>
+    <string name="details_network">Network</string>
+    <string name="details_nothing_connected">Nothing is connected right now</string>
+    <string name="details_internet">Internet</string>
+    <string name="details_reachable">Reachable</string>
+    <string name="details_not_verified">Connected, not verified</string>
+    <string name="details_metered">Metered</string>
+    <string name="details_roaming">Roaming</string>
+    <string name="details_yes">Yes</string>
+    <string name="details_no">No</string>
+    <string name="details_estimated_downlink">Estimated downlink</string>
+    <string name="details_estimated_uplink">Estimated uplink</string>
+    <string name="details_interface">Interface</string>
+    <string name="details_dns" translatable="false">DNS</string>
+    <string name="details_ipv4">IPv4 address</string>
+    <string name="details_ipv6">IPv6 address</string>
+    <string name="details_link_speed">Link speed</string>
+    <string name="details_tx_link_speed">Tx link speed</string>
+    <string name="details_rx_link_speed">Rx link speed</string>
+    <string name="details_frequency">Frequency</string>
+    <string name="details_band">Band</string>
+    <string name="details_signal">Signal</string>
+    <string name="details_operator">Operator</string>
+    <string name="details_sim_operator">SIM operator</string>
+
+    <!-- ===== Synthetic app names in the per-app breakdown ===================================== -->
+    <string name="traffic_tethering">Tethering</string>
+    <string name="traffic_removed_apps">Removed apps</string>
+    <string name="traffic_all">All traffic</string>
+    <string name="traffic_android_os">Android OS</string>
+    <string name="traffic_root">Root</string>
+    <string name="traffic_telephony">Telephony</string>
+    <string name="traffic_media_server">Media server</string>
+    <string name="traffic_drm_service">DRM service</string>
+    <string name="traffic_network_stack">Network stack</string>
+    <string name="traffic_gps" translatable="false">GPS</string>
+    <string name="traffic_nobody">Nobody</string>
+    <!-- A uid with no resolvable package, e.g. "System service (uid 10198)". -->
+    <string name="traffic_system_service">System service (uid %1$d)</string>
+
+    <!-- ===== Settings: sections ============================================================== -->
+    <string name="settings_section_notification">Notification</string>
+    <string name="settings_section_monitoring">Monitoring</string>
+    <string name="settings_section_overlay">Floating overlay</string>
+    <string name="settings_section_data_limit">Data limit</string>
+    <string name="settings_section_alerts">Alerts</string>
+    <string name="settings_section_device">Device</string>
+    <string name="settings_section_appearance">Appearance</string>
+
+    <!-- ===== Settings: rows ================================================================== -->
+    <string name="settings_monitor_speed">Monitor network speed</string>
+    <string name="settings_update_frequency">Update frequency</string>
+    <string name="settings_notification_style">Notification style</string>
+    <string name="settings_status_bar_shows">Status bar shows</string>
+    <string name="settings_speed_units">Speed units</string>
+    <string name="settings_monitor_wifi">Monitor Wi-Fi</string>
+    <string name="settings_monitor_mobile">Monitor mobile data</string>
+    <string name="settings_background_monitoring">Keep monitoring in background</string>
+    <string name="settings_start_on_boot">Start after device restart</string>
+    <string name="settings_show_overlay">Show floating overlay</string>
+    <string name="settings_overlay_size">Overlay text size</string>
+    <string name="settings_overlay_colour">Overlay text colour</string>
+    <string name="settings_overlay_opacity">Overlay background opacity</string>
+    <string name="settings_billing_cycle_start">Billing cycle starts on</string>
+    <string name="settings_mobile_data_limit">Mobile data limit</string>
+    <string name="settings_warn_before_limit">Warn before data limit</string>
+    <string name="settings_warn_at">Warn at</string>
+    <string name="settings_warn_roaming">Warn when roaming</string>
+    <string name="settings_warn_background_data">Warn about background data</string>
+    <string name="settings_warn_above">Warn above</string>
+    <string name="settings_autostart">Allow autostart</string>
+    <string name="settings_battery_unrestricted">Allow unrestricted battery</string>
+    <string name="settings_language">Language</string>
+    <string name="dialog_language">Language</string>
+    <!-- Shown when the app follows whatever the device is set to, which is the default. -->
+    <string name="language_system_default">System default</string>
+    <string name="settings_dark_theme">Dark theme</string>
+    <string name="settings_dynamic_colour">Match wallpaper colours</string>
+    <string name="settings_more_apps">More apps</string>
+    <string name="settings_more_apps_subtitle">Everything else from Sulton UzDev</string>
+    <!-- Value shown on a row that opens a system settings page. -->
+    <string name="settings_value_open">Settings</string>
+    <string name="settings_value_none">None</string>
+
+    <!-- Banner shown when notifications are refused but monitoring is on. -->
+    <string name="settings_notifications_off">Notifications are off, so the speed cannot appear in your status bar. Tap to turn them on.</string>
+
+    <!-- ===== Settings: dialog titles ========================================================= -->
+    <string name="dialog_update_frequency">Update Frequency</string>
+    <string name="dialog_notification_style">Notification Style</string>
+    <string name="dialog_speed_display">Speed Display</string>
+    <string name="dialog_speed_units">Speed Units</string>
+    <string name="dialog_monthly_reset_date">Monthly Reset Date</string>
+    <string name="dialog_mobile_data_limit">Mobile Data Limit</string>
+    <string name="dialog_warn_at">Warn At</string>
+    <string name="dialog_background_threshold">Background data threshold</string>
+    <string name="dialog_overlay_size">Overlay Size</string>
+    <string name="dialog_overlay_colour">Overlay Color</string>
+    <string name="dialog_overlay_opacity">Overlay Transparency</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_close">Close</string>
+
+    <!-- ===== Option values ==================================================================== -->
+    <string name="option_auto">Auto</string>
+    <string name="option_compact">Compact</string>
+    <string name="option_detailed">Detailed</string>
+    <string name="option_custom">Custom</string>
+    <string name="display_download_only">Download only</string>
+    <string name="display_upload_only">Upload only</string>
+    <string name="display_combined_total">Combined total</string>
+    <string name="display_download_and_upload">Download and upload</string>
+
+    <string name="colour_white">White</string>
+    <string name="colour_black">Black</string>
+    <string name="colour_cyan">Cyan</string>
+    <string name="colour_green">Green</string>
+    <string name="colour_amber">Amber</string>
+    <string name="colour_red">Red</string>
+
+    <!-- Day of the month a billing cycle starts on. English needs four ordinal suffixes; most
+         languages need none, so each is a separate string rather than a suffix concatenated in
+         Kotlin. -->
+    <string name="ordinal_day_st">%1$dst</string>
+    <string name="ordinal_day_nd">%1$dnd</string>
+    <string name="ordinal_day_rd">%1$drd</string>
+    <string name="ordinal_day_th">%1$dth</string>
+
+    <!-- ===== Permission rationales =========================================================== -->
+    <string name="perm_continue">Continue</string>
+    <string name="perm_not_now">Not now</string>
+    <string name="perm_notification_title">Show the speed in your status bar</string>
+    <string name="perm_notification_body_speed">NetSpeed posts one ongoing notification carrying the live figure, so you can see your speed without opening the app. Android needs your permission to show it.</string>
+    <string name="perm_notification_body_settings">NetSpeed posts one ongoing notification carrying the live figure. Android needs your permission to show it. Everything in the app keeps working if you say no.</string>
+    <string name="perm_phone_state_title">Read your mobile signal</string>
+    <string name="perm_phone_state_body">Signal strength for a mobile connection comes from the phone\'s radio, which Android keeps behind a permission. The rest of the network details are shown either way.</string>
+
+    <!-- ===== Monitoring notification ========================================================= -->
+    <string name="notif_channel_name">Net Speed Monitor</string>
+    <string name="notif_channel_description">Shows real-time internet speed and data usage</string>
+    <string name="notif_summary">Net Speed Monitor</string>
+    <!-- Compact status line, e.g. "↓ 1.2 MB/s    ↑ 300 KB/s". -->
+    <string name="notif_down_up" translatable="false">↓ %1$s    ↑ %2$s</string>
+    <string name="notif_down_only" translatable="false">↓ %1$s</string>
+    <string name="notif_up_only" translatable="false">↑ %1$s</string>
+    <string name="notif_down_with_network" translatable="false">↓%1$s | %2$s</string>
+    <string name="notif_up_with_network" translatable="false">↑%1$s | %2$s</string>
+    <string name="notif_total">%1$s total</string>
+    <string name="notif_with_signal">%1$s | Signal: %2$s</string>
+    <string name="notif_line_total">Total: %1$s</string>
+    <string name="notif_line_download">Download: %1$s</string>
+    <string name="notif_line_upload">Upload: %1$s</string>
+    <string name="notif_line_signal">Signal: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Mobile Data: %1$s</string>
+    <string name="notif_line_wifi_data">WiFi Data: %1$s</string>
+
+    <!-- ===== Data-limit alerts =============================================================== -->
+    <string name="alert_channel_name">Data limit alerts</string>
+    <string name="alert_channel_description">Warns when mobile data approaches or passes your limit</string>
+    <string name="alert_limit_reached_title">Mobile data limit reached</string>
+    <string name="alert_limit_reached_body">%1$s of %2$s used this cycle.</string>
+    <string name="alert_approaching_title">%1$d%% of mobile data used</string>
+    <string name="alert_approaching_body">%1$s of %2$s used. %3$s left this cycle.</string>
+    <string name="alert_roaming_title">Roaming — mobile data may cost extra</string>
+    <string name="alert_roaming_body">You are on a roaming network. %1$s of mobile data used this cycle so far.</string>
+    <string name="alert_app_limit_one_title">%1$s passed its data limit</string>
+    <string name="alert_background_one_title">%1$s used data in the background</string>
+    <!-- One line per app inside an expanded alert, e.g. "Chrome — 1.2 GB". -->
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s of %3$s</string>
+
+    <!-- ===== Widgets and tile ================================================================ -->
+    <string name="tile_label" translatable="false">Net Speed</string>
+    <string name="widget_speed_description">Live download and upload speed</string>
     <string name="widget_usage_title">Mobile data this cycle</string>
     <string name="widget_usage_description">Data used against your limit</string>
+    <string name="widget_placeholder_speed" translatable="false">--</string>
+    <string name="widget_today_total">Today %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · heading over</string>
+
+    <!-- ===== Plurals ========================================================================= -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d app passed its data limit</item>
+        <item quantity="other">%1$d apps passed their data limits</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d app used data in the background</item>
+        <item quantity="other">%1$d apps used data in the background</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">limit in %1$d day</item>
+        <item quantity="other">limit in %1$d days</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
 </resources>

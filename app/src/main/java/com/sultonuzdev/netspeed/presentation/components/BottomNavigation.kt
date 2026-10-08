@@ -30,6 +30,9 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.Icon
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,6 +45,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -57,14 +63,16 @@ val BottomNavigationHeight = 82.dp
 private data class NavDestination(
     val icon: ImageVector,
     val selectedIcon: ImageVector,
-    val label: String
+    // The id rather than the text: this list is a top-level val, built long before any
+    // composition exists to resolve a resource against.
+    @param:StringRes val label: Int
 )
 
 private val destinations = listOf(
-    NavDestination(Icons.Outlined.Speed, Icons.Filled.Speed, "Speed"),
-    NavDestination(Icons.Outlined.BarChart, Icons.Filled.BarChart, "Usage"),
-    NavDestination(Icons.Outlined.History, Icons.Filled.History, "History"),
-    NavDestination(Icons.Outlined.Settings, Icons.Filled.Settings, "Settings")
+    NavDestination(Icons.Outlined.Speed, Icons.Filled.Speed, R.string.nav_speed),
+    NavDestination(Icons.Outlined.BarChart, Icons.Filled.BarChart, R.string.nav_usage),
+    NavDestination(Icons.Outlined.History, Icons.Filled.History, R.string.nav_history),
+    NavDestination(Icons.Outlined.Settings, Icons.Filled.Settings, R.string.nav_settings)
 )
 
 /**
@@ -173,7 +181,7 @@ private fun NavItem(
         ) {
             Icon(
                 imageVector = if (isSelected) destination.selectedIcon else destination.icon,
-                contentDescription = destination.label,
+                contentDescription = stringResource(destination.label),
                 tint = tint,
                 modifier = Modifier
                     .size(24.dp)
@@ -182,12 +190,23 @@ private fun NavItem(
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = destination.label,
+            text = stringResource(destination.label),
             style = MaterialTheme.typography.bodySmall.copy(
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             ),
             color = tint,
-            maxLines = 1
+            maxLines = 1,
+            // Four labels share the width equally, so a long translation has nowhere to go and
+            // nowhere to wrap. Shrinking beats truncating here: "Configurações" (pt-BR, 13 chars)
+            // and "Налаштування" (uk, 12) are the standard terms in their languages, so clipping
+            // them to "Configuraçõ…" would be the app's fault, not the translation's. The floor
+            // is 8sp; below that it stops being readable, and ellipsis takes over as last resort.
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = 8.sp,
+                maxFontSize = MaterialTheme.typography.bodySmall.fontSize,
+                stepSize = 0.5.sp
+            ),
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

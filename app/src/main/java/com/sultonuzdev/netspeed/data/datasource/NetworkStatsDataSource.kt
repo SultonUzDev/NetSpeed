@@ -3,6 +3,7 @@ package com.sultonuzdev.netspeed.data.datasource
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.content.Context
+import com.sultonuzdev.netspeed.R
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Process
@@ -250,13 +251,20 @@ class NetworkStatsDataSource(private val context: Context) {
     /** Maps a uid to (packageName, displayLabel), covering the platform's synthetic uids. */
     private fun resolveUid(uid: Int): Pair<String, String> {
         when (uid) {
-            NetworkStats.Bucket.UID_TETHERING -> return TETHERING_PACKAGE to "Tethering"
-            NetworkStats.Bucket.UID_REMOVED -> return REMOVED_PACKAGE to "Removed apps"
-            NetworkStats.Bucket.UID_ALL -> return ALL_PACKAGE to "All traffic"
-            Process.SYSTEM_UID -> return "android" to "Android OS"
+            NetworkStats.Bucket.UID_TETHERING ->
+                return TETHERING_PACKAGE to context.getString(R.string.traffic_tethering)
+
+            NetworkStats.Bucket.UID_REMOVED ->
+                return REMOVED_PACKAGE to context.getString(R.string.traffic_removed_apps)
+
+            NetworkStats.Bucket.UID_ALL ->
+                return ALL_PACKAGE to context.getString(R.string.traffic_all)
+
+            Process.SYSTEM_UID ->
+                return "android" to context.getString(R.string.traffic_android_os)
         }
 
-        SYSTEM_UID_LABELS[uid]?.let { return "android" to it }
+        SYSTEM_UID_LABELS[uid]?.let { return "android" to context.getString(it) }
 
         val packages = try {
             packageManager.getPackagesForUid(uid)
@@ -273,7 +281,16 @@ class NetworkStatsDataSource(private val context: Context) {
             } catch (e: Exception) {
                 primary
             }
-            val suffix = if (packages.size > 1) " (+${packages.size - 1})" else ""
+            // "Google Play services (+1)" when several packages share one uid.
+            val suffix = if (packages.size > 1) {
+                " " + context.resources.getQuantityString(
+                    R.plurals.extra_packages,
+                    packages.size - 1,
+                    packages.size - 1
+                )
+            } else {
+                ""
+            }
             return primary to (label + suffix)
         }
 
@@ -289,7 +306,7 @@ class NetworkStatsDataSource(private val context: Context) {
             return fallbackName to prettifyUidName(fallbackName)
         }
 
-        return "uid:$uid" to "System service (uid $uid)"
+        return "uid:$uid" to context.getString(R.string.traffic_system_service, uid)
     }
 
     /** Turns "shared:android.uid.system" or "com.foo.bar" into something readable. */
@@ -304,13 +321,13 @@ class NetworkStatsDataSource(private val context: Context) {
     companion object {
         /** Well-known platform uids, which never map to an installed package. */
         private val SYSTEM_UID_LABELS = mapOf(
-            0 to "Root",
-            1001 to "Telephony",
-            1013 to "Media server",
-            1019 to "DRM service",
-            1021 to "GPS",
-            1073 to "Network stack",
-            9999 to "Nobody"
+            0 to R.string.traffic_root,
+            1001 to R.string.traffic_telephony,
+            1013 to R.string.traffic_media_server,
+            1019 to R.string.traffic_drm_service,
+            1021 to R.string.traffic_gps,
+            1073 to R.string.traffic_network_stack,
+            9999 to R.string.traffic_nobody
         )
 
         const val TETHERING_PACKAGE = "com.sultonuzdev.netspeed.tethering"

@@ -73,6 +73,10 @@ android {
         debug {
             isDebuggable = true
             applicationIdSuffix = ".debug"
+            // en-XA doubles every translated string and brackets it, so anything still hardcoded
+            // stays plain English and stands out; ar-XB mirrors the layout to surface RTL breaks
+            // without anyone having to read Arabic.
+            isPseudoLocalesEnabled = true
         }
     }
 

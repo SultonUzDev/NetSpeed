@@ -2,8 +2,9 @@ package com.sultonuzdev.netspeed.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sultonuzdev.netspeed.R
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
-import com.sultonuzdev.netspeed.utils.NetworkUtils
+import com.sultonuzdev.netspeed.presentation.screens.settings.contract.SettingsUiState
 import com.sultonuzdev.netspeed.utils.NotificationStyle
 import com.sultonuzdev.netspeed.utils.SpeedDisplayMode
 import com.sultonuzdev.netspeed.utils.SpeedUnit
@@ -74,13 +75,13 @@ class SettingsViewModel(
     val overlayOpacityOptions = listOf(0, 25, 40, 55, 70, 85, 100)
 
     /** A small named palette: a full colour picker is more UI than this setting deserves. */
-    val overlayColorOptions: List<Pair<Int, String>> = listOf(
-        0xFFFFFFFF.toInt() to "White",
-        0xFF00E5FF.toInt() to "Cyan",
-        0xFF69F0AE.toInt() to "Green",
-        0xFFFFD54F.toInt() to "Amber",
-        0xFFFF8A80.toInt() to "Red",
-        0xFF000000.toInt() to "Black"
+    val overlayColorOptions: List<Pair<Int, Int>> = listOf(
+        0xFFFFFFFF.toInt() to R.string.colour_white,
+        0xFF00E5FF.toInt() to R.string.colour_cyan,
+        0xFF69F0AE.toInt() to R.string.colour_green,
+        0xFFFFD54F.toInt() to R.string.colour_amber,
+        0xFFFF8A80.toInt() to R.string.colour_red,
+        0xFF000000.toInt() to R.string.colour_black
     )
     val dateOptions = (1..28).toList()
 
@@ -114,15 +115,14 @@ class SettingsViewModel(
             ) { values ->
                 SettingsUiState(
                     monitoringEnabled = values[0] as Boolean,
-                    updateFrequency = formatFrequencyText(values[1] as Int),
+                    updateFrequencySeconds = values[1] as Int,
                     notificationStyle = values[2] as NotificationStyle,
                     monitorWifi = values[3] as Boolean,
                     monitorMobile = values[4] as Boolean,
                     backgroundMonitoring = values[5] as Boolean,
-                    monthlyResetDate = formatDateText(values[6] as Int),
+                    monthlyResetDay = values[6] as Int,
                     dataLimitAlert = values[7] as Boolean,
                     darkTheme = values[8] as Boolean,
-                    speedUnits = SpeedUnit.fromPrefName(values[9] as String).label,
                     speedUnit = SpeedUnit.fromPrefName(values[9] as String)
                 )
             }
@@ -137,9 +137,7 @@ class SettingsViewModel(
             ) { state, startOnBoot, limit, threshold, displayMode ->
                 state.copy(
                     startOnBoot = startOnBoot,
-                    dataLimit = NetworkUtils.formatBytes(limit),
                     dataLimitBytes = limit,
-                    warningThreshold = "$threshold%",
                     warningThresholdPercent = threshold,
                     speedDisplayMode = displayMode
                 )
@@ -159,7 +157,6 @@ class SettingsViewModel(
                 state.copy(
                     roamingAlert = roaming,
                     backgroundDataAlert = backgroundAlert,
-                    backgroundDataThreshold = NetworkUtils.formatBytes(threshold),
                     backgroundDataThresholdBytes = threshold
                 )
             }
@@ -175,8 +172,8 @@ class SettingsViewModel(
                     overlayEnabled = enabled,
                     overlayTextSize = textSize,
                     overlayColor = color,
-                    overlayColorName = overlayColorOptions
-                        .firstOrNull { it.first == color }?.second ?: "Custom",
+                    overlayColorLabel = overlayColorOptions
+                        .firstOrNull { it.first == color }?.second ?: R.string.option_custom,
                     overlayOpacity = opacity
                 )
             }.collect { newState ->
@@ -409,17 +406,4 @@ class SettingsViewModel(
     }
 
     // Formatting helper functions
-    private fun formatFrequencyText(frequency: Int): String {
-        return if (frequency == 1) "1 second" else "$frequency seconds"
-    }
-
-
-    private fun formatDateText(date: Int): String {
-        return when {
-            date % 10 == 1 && date != 11 -> "${date}st"
-            date % 10 == 2 && date != 12 -> "${date}nd"
-            date % 10 == 3 && date != 13 -> "${date}rd"
-            else -> "${date}th"
-        }
-    }
 }

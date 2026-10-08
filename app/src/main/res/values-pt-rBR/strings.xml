@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">Desconhecido</string>
+
+    <!-- ===== Navegação ======================================================================= -->
+    <string name="nav_speed">Velocidade</string>
+    <string name="nav_usage">Uso</string>
+    <string name="nav_history">Histórico</string>
+    <string name="nav_settings">Configurações</string>
+
+    <!-- ===== Nomes de conexão =============================================================== -->
+    <string name="connection_mobile_data">Dados móveis</string>
+    <string name="connection_mobile_short">Móvel</string>
+    <string name="connection_offline">Desconectado</string>
+    <string name="connection_none">Sem conexão</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Tela de velocidade ============================================================= -->
+    <string name="speed_download">Download</string>
+    <string name="speed_upload">Upload</string>
+    <string name="speed_network_details">Detalhes da rede</string>
+    <string name="speed_dial_idle_caption">Teste de velocidade</string>
+    <string name="speed_dial_latency_caption">Latência</string>
+    <string name="speed_dial_failed_caption">Falha no teste</string>
+
+    <string name="speed_notification_offer_title">Mantenha esta velocidade na barra de status</string>
+    <string name="speed_notification_offer_body">Veja sem abrir o app</string>
+    <string name="speed_notification_offer_action">Ativar</string>
+    <string name="speed_notification_offer_dismiss">Dispensar</string>
+
+    <!-- ===== Teste de velocidade ============================================================ -->
+    <string name="speed_test_run">Testar velocidade</string>
+    <string name="speed_test_again">Testar novamente</string>
+    <string name="speed_test_cancel">Cancelar</string>
+    <string name="speed_test_phase_latency">Latência</string>
+    <string name="speed_test_phase_download">Download</string>
+    <string name="speed_test_phase_upload">Upload</string>
+    <string name="speed_test_result_ping">Ping</string>
+    <string name="speed_test_result_jitter">Jitter</string>
+    <string name="speed_test_footer">Testado via Cloudflare · os resultados ficam no seu dispositivo</string>
+    <string name="speed_test_error_generic">Falha no teste de velocidade.</string>
+    <string name="speed_test_error_no_internet">Sem conexão com a internet. Não foi possível acessar o servidor de teste.</string>
+    <string name="speed_test_error_interrupted">Conexão interrompida. Verifique sua rede e tente novamente.</string>
+
+    <!-- ===== Tela de uso ==================================================================== -->
+    <string name="usage_by_app">Por app</string>
+    <string name="usage_today">Hoje</string>
+    <string name="usage_billing_cycle">Ciclo de faturamento</string>
+    <string name="usage_this_cycle">Este ciclo</string>
+    <string name="usage_last_7_days">Últimos 7 dias</string>
+    <string name="usage_last_30_days">Últimos 30 dias</string>
+    <string name="usage_total">Total</string>
+    <string name="usage_exact">Exato</string>
+    <string name="usage_estimated">Estimado</string>
+    <string name="usage_empty_period">Nenhum tráfego de apps registrado neste período ainda.</string>
+    <string name="usage_empty_chart">Nenhum uso registrado ainda</string>
+    <string name="usage_chart_peak">pico de %1$s</string>
+    <string name="usage_app_split">Móvel %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Não foi possível abrir as configurações de acesso ao uso neste dispositivo</string>
+
+    <string name="usage_access_title">Ativar acesso ao uso</string>
+    <string name="usage_access_body">Mostra quais apps usam seus dados e faz os totais coincidirem com as configurações do Android. Nada sai do seu dispositivo.</string>
+    <string name="usage_access_action">Abrir configurações</string>
+
+    <!-- ===== Tela de histórico ============================================================== -->
+    <string name="history_column_date">Data</string>
+    <string name="history_empty">Nenhum uso registrado ainda.\nO histórico é formado conforme o monitoramento é executado.</string>
+
+    <!-- ===== Card de limite de dados ======================================================== -->
+    <string name="limit_card_title">Dados móveis neste ciclo</string>
+    <string name="limit_forecast_within">Projeção de %1$s · dentro do limite</string>
+    <string name="limit_forecast_over_by">Projeção de %1$s · %2$s acima</string>
+    <string name="limit_forecast_over_when">Projeção de %1$s · excede %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s de %2$s · restam %3$s</string>
+    <string name="limit_used_of_total_reached">%1$s de %2$s — limite atingido</string>
+    <string name="limit_forecast_when_tomorrow">amanhã</string>
+    <string name="limit_forecast_in_days">em %1$dd</string>
+    <string name="threshold_percent_of_limit">%1$d%% do limite</string>
+    <string name="limit_none_set">Nenhum limite definido</string>
+    <string name="limit_percent_of_total">%1$d%% de %2$s</string>
+
+    <!-- ===== Detalhes de uso do app ========================================================= -->
+    <string name="app_detail_total">Total</string>
+    <string name="app_detail_mobile">Móvel</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Primeiro plano</string>
+    <string name="app_detail_background">Segundo plano</string>
+    <string name="app_detail_no_split">Sem divisão entre primeiro e segundo plano neste dispositivo.</string>
+    <string name="app_detail_share_of_period">Parcela do período</string>
+    <string name="app_detail_limit_this_cycle">Limite neste ciclo</string>
+    <string name="app_detail_limit_none">Sem limite</string>
+    <string name="app_detail_limit_set">Definir limite</string>
+    <string name="app_detail_limit_title">Limite de %1$s</string>
+    <string name="app_detail_app_info">Informações do app</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Detalhes de uso do dia ========================================================= -->
+    <string name="day_detail_top_apps">Apps com mais uso</string>
+    <string name="day_detail_empty">Sem dados por app para este dia.</string>
+    <string name="day_detail_share_of_limit">Parcela diária do limite · %1$s</string>
+    <string name="day_detail_total_suffix">%1$s no total</string>
+
+    <!-- ===== Detalhes da rede =============================================================== -->
+    <string name="details_empty">Nenhum detalhe disponível para esta conexão.</string>
+    <string name="details_section_connection">Conexão</string>
+    <string name="details_section_addresses">Endereços</string>
+    <string name="details_section_radio">Rádio</string>
+    <string name="details_section_carrier">Operadora</string>
+    <string name="details_network">Rede</string>
+    <string name="details_nothing_connected">Nada conectado neste momento</string>
+    <string name="details_internet">Internet</string>
+    <string name="details_reachable">Acessível</string>
+    <string name="details_not_verified">Conectado, não verificado</string>
+    <string name="details_metered">Conexão limitada</string>
+    <string name="details_roaming">Roaming</string>
+    <string name="details_yes">Sim</string>
+    <string name="details_no">Não</string>
+    <string name="details_estimated_downlink">Download estimado</string>
+    <string name="details_estimated_uplink">Upload estimado</string>
+    <string name="details_interface">Interface</string>
+    <string name="details_ipv4">Endereço IPv4</string>
+    <string name="details_ipv6">Endereço IPv6</string>
+    <string name="details_link_speed">Velocidade da conexão</string>
+    <string name="details_tx_link_speed">Velocidade da conexão Tx</string>
+    <string name="details_rx_link_speed">Velocidade da conexão Rx</string>
+    <string name="details_frequency">Frequência</string>
+    <string name="details_band">Faixa</string>
+    <string name="details_signal">Sinal</string>
+    <string name="details_operator">Operadora</string>
+    <string name="details_sim_operator">Operadora do SIM</string>
+
+    <!-- ===== Nomes sintéticos no detalhamento por app ======================================= -->
+    <string name="traffic_tethering">Compartilhamento de conexão</string>
+    <string name="traffic_removed_apps">Apps removidos</string>
+    <string name="traffic_all">Todo o tráfego</string>
+    <string name="traffic_android_os">Sistema Android</string>
+    <string name="traffic_root">Root</string>
+    <string name="traffic_telephony">Telefonia</string>
+    <string name="traffic_media_server">Servidor de mídia</string>
+    <string name="traffic_drm_service">Serviço DRM</string>
+    <string name="traffic_network_stack">Pilha de rede</string>
+    <string name="traffic_nobody">Nobody</string>
+    <string name="traffic_system_service">Serviço do sistema (uid %1$d)</string>
+
+    <!-- ===== Configurações: seções ========================================================== -->
+    <string name="settings_section_notification">Notificação</string>
+    <string name="settings_section_monitoring">Monitoramento</string>
+    <string name="settings_section_overlay">Sobreposição flutuante</string>
+    <string name="settings_section_data_limit">Limite de dados</string>
+    <string name="settings_section_alerts">Alertas</string>
+    <string name="settings_section_device">Dispositivo</string>
+    <string name="settings_section_appearance">Aparência</string>
+
+    <!-- ===== Configurações: linhas ========================================================== -->
+    <string name="settings_monitor_speed">Monitorar velocidade da rede</string>
+    <string name="settings_update_frequency">Frequência de atualização</string>
+    <string name="settings_notification_style">Estilo da notificação</string>
+    <string name="settings_status_bar_shows">Barra de status mostra</string>
+    <string name="settings_speed_units">Unidades de velocidade</string>
+    <string name="settings_monitor_wifi">Monitorar Wi-Fi</string>
+    <string name="settings_monitor_mobile">Monitorar dados móveis</string>
+    <string name="settings_background_monitoring">Manter monitoramento em segundo plano</string>
+    <string name="settings_start_on_boot">Iniciar após reiniciar o dispositivo</string>
+    <string name="settings_show_overlay">Mostrar sobreposição flutuante</string>
+    <string name="settings_overlay_size">Tamanho do texto da sobreposição</string>
+    <string name="settings_overlay_colour">Cor do texto da sobreposição</string>
+    <string name="settings_overlay_opacity">Opacidade do fundo da sobreposição</string>
+    <string name="settings_billing_cycle_start">Ciclo de faturamento começa em</string>
+    <string name="settings_mobile_data_limit">Limite de dados móveis</string>
+    <string name="settings_warn_before_limit">Avisar antes do limite de dados</string>
+    <string name="settings_warn_at">Avisar em</string>
+    <string name="settings_warn_roaming">Avisar em roaming</string>
+    <string name="settings_warn_background_data">Avisar sobre dados em segundo plano</string>
+    <string name="settings_warn_above">Avisar acima de</string>
+    <string name="settings_autostart">Permitir início automático</string>
+    <string name="settings_battery_unrestricted">Permitir uso irrestrito da bateria</string>
+    <string name="settings_language">Idioma</string>
+    <string name="dialog_language">Idioma</string>
+    <string name="language_system_default">Padrão do sistema</string>
+    <string name="settings_dark_theme">Tema escuro</string>
+    <string name="settings_dynamic_colour">Usar cores do plano de fundo</string>
+    <string name="settings_more_apps">Mais apps</string>
+    <string name="settings_more_apps_subtitle">Tudo o mais da Sulton UzDev</string>
+    <string name="settings_value_open">Configurações</string>
+    <string name="settings_value_none">Nenhum</string>
+
+    <string name="settings_notifications_off">As notificações estão desativadas, então a velocidade não pode aparecer na barra de status. Toque para ativá-las.</string>
+
+    <!-- ===== Configurações: títulos de caixas de diálogo ==================================== -->
+    <string name="dialog_update_frequency">Frequência de atualização</string>
+    <string name="dialog_notification_style">Estilo da notificação</string>
+    <string name="dialog_speed_display">Exibição da velocidade</string>
+    <string name="dialog_speed_units">Unidades de velocidade</string>
+    <string name="dialog_monthly_reset_date">Data de redefinição mensal</string>
+    <string name="dialog_mobile_data_limit">Limite de dados móveis</string>
+    <string name="dialog_warn_at">Avisar em</string>
+    <string name="dialog_background_threshold">Limite de dados em segundo plano</string>
+    <string name="dialog_overlay_size">Tamanho da sobreposição</string>
+    <string name="dialog_overlay_colour">Cor da sobreposição</string>
+    <string name="dialog_overlay_opacity">Transparência da sobreposição</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_close">Fechar</string>
+
+    <!-- ===== Valores de opções ============================================================== -->
+    <string name="option_auto">Automático</string>
+    <string name="option_compact">Compacto</string>
+    <string name="option_detailed">Detalhado</string>
+    <string name="option_custom">Personalizado</string>
+    <string name="display_download_only">Apenas download</string>
+    <string name="display_upload_only">Apenas upload</string>
+    <string name="display_combined_total">Total combinado</string>
+    <string name="display_download_and_upload">Download e upload</string>
+
+    <string name="colour_white">Branco</string>
+    <string name="colour_black">Preto</string>
+    <string name="colour_cyan">Ciano</string>
+    <string name="colour_green">Verde</string>
+    <string name="colour_amber">Âmbar</string>
+    <string name="colour_red">Vermelho</string>
+
+    <!-- O português não usa sufixo ordinal: as quatro chaves recebem a mesma forma. -->
+    <string name="ordinal_day_st">%1$d</string>
+    <string name="ordinal_day_nd">%1$d</string>
+    <string name="ordinal_day_rd">%1$d</string>
+    <string name="ordinal_day_th">%1$d</string>
+
+    <!-- ===== Justificativas de permissão ==================================================== -->
+    <string name="perm_continue">Continuar</string>
+    <string name="perm_not_now">Agora não</string>
+    <string name="perm_notification_title">Mostrar a velocidade na barra de status</string>
+    <string name="perm_notification_body_speed">O NetSpeed exibe uma notificação contínua com o valor em tempo real, para você ver sua velocidade sem abrir o app. O Android precisa da sua permissão para mostrá-la.</string>
+    <string name="perm_notification_body_settings">O NetSpeed exibe uma notificação contínua com o valor em tempo real. O Android precisa da sua permissão para mostrá-la. Tudo no app continua funcionando se você recusar.</string>
+    <string name="perm_phone_state_title">Ler o sinal da rede móvel</string>
+    <string name="perm_phone_state_body">A intensidade do sinal de uma conexão móvel vem do rádio do celular, que o Android mantém protegido por uma permissão. Os demais detalhes da rede são mostrados de qualquer forma.</string>
+
+    <!-- ===== Notificação de monitoramento =================================================== -->
+    <string name="notif_channel_name">Monitor do Net Speed</string>
+    <string name="notif_channel_description">Mostra a velocidade da internet e o uso de dados em tempo real</string>
+    <string name="notif_summary">Monitor do Net Speed</string>
+    <string name="notif_total">%1$s no total</string>
+    <string name="notif_with_signal">%1$s | Sinal: %2$s</string>
+    <string name="notif_line_total">Total: %1$s</string>
+    <string name="notif_line_download">Download: %1$s</string>
+    <string name="notif_line_upload">Upload: %1$s</string>
+    <string name="notif_line_signal">Sinal: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Dados móveis: %1$s</string>
+    <string name="notif_line_wifi_data">Dados Wi-Fi: %1$s</string>
+
+    <!-- ===== Alertas de limite de dados ===================================================== -->
+    <string name="alert_channel_name">Alertas de limite de dados</string>
+    <string name="alert_channel_description">Avisa quando os dados móveis se aproximam ou passam do seu limite</string>
+    <string name="alert_limit_reached_title">Limite de dados móveis atingido</string>
+    <string name="alert_limit_reached_body">%1$s de %2$s usados neste ciclo.</string>
+    <string name="alert_approaching_title">%1$d%% dos dados móveis usados</string>
+    <string name="alert_approaching_body">%1$s de %2$s usados. Restam %3$s neste ciclo.</string>
+    <string name="alert_roaming_title">Roaming — os dados móveis podem custar mais</string>
+    <string name="alert_roaming_body">Você está em uma rede de roaming. %1$s de dados móveis usados neste ciclo até agora.</string>
+    <string name="alert_app_limit_one_title">%1$s passou do limite de dados</string>
+    <string name="alert_background_one_title">%1$s usou dados em segundo plano</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s de %3$s</string>
+
+    <!-- ===== Widgets e bloco ================================================================ -->
+    <string name="widget_speed_description">Velocidade de download e upload em tempo real</string>
+    <string name="widget_usage_title">Dados móveis neste ciclo</string>
+    <string name="widget_usage_description">Dados usados em relação ao seu limite</string>
+    <string name="widget_today_total">Hoje %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · vai exceder</string>
+
+    <!-- ===== Plurais ======================================================================== -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d segundo</item>
+        <item quantity="many">%1$d segundos</item>
+        <item quantity="other">%1$d segundos</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d app passou do limite de dados</item>
+        <item quantity="many">%1$d apps passaram dos limites de dados</item>
+        <item quantity="other">%1$d apps passaram dos limites de dados</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d app usou dados em segundo plano</item>
+        <item quantity="many">%1$d apps usaram dados em segundo plano</item>
+        <item quantity="other">%1$d apps usaram dados em segundo plano</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">resta %1$d dia</item>
+        <item quantity="many">restam %1$d dias</item>
+        <item quantity="other">restam %1$d dias</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">limite em %1$d dia</item>
+        <item quantity="many">limite em %1$d dias</item>
+        <item quantity="other">limite em %1$d dias</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="many">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

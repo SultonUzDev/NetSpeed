@@ -38,6 +38,8 @@ import com.sultonuzdev.netspeed.domain.usecases.CheckAlertsUseCase
 import com.sultonuzdev.netspeed.domain.usecases.CheckDataLimitUseCase
 import com.sultonuzdev.netspeed.domain.usecases.GetUsageForecastUseCase
 import com.sultonuzdev.netspeed.presentation.MainActivity
+import androidx.core.text.BidiFormatter
+import com.sultonuzdev.netspeed.R
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_START_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.ACTION_STOP_MONITORING
 import com.sultonuzdev.netspeed.utils.Constants.CHANNEL_ID
@@ -46,6 +48,7 @@ import com.sultonuzdev.netspeed.utils.Constants.LEGACY_CHANNEL_ID
 import com.sultonuzdev.netspeed.utils.Constants.NOTIFICATION_ID
 import com.sultonuzdev.netspeed.utils.DataLimitNotifier
 import com.sultonuzdev.netspeed.utils.FormattedSpeed
+import com.sultonuzdev.netspeed.utils.AppLocale
 import com.sultonuzdev.netspeed.utils.NetworkUtils
 import com.sultonuzdev.netspeed.utils.PingCalculator
 import com.sultonuzdev.netspeed.utils.NotificationStyle
@@ -158,7 +161,7 @@ class SpeedMonitorService : Service() {
     // Network info. Null signal means the platform would not tell us, which is shown as "--"
     // rather than as a made-up percentage.
     private var signalStrength: Int? = null
-    private var networkType = "Unknown"
+    private var networkType = ""
     private var isWifiConnected = false
 
     /**
@@ -203,6 +206,12 @@ class SpeedMonitorService : Service() {
 
         /** Usage is shown to one decimal of a MB, so finer changes need no repost. */
         const val MB_IN_BYTES = 1024L * 1024
+    }
+
+    // The ongoing notification is as user-facing as any screen, so it follows the app's
+    // language too rather than the device's.
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
     }
 
     override fun onCreate() {
@@ -623,19 +632,19 @@ class SpeedMonitorService : Service() {
             isWifiConnected = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
 
             if (isWifiConnected) {
-                networkType = "WiFi"
+                networkType = getString(R.string.transport_wifi)
                 signalStrength = SignalStrengthReader.percent(this, isWifi = true)
             } else if (capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true) {
-                networkType = "Mobile"
+                networkType = getString(R.string.connection_mobile_short)
                 signalStrength = SignalStrengthReader.percent(this, isWifi = false)
             } else {
-                networkType = "Unknown"
+                networkType = getString(R.string.value_unknown)
                 signalStrength = null
             }
         } catch (e: Exception) {
             e.printStackTrace()
             isWifiConnected = false
-            networkType = "Unknown"
+            networkType = getString(R.string.value_unknown)
             signalStrength = null
         }
     }
@@ -694,17 +703,20 @@ class SpeedMonitorService : Service() {
         }
 
         val title = when (displayMode) {
-            SpeedDisplayMode.DOWNLOAD -> "\u2193 $download"
-            SpeedDisplayMode.UPLOAD -> "\u2191 $upload"
-            SpeedDisplayMode.COMBINED -> "$combined total"
-            SpeedDisplayMode.BOTH -> "\u2193 $download    \u2191 $upload"
+            SpeedDisplayMode.DOWNLOAD -> getString(R.string.notif_down_only, figure(download))
+            SpeedDisplayMode.UPLOAD -> getString(R.string.notif_up_only, figure(upload))
+            SpeedDisplayMode.COMBINED -> getString(R.string.notif_total, figure(combined))
+            SpeedDisplayMode.BOTH -> getString(R.string.notif_down_up, figure(download), figure(upload))
         }
 
         // Anything the title already says would only be repeated here, so the content line carries
         // whatever the chosen mode leaves out.
         val content = when (displayMode) {
-            SpeedDisplayMode.DOWNLOAD -> "\u2191$upload | $networkType"
-            SpeedDisplayMode.UPLOAD -> "\u2193$download | $networkType"
+            SpeedDisplayMode.DOWNLOAD ->
+                getString(R.string.notif_up_with_network, figure(upload), networkType)
+
+            SpeedDisplayMode.UPLOAD ->
+                getString(R.string.notif_down_with_network, figure(download), networkType)
             SpeedDisplayMode.COMBINED, SpeedDisplayMode.BOTH -> networkType
         }
 
@@ -715,40 +727,63 @@ class SpeedMonitorService : Service() {
                 pendingIntent,
                 speedIcon,
                 title,
-                "$content | Signal: $signalText",
+                getString(R.string.notif_with_signal, content, figure(signalText)),
                 bigText = detailedBigText(download, upload, combined)
             )
         }
     }
 
-    @SuppressLint("DefaultLocale")
     private fun detailedBigText(
         download: FormattedSpeed,
         upload: FormattedSpeed,
         combined: FormattedSpeed
     ): String {
-        val mobileDataMB = (mobileDataUsed / (1024.0 * 1024.0))
-        val wifiDataMB = (wifiDataUsed / (1024.0 * 1024.0))
 
         return buildString {
             when (displayMode) {
-                SpeedDisplayMode.COMBINED -> append("Total: $combined\n")
-                SpeedDisplayMode.UPLOAD -> append("Upload: $upload\n")
-                SpeedDisplayMode.DOWNLOAD -> append("Download: $download\n")
+                SpeedDisplayMode.COMBINED ->
+                    appendLine(getString(R.string.notif_line_total, figure(combined)))
+
+                SpeedDisplayMode.UPLOAD ->
+                    appendLine(getString(R.string.notif_line_upload, figure(upload)))
+
+                SpeedDisplayMode.DOWNLOAD ->
+                    appendLine(getString(R.string.notif_line_download, figure(download)))
+
                 SpeedDisplayMode.BOTH -> {
-                    append("Download: $download\n")
-                    append("Upload: $upload\n")
+                    appendLine(getString(R.string.notif_line_download, figure(download)))
+                    appendLine(getString(R.string.notif_line_upload, figure(upload)))
                 }
             }
-            append("Signal: $signalText ($networkType)\n")
-            append("Mobile Data: ${String.format("%.1f", mobileDataMB)} MB\n")
-            append("WiFi Data: ${String.format("%.1f", wifiDataMB)} MB")
+            appendLine(getString(R.string.notif_line_signal, figure(signalText), networkType))
+            // formatBytes rather than a hand-rolled division: it scales the unit itself and
+            // formats the figure in the reader's locale, so a device that writes "1,5" gets a
+            // comma here too instead of a stray full stop in an otherwise translated line.
+            appendLine(
+                getString(R.string.notif_line_mobile_data, figure(NetworkUtils.formatBytes(mobileDataUsed)))
+            )
+            append(
+                getString(R.string.notif_line_wifi_data, figure(NetworkUtils.formatBytes(wifiDataUsed)))
+            )
         }
     }
 
+    /**
+     * Isolates a measurement so bidirectional reordering cannot take it apart.
+     *
+     * "12.4 Mbps" is a left-to-right run. Dropped into an Arabic or Urdu sentence without
+     * isolation, the Unicode bidi algorithm is free to move its pieces relative to the
+     * surrounding text -- the arrow drifts to the far end of the line, or a trailing "|" lands
+     * in front of the number. Wrapping each figure in isolate marks pins it together and leaves
+     * the sentence around it free to run right-to-left.
+     */
+    private fun figure(value: Any): String =
+        BidiFormatter.getInstance().unicodeWrap(value.toString())
+
     /** Signal as text, or an em dash when the platform declined to report it. */
     private val signalText: String
-        get() = signalStrength?.let { "$it%" } ?: "\u2014"
+        get() = signalStrength?.let { getString(R.string.measure_percent, it) }
+            ?: getString(R.string.value_none_measured)
 
     private fun buildNotification(
         pendingIntent: PendingIntent,
@@ -767,7 +802,7 @@ class SpeedMonitorService : Service() {
                         NotificationCompat.BigTextStyle()
                             .bigText(bigText)
                             .setBigContentTitle(title)
-                            .setSummaryText("Net Speed Monitor")
+                            .setSummaryText(getString(R.string.notif_summary))
                     )
                 }
             }
@@ -800,10 +835,10 @@ class SpeedMonitorService : Service() {
 
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Net Speed Monitor",
+            getString(R.string.notif_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Shows real-time internet speed and data usage"
+            description = getString(R.string.notif_channel_description)
             setShowBadge(false)
             setSound(null, null)
             enableVibration(false)

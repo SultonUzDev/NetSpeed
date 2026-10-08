@@ -1,6 +1,7 @@
 package com.sultonuzdev.netspeed.data.overlay
 
 import android.annotation.SuppressLint
+import androidx.core.text.BidiFormatter
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -134,7 +135,14 @@ class SpeedOverlayManager(
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.TOP or Gravity.START
+            // LEFT, not START. Everything that touches params.x treats it as an absolute
+            // left-origin screen coordinate: clampX coerces it into 0..screenWidth-viewWidth, the
+            // drag listener adds a delta taken from event.rawX, and the saved position is restored
+            // verbatim on the next launch. Gravity.START resolves to the right edge under an RTL
+            // locale, which would mirror all three at once -- dragging right would move the
+            // overlay left, and a position saved in one language would reappear somewhere else
+            // after switching to another.
+            gravity = Gravity.TOP or Gravity.LEFT
             this.x = x
             this.y = y
         }
@@ -272,17 +280,17 @@ class SpeedOverlayManager(
         val secondaryLine: String?
         when (mode) {
             SpeedDisplayMode.BOTH -> {
-                primaryLine = "↓ $download"
-                secondaryLine = "↑ $upload"
+                primaryLine = context.getString(R.string.notif_down_only, figure(download))
+                secondaryLine = context.getString(R.string.notif_up_only, figure(upload))
             }
 
             SpeedDisplayMode.UPLOAD -> {
-                primaryLine = "↑ $upload"
+                primaryLine = context.getString(R.string.notif_up_only, upload)
                 secondaryLine = null
             }
 
             SpeedDisplayMode.COMBINED, SpeedDisplayMode.DOWNLOAD -> {
-                primaryLine = "↓ $download"
+                primaryLine = context.getString(R.string.notif_down_only, download)
                 secondaryLine = null
             }
         }
@@ -386,3 +394,11 @@ class SpeedOverlayManager(
         const val TOUCH_SLOP_PX = 8f
     }
 }
+
+/**
+ * Isolates a measurement so bidirectional reordering cannot take it apart: "12.4 Mbps" is a
+ * left-to-right run, and without isolate marks the bidi algorithm may move its pieces relative
+ * to surrounding right-to-left text.
+ */
+private fun figure(value: Any): String =
+    BidiFormatter.getInstance().unicodeWrap(value.toString())

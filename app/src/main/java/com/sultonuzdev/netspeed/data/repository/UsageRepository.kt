@@ -5,16 +5,13 @@ import com.sultonuzdev.netspeed.data.database.entities.UsageEntity
 import com.sultonuzdev.netspeed.domain.models.UsageData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.sultonuzdev.netspeed.utils.UsagePeriods
 
 class UsageRepository(private val usageDao: UsageDao) {
 
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
     fun getTodayUsage(): Flow<UsageData> {
-        val today = dateFormat.format(Date())
+        // One source for the key format; see UsagePeriods.KEY_FORMAT for why it is not localised.
+        val today = UsagePeriods.dayKey()
         return usageDao.getAllUsage().map { entities ->
             val todayEntity = entities.find { it.date == today }
             todayEntity?.toModel() ?: UsageData(

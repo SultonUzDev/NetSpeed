@@ -32,24 +32,4 @@ object PingCalculator {
             null
         }
     }
-
-    // Alternative: Simple ping using InetAddress (less accurate but works)
-    suspend fun simplePing(host: String = "8.8.8.8"): String {
-        return withContext(Dispatchers.IO) {
-            try {
-                val startTime = System.currentTimeMillis()
-                val address = java.net.InetAddress.getByName(host)
-                val reachable = address.isReachable(3000) // 3 second timeout
-                val endTime = System.currentTimeMillis()
-
-                if (reachable) {
-                    "${endTime - startTime}ms"
-                } else {
-                    "N/A"
-                }
-            } catch (e: Exception) {
-                "N/A"
-            }
-        }
-    }
 }

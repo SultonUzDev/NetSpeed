@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -153,9 +154,12 @@ fun SettingItem(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                // Two lines, not one. "Download and upload" is already long in English; in
+                // Spanish and Portuguese "Personalizado" and "Automático" push past the 160dp cap
+                // on their own. The row is heightIn(min = 56.dp), so it grows rather than clips.
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                // Values like "Download and upload" otherwise take half the row.
+                textAlign = TextAlign.End,
                 modifier = Modifier.widthIn(max = 160.dp)
             )
             Icon(

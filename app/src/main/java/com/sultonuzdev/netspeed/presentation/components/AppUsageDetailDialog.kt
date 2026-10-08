@@ -20,6 +20,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,8 +59,11 @@ fun AppUsageDetailDialog(
 
     if (pickingLimit) {
         SelectionDialog(
-            title = "Limit for ${detail.appLabel}",
-            options = APP_LIMIT_OPTIONS.map { if (it == 0L) "No limit" else NetworkUtils.formatBytes(it) },
+            title = stringResource(R.string.app_detail_limit_title, detail.appLabel),
+            options = APP_LIMIT_OPTIONS.map {
+                if (it == 0L) stringResource(R.string.app_detail_limit_none)
+                else NetworkUtils.formatBytes(it)
+            },
             selectedIndex = APP_LIMIT_OPTIONS.indexOf(limitBytes ?: 0L),
             onOptionSelected = { index ->
                 onSetLimit(APP_LIMIT_OPTIONS[index])
@@ -112,18 +117,34 @@ fun AppUsageDetailDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                DetailRow("Total", NetworkUtils.formatBytes(detail.totalBytes), emphasise = true)
-                DetailRow("Mobile", NetworkUtils.formatBytes(detail.mobileBytes))
-                DetailRow("Wi-Fi", NetworkUtils.formatBytes(detail.wifiBytes))
+                DetailRow(
+                    stringResource(R.string.app_detail_total),
+                    NetworkUtils.formatBytes(detail.totalBytes),
+                    emphasise = true
+                )
+                DetailRow(
+                    stringResource(R.string.app_detail_mobile),
+                    NetworkUtils.formatBytes(detail.mobileBytes)
+                )
+                DetailRow(
+                    stringResource(R.string.app_detail_wifi),
+                    NetworkUtils.formatBytes(detail.wifiBytes)
+                )
 
                 if (detail.hasStateBreakdown) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    DetailRow("Foreground", NetworkUtils.formatBytes(detail.foregroundBytes))
-                    DetailRow("Background", NetworkUtils.formatBytes(detail.backgroundBytes))
+                    DetailRow(
+                        stringResource(R.string.app_detail_foreground),
+                        NetworkUtils.formatBytes(detail.foregroundBytes)
+                    )
+                    DetailRow(
+                        stringResource(R.string.app_detail_background),
+                        NetworkUtils.formatBytes(detail.backgroundBytes)
+                    )
                 } else {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "No foreground/background split on this device.",
+                        text = stringResource(R.string.app_detail_no_split),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -131,8 +152,11 @@ fun AppUsageDetailDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 DetailRow(
-                    "Share of period",
-                    "${(detail.shareOfPeriod * 100).toInt()}%"
+                    stringResource(R.string.app_detail_share_of_period),
+                    stringResource(
+                        R.string.measure_percent,
+                        (detail.shareOfPeriod * 100).toInt()
+                    )
                 )
 
                 // Only offered for real packages: a synthetic bucket like "Tethering" has no
@@ -145,7 +169,7 @@ fun AppUsageDetailDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Limit this cycle",
+                            text = stringResource(R.string.app_detail_limit_this_cycle),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -155,9 +179,12 @@ fun AppUsageDetailDialog(
                                 // Showing usage against the limit, not just the limit: the
                                 // number on its own says nothing about how close you are.
                                 text = limitBytes?.let { limit ->
-                                    "${NetworkUtils.formatBytes(detail.totalBytes)} / " +
-                                            NetworkUtils.formatBytes(limit)
-                                } ?: "Set limit",
+                                    stringResource(
+                                        R.string.app_detail_of_total,
+                                        NetworkUtils.formatBytes(detail.totalBytes),
+                                        NetworkUtils.formatBytes(limit)
+                                    )
+                                } ?: stringResource(R.string.app_detail_limit_set),
                                 color = if (limitBytes != null && detail.totalBytes >= limitBytes) {
                                     MaterialTheme.colorScheme.error
                                 } else {
@@ -192,11 +219,11 @@ fun AppUsageDetailDialog(
                             openAppInfo(context, detail.packageName)
                             onDismiss()
                         }) {
-                            Text("App info")
+                            Text(stringResource(R.string.app_detail_app_info))
                         }
                     }
                     TextButton(onClick = onDismiss) {
-                        Text("Close")
+                        Text(stringResource(R.string.dialog_close))
                     }
                 }
             }

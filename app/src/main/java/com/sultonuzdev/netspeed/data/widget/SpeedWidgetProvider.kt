@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
+import androidx.core.text.BidiFormatter
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
@@ -69,9 +70,18 @@ class SpeedWidgetProvider : AppWidgetProvider() {
                 if (ids.isEmpty()) return
 
                 val views = baseViews(context).apply {
-                    setTextViewText(R.id.widget_download, "↓ $download")
-                    setTextViewText(R.id.widget_upload, "↑ $upload")
-                    setTextViewText(R.id.widget_today, "Today $todayTotal")
+                    setTextViewText(
+                        R.id.widget_download,
+                        context.getString(R.string.notif_down_only, figure(download))
+                    )
+                    setTextViewText(
+                        R.id.widget_upload,
+                        context.getString(R.string.notif_up_only, figure(upload))
+                    )
+                    setTextViewText(
+                        R.id.widget_today,
+                        context.getString(R.string.widget_today_total, figure(todayTotal))
+                    )
                 }
                 manager.updateAppWidget(ids, views)
             } catch (e: Exception) {
@@ -80,3 +90,11 @@ class SpeedWidgetProvider : AppWidgetProvider() {
         }
     }
 }
+
+/**
+ * Isolates a measurement so bidirectional reordering cannot take it apart: "12.4 Mbps" is a
+ * left-to-right run, and without isolate marks the bidi algorithm may move its pieces relative
+ * to surrounding right-to-left text.
+ */
+private fun figure(value: Any): String =
+    BidiFormatter.getInstance().unicodeWrap(value.toString())

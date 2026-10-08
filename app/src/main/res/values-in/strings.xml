@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">Tidak diketahui</string>
+
+    <!-- ===== Navigasi ========================================================================= -->
+    <string name="nav_speed">Kecepatan</string>
+    <string name="nav_usage">Penggunaan</string>
+    <string name="nav_history">Riwayat</string>
+    <string name="nav_settings">Setelan</string>
+
+    <!-- ===== Penamaan koneksi ================================================================= -->
+    <string name="connection_mobile_data">Data seluler</string>
+    <string name="connection_mobile_short">Seluler</string>
+    <string name="connection_offline">Offline</string>
+    <string name="connection_none">Tidak ada koneksi</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Layar kecepatan ================================================================== -->
+    <string name="speed_download">Unduhan</string>
+    <string name="speed_upload">Unggahan</string>
+    <string name="speed_network_details">Detail jaringan</string>
+    <string name="speed_dial_idle_caption">Tes kecepatan</string>
+    <string name="speed_dial_latency_caption">Latensi</string>
+    <string name="speed_dial_failed_caption">Tes gagal</string>
+
+    <string name="speed_notification_offer_title">Tampilkan kecepatan ini di bilah status</string>
+    <string name="speed_notification_offer_body">Lihat tanpa membuka aplikasi</string>
+    <string name="speed_notification_offer_action">Aktifkan</string>
+    <string name="speed_notification_offer_dismiss">Tutup</string>
+
+    <!-- ===== Tes kecepatan ==================================================================== -->
+    <string name="speed_test_run">Jalankan tes kecepatan</string>
+    <string name="speed_test_again">Tes lagi</string>
+    <string name="speed_test_cancel">Batal</string>
+    <string name="speed_test_phase_latency">Latensi</string>
+    <string name="speed_test_phase_download">Unduhan</string>
+    <string name="speed_test_phase_upload">Unggahan</string>
+    <string name="speed_test_result_ping">Ping</string>
+    <string name="speed_test_result_jitter">Jitter</string>
+    <string name="speed_test_footer">Diuji melalui Cloudflare · hasil tetap di perangkat Anda</string>
+    <string name="speed_test_error_generic">Tes kecepatan gagal.</string>
+    <string name="speed_test_error_no_internet">Tidak ada koneksi internet. Server tes tidak dapat dijangkau.</string>
+    <string name="speed_test_error_interrupted">Koneksi terputus. Periksa jaringan Anda lalu coba lagi.</string>
+
+    <!-- ===== Layar penggunaan ================================================================= -->
+    <string name="usage_by_app">Per aplikasi</string>
+    <string name="usage_today">Hari ini</string>
+    <string name="usage_billing_cycle">Siklus tagihan</string>
+    <string name="usage_this_cycle">Siklus ini</string>
+    <string name="usage_last_7_days">7 hari terakhir</string>
+    <string name="usage_last_30_days">30 hari terakhir</string>
+    <string name="usage_total">Total</string>
+    <string name="usage_exact">Tepat</string>
+    <string name="usage_estimated">Perkiraan</string>
+    <string name="usage_empty_period">Belum ada trafik aplikasi yang tercatat untuk periode ini.</string>
+    <string name="usage_empty_chart">Belum ada penggunaan yang tercatat</string>
+    <string name="usage_chart_peak">puncak %1$s</string>
+    <string name="usage_app_split">Seluler %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Tidak dapat membuka setelan akses penggunaan di perangkat ini</string>
+
+    <string name="usage_access_title">Aktifkan akses penggunaan</string>
+    <string name="usage_access_body">Menampilkan aplikasi mana yang memakai data Anda, dan membuat totalnya cocok dengan Setelan Android. Tidak ada data yang keluar dari perangkat Anda.</string>
+    <string name="usage_access_action">Buka setelan</string>
+
+    <!-- ===== Layar riwayat ==================================================================== -->
+    <string name="history_column_date">Tanggal</string>
+    <string name="history_empty">Belum ada penggunaan yang tercatat.\nRiwayat terkumpul selama pemantauan berjalan.</string>
+
+    <!-- ===== Kartu batas data ================================================================= -->
+    <string name="limit_card_title">Data seluler siklus ini</string>
+    <string name="limit_forecast_within">Menuju %1$s · masih dalam batas</string>
+    <string name="limit_forecast_over_by">Menuju %1$s · %2$s melebihi batas</string>
+    <string name="limit_forecast_over_when">Menuju %1$s · melebihi batas %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s dari %2$s · %3$s tersisa</string>
+    <string name="limit_used_of_total_reached">%1$s dari %2$s — batas tercapai</string>
+    <string name="limit_forecast_when_tomorrow">besok</string>
+    <string name="limit_forecast_in_days">%1$dh lagi</string>
+    <string name="threshold_percent_of_limit">%1$d%% dari batas</string>
+    <string name="limit_none_set">Batas belum disetel</string>
+    <string name="limit_percent_of_total">%1$d%% dari %2$s</string>
+
+    <!-- ===== Dialog detail penggunaan aplikasi ================================================ -->
+    <string name="app_detail_total">Total</string>
+    <string name="app_detail_mobile">Seluler</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Latar depan</string>
+    <string name="app_detail_background">Latar belakang</string>
+    <string name="app_detail_no_split">Tidak ada pemisahan latar depan/latar belakang di perangkat ini.</string>
+    <string name="app_detail_share_of_period">Porsi dari periode</string>
+    <string name="app_detail_limit_this_cycle">Batas siklus ini</string>
+    <string name="app_detail_limit_none">Tanpa batas</string>
+    <string name="app_detail_limit_set">Setel batas</string>
+    <string name="app_detail_limit_title">Batas untuk %1$s</string>
+    <string name="app_detail_app_info">Info aplikasi</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Dialog detail penggunaan harian ================================================== -->
+    <string name="day_detail_top_apps">Aplikasi teratas</string>
+    <string name="day_detail_empty">Tidak ada data per aplikasi untuk hari tersebut.</string>
+    <string name="day_detail_share_of_limit">Porsi harian dari batas · %1$s</string>
+    <string name="day_detail_total_suffix">total %1$s</string>
+
+    <!-- ===== Lembar detail jaringan =========================================================== -->
+    <string name="details_empty">Tidak ada detail yang tersedia untuk koneksi ini.</string>
+    <string name="details_section_connection">Koneksi</string>
+    <string name="details_section_addresses">Alamat</string>
+    <string name="details_section_radio">Radio</string>
+    <string name="details_section_carrier">Operator</string>
+    <string name="details_network">Jaringan</string>
+    <string name="details_nothing_connected">Tidak ada yang terhubung saat ini</string>
+    <string name="details_internet">Internet</string>
+    <string name="details_reachable">Dapat dijangkau</string>
+    <string name="details_not_verified">Terhubung, tidak terverifikasi</string>
+    <string name="details_metered">Berbayar kuota</string>
+    <string name="details_roaming">Roaming</string>
+    <string name="details_yes">Ya</string>
+    <string name="details_no">Tidak</string>
+    <string name="details_estimated_downlink">Perkiraan kecepatan unduh</string>
+    <string name="details_estimated_uplink">Perkiraan kecepatan unggah</string>
+    <string name="details_interface">Antarmuka</string>
+    <string name="details_ipv4">Alamat IPv4</string>
+    <string name="details_ipv6">Alamat IPv6</string>
+    <string name="details_link_speed">Kecepatan tautan</string>
+    <string name="details_tx_link_speed">Kecepatan tautan Tx</string>
+    <string name="details_rx_link_speed">Kecepatan tautan Rx</string>
+    <string name="details_frequency">Frekuensi</string>
+    <string name="details_band">Pita frekuensi</string>
+    <string name="details_signal">Sinyal</string>
+    <string name="details_operator">Operator</string>
+    <string name="details_sim_operator">Operator SIM</string>
+
+    <!-- ===== Nama sumber trafik bawaan sistem ================================================= -->
+    <string name="traffic_tethering">Tethering</string>
+    <string name="traffic_removed_apps">Aplikasi yang sudah dihapus</string>
+    <string name="traffic_all">Semua trafik</string>
+    <string name="traffic_android_os">OS Android</string>
+    <string name="traffic_root">Root</string>
+    <string name="traffic_telephony">Telefoni</string>
+    <string name="traffic_media_server">Server media</string>
+    <string name="traffic_drm_service">Layanan DRM</string>
+    <string name="traffic_network_stack">Tumpukan jaringan</string>
+    <string name="traffic_nobody">Nobody</string>
+    <string name="traffic_system_service">Layanan sistem (uid %1$d)</string>
+
+    <!-- ===== Setelan: bagian ================================================================== -->
+    <string name="settings_section_notification">Notifikasi</string>
+    <string name="settings_section_monitoring">Pemantauan</string>
+    <string name="settings_section_overlay">Overlay mengapung</string>
+    <string name="settings_section_data_limit">Batas data</string>
+    <string name="settings_section_alerts">Peringatan</string>
+    <string name="settings_section_device">Perangkat</string>
+    <string name="settings_section_appearance">Tampilan</string>
+
+    <!-- ===== Setelan: baris =================================================================== -->
+    <string name="settings_monitor_speed">Pantau kecepatan jaringan</string>
+    <string name="settings_update_frequency">Frekuensi pembaruan</string>
+    <string name="settings_notification_style">Gaya notifikasi</string>
+    <string name="settings_status_bar_shows">Bilah status menampilkan</string>
+    <string name="settings_speed_units">Satuan kecepatan</string>
+    <string name="settings_monitor_wifi">Pantau Wi-Fi</string>
+    <string name="settings_monitor_mobile">Pantau data seluler</string>
+    <string name="settings_background_monitoring">Terus pantau di latar belakang</string>
+    <string name="settings_start_on_boot">Mulai setelah perangkat dinyalakan ulang</string>
+    <string name="settings_show_overlay">Tampilkan overlay mengapung</string>
+    <string name="settings_overlay_size">Ukuran teks overlay</string>
+    <string name="settings_overlay_colour">Warna teks overlay</string>
+    <string name="settings_overlay_opacity">Opasitas latar overlay</string>
+    <string name="settings_billing_cycle_start">Siklus tagihan dimulai pada</string>
+    <string name="settings_mobile_data_limit">Batas data seluler</string>
+    <string name="settings_warn_before_limit">Peringatkan sebelum batas data</string>
+    <string name="settings_warn_at">Peringatkan pada</string>
+    <string name="settings_warn_roaming">Peringatkan saat roaming</string>
+    <string name="settings_warn_background_data">Peringatkan tentang data latar belakang</string>
+    <string name="settings_warn_above">Peringatkan di atas</string>
+    <string name="settings_autostart">Izinkan mulai otomatis</string>
+    <string name="settings_battery_unrestricted">Izinkan baterai tanpa batasan</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="dialog_language">Bahasa</string>
+    <string name="language_system_default">Default sistem</string>
+    <string name="settings_dark_theme">Tema gelap</string>
+    <string name="settings_dynamic_colour">Samakan dengan warna wallpaper</string>
+    <string name="settings_more_apps">Aplikasi lainnya</string>
+    <string name="settings_more_apps_subtitle">Aplikasi lain dari Sulton UzDev</string>
+    <string name="settings_value_open">Setelan</string>
+    <string name="settings_value_none">Tidak ada</string>
+
+    <string name="settings_notifications_off">Notifikasi nonaktif, sehingga kecepatan tidak dapat muncul di bilah status Anda. Ketuk untuk mengaktifkannya.</string>
+
+    <!-- ===== Setelan: judul dialog ============================================================ -->
+    <string name="dialog_update_frequency">Frekuensi Pembaruan</string>
+    <string name="dialog_notification_style">Gaya Notifikasi</string>
+    <string name="dialog_speed_display">Tampilan Kecepatan</string>
+    <string name="dialog_speed_units">Satuan Kecepatan</string>
+    <string name="dialog_monthly_reset_date">Tanggal Setel Ulang Bulanan</string>
+    <string name="dialog_mobile_data_limit">Batas Data Seluler</string>
+    <string name="dialog_warn_at">Peringatkan Pada</string>
+    <string name="dialog_background_threshold">Ambang data latar belakang</string>
+    <string name="dialog_overlay_size">Ukuran Overlay</string>
+    <string name="dialog_overlay_colour">Warna Overlay</string>
+    <string name="dialog_overlay_opacity">Transparansi Overlay</string>
+    <string name="dialog_cancel">Batal</string>
+    <string name="dialog_close">Tutup</string>
+
+    <!-- ===== Nilai pilihan ==================================================================== -->
+    <string name="option_auto">Otomatis</string>
+    <string name="option_compact">Ringkas</string>
+    <string name="option_detailed">Terperinci</string>
+    <string name="option_custom">Kustom</string>
+    <string name="display_download_only">Hanya unduhan</string>
+    <string name="display_upload_only">Hanya unggahan</string>
+    <string name="display_combined_total">Total gabungan</string>
+    <string name="display_download_and_upload">Unduhan dan unggahan</string>
+
+    <string name="colour_white">Putih</string>
+    <string name="colour_black">Hitam</string>
+    <string name="colour_cyan">Sian</string>
+    <string name="colour_green">Hijau</string>
+    <string name="colour_amber">Ambar</string>
+    <string name="colour_red">Merah</string>
+
+    <!-- Bahasa Indonesia tidak memakai akhiran ordinal; keempat kunci memakai bentuk yang sama. -->
+    <string name="ordinal_day_st">Tanggal %1$d</string>
+    <string name="ordinal_day_nd">Tanggal %1$d</string>
+    <string name="ordinal_day_rd">Tanggal %1$d</string>
+    <string name="ordinal_day_th">Tanggal %1$d</string>
+
+    <!-- ===== Alasan izin ====================================================================== -->
+    <string name="perm_continue">Lanjutkan</string>
+    <string name="perm_not_now">Nanti saja</string>
+    <string name="perm_notification_title">Tampilkan kecepatan di bilah status Anda</string>
+    <string name="perm_notification_body_speed">NetSpeed menampilkan satu notifikasi berkelanjutan yang memuat angka terkini, sehingga Anda dapat melihat kecepatan tanpa membuka aplikasi. Android memerlukan izin Anda untuk menampilkannya.</string>
+    <string name="perm_notification_body_settings">NetSpeed menampilkan satu notifikasi berkelanjutan yang memuat angka terkini. Android memerlukan izin Anda untuk menampilkannya. Semua fitur aplikasi tetap berfungsi jika Anda menolak.</string>
+    <string name="perm_phone_state_title">Baca sinyal seluler Anda</string>
+    <string name="perm_phone_state_body">Kekuatan sinyal untuk koneksi seluler berasal dari radio ponsel, yang dilindungi izin oleh Android. Detail jaringan lainnya tetap ditampilkan.</string>
+
+    <!-- ===== Notifikasi pemantauan ============================================================ -->
+    <string name="notif_channel_name">Pemantau Net Speed</string>
+    <string name="notif_channel_description">Menampilkan kecepatan internet dan penggunaan data secara langsung</string>
+    <string name="notif_summary">Pemantau Net Speed</string>
+    <string name="notif_total">Total %1$s</string>
+    <string name="notif_with_signal">%1$s | Sinyal: %2$s</string>
+    <string name="notif_line_total">Total: %1$s</string>
+    <string name="notif_line_download">Unduhan: %1$s</string>
+    <string name="notif_line_upload">Unggahan: %1$s</string>
+    <string name="notif_line_signal">Sinyal: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Data Seluler: %1$s</string>
+    <string name="notif_line_wifi_data">Data WiFi: %1$s</string>
+
+    <!-- ===== Peringatan batas data ============================================================ -->
+    <string name="alert_channel_name">Peringatan batas data</string>
+    <string name="alert_channel_description">Memperingatkan saat data seluler mendekati atau melewati batas Anda</string>
+    <string name="alert_limit_reached_title">Batas data seluler tercapai</string>
+    <string name="alert_limit_reached_body">%1$s dari %2$s terpakai pada siklus ini.</string>
+    <string name="alert_approaching_title">%1$d%% data seluler terpakai</string>
+    <string name="alert_approaching_body">%1$s dari %2$s terpakai. %3$s tersisa pada siklus ini.</string>
+    <string name="alert_roaming_title">Roaming — data seluler mungkin dikenai biaya tambahan</string>
+    <string name="alert_roaming_body">Anda berada di jaringan roaming. Sejauh ini %1$s data seluler terpakai pada siklus ini.</string>
+    <string name="alert_app_limit_one_title">%1$s melewati batas datanya</string>
+    <string name="alert_background_one_title">%1$s memakai data di latar belakang</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s dari %3$s</string>
+
+    <!-- ===== Widget dan tile ================================================================== -->
+    <string name="widget_speed_description">Kecepatan unduh dan unggah secara langsung</string>
+    <string name="widget_usage_title">Data seluler siklus ini</string>
+    <string name="widget_usage_description">Data terpakai terhadap batas Anda</string>
+    <string name="widget_today_total">Hari ini %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · akan melebihi batas</string>
+
+    <!-- ===== Plurals (Bahasa Indonesia hanya memakai kategori "other") ======================== -->
+    <plurals name="frequency_seconds">
+        <item quantity="other">%1$d detik</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="other">%1$d aplikasi melewati batas datanya</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="other">%1$d aplikasi memakai data di latar belakang</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="other">%1$d hari tersisa</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="other">batas dalam %1$d hari</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

@@ -22,13 +22,4 @@ data class SpeedTestUiState(
                 phase == SpeedTestPhase.DOWNLOADING ||
                 phase == SpeedTestPhase.UPLOADING
 
-    val phaseLabel: String
-        get() = when (phase) {
-            SpeedTestPhase.IDLE -> "Ready"
-            SpeedTestPhase.PINGING -> "Latency"
-            SpeedTestPhase.DOWNLOADING -> "Download"
-            SpeedTestPhase.UPLOADING -> "Upload"
-            SpeedTestPhase.DONE -> "Done"
-            SpeedTestPhase.FAILED -> "Failed"
-        }
 }

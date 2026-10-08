@@ -22,6 +22,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -191,13 +193,15 @@ private fun TodayTotals(uiState: UsageUiState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Today",
+                text = stringResource(R.string.usage_today),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = if (uiState.isUsageAccurate) "Exact" else "Estimated",
+                text = stringResource(
+                    if (uiState.isUsageAccurate) R.string.usage_exact else R.string.usage_estimated
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
@@ -210,19 +214,19 @@ private fun TodayTotals(uiState: UsageUiState) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             StatCard(
-                label = "Mobile",
+                label = stringResource(R.string.app_detail_mobile),
                 value = uiState.todayMobile,
                 modifier = Modifier.weight(1f),
                 compact = true
             )
             StatCard(
-                label = "Wi-Fi",
+                label = stringResource(R.string.app_detail_wifi),
                 value = uiState.todayWifi,
                 modifier = Modifier.weight(1f),
                 compact = true
             )
             StatCard(
-                label = "Total",
+                label = stringResource(R.string.usage_total),
                 value = uiState.todayTotal,
                 modifier = Modifier.weight(1f),
                 compact = true
@@ -253,7 +257,7 @@ private fun AppUsageSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "By app",
+                text = stringResource(R.string.usage_by_app),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -262,7 +266,7 @@ private fun AppUsageSection(
                 FilterChip(
                     selected = uiState.appUsagePeriod == period,
                     onClick = { onPeriodSelected(period) },
-                    label = { Text(period.label) },
+                    label = { Text(stringResource(period.labelRes)) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                         selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -284,7 +288,7 @@ private fun AppUsageSection(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No app traffic recorded for this period yet.",
+                    text = stringResource(R.string.usage_empty_period),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -319,7 +323,7 @@ private fun openUsageAccessSettings(context: Context) {
     ) {
         Toast.makeText(
             context,
-            "Could not open usage access settings on this device",
+            context.getString(R.string.usage_settings_unavailable),
             Toast.LENGTH_LONG
         ).show()
     }

@@ -1,5 +1,6 @@
 package com.sultonuzdev.netspeed.data.repository
 
+import com.sultonuzdev.netspeed.R
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -88,7 +89,6 @@ class NetworkRepository(
                 val networkSpeed = NetworkSpeed(
                     downloadSpeed = currentDownloadSpeed,
                     uploadSpeed = currentUploadSpeed,
-                    ping = "",
                     timestamp = currentTime
                 )
 
@@ -107,7 +107,11 @@ class NetworkRepository(
 
         val networkInfo = NetworkInfo(
             isConnected = type != NetworkType.NONE,
-            networkName = if (type == NetworkType.NONE) "No Connection" else getNetworkName(),
+            networkName = if (type == NetworkType.NONE) {
+                context.getString(R.string.connection_none)
+            } else {
+                getNetworkName()
+            },
             // 0..4, matching the four bars the Speed screen draws.
             signalStrength = if (type == NetworkType.NONE) {
                 0
@@ -175,15 +179,20 @@ class NetworkRepository(
                 val readable = rawSsid.replace("\"", "").trim()
 
                 // Redacted without location permission; the platform returns this placeholder.
-                if (readable.isNotBlank() && readable != "<unknown ssid>") readable else "Wi-Fi"
+                if (readable.isNotBlank() && readable != "<unknown ssid>") {
+                    readable
+                } else {
+                    context.getString(R.string.transport_wifi)
+                }
             } else {
                 val telephonyManager =
                     context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                telephonyManager.networkOperatorName?.takeIf { it.isNotBlank() } ?: "Mobile"
+                telephonyManager.networkOperatorName?.takeIf { it.isNotBlank() }
+                    ?: context.getString(R.string.connection_mobile_short)
             }
         } catch (e: Exception) {
             Log.e("mlog", "getNetworkName: ${e.message}")
-            "Unknown"
+            context.getString(R.string.value_unknown)
         }
     }
 

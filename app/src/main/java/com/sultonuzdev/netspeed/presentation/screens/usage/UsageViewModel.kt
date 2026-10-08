@@ -2,6 +2,8 @@ package com.sultonuzdev.netspeed.presentation.screens.usage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sultonuzdev.netspeed.R
+import com.sultonuzdev.netspeed.utils.StringProvider
 import com.sultonuzdev.netspeed.data.datastore.PreferencesManager
 import com.sultonuzdev.netspeed.data.repository.NetworkStatsRepository
 import com.sultonuzdev.netspeed.domain.models.AppUsage
@@ -23,9 +25,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.YearMonth
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class UsageViewModel(
@@ -33,7 +34,8 @@ class UsageViewModel(
     private val networkStats: NetworkStatsRepository,
     private val checkDataLimitUseCase: CheckDataLimitUseCase,
     private val getUsageForecastUseCase: GetUsageForecastUseCase,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val strings: StringProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UsageUiState())
@@ -108,7 +110,7 @@ class UsageViewModel(
                         shareOfPeriod = if (periodTotal > 0L) {
                             (detail.totalBytes.toFloat() / periodTotal).coerceIn(0f, 1f)
                         } else 0f,
-                        periodLabel = period.label
+                        periodLabel = strings.get(period.labelRes)
                     )
                 )
             }
@@ -186,8 +188,8 @@ class UsageViewModel(
         _uiState.update { currentState ->
             currentState.copy(
                 dailyUsageHistory = rows,
-                last7DaysUsage = summarise("Last 7 days", newestFirst.take(7)),
-                last30DaysUsage = summarise("Last 30 days", newestFirst.take(30)),
+                last7DaysUsage = summarise(strings.get(R.string.usage_last_7_days), newestFirst.take(7)),
+                last30DaysUsage = summarise(strings.get(R.string.usage_last_30_days), newestFirst.take(30)),
                 dailyChart = newestFirst.take(7).reversed().map { usage ->
                     UsageBar(
                         label = shortDayLabel(usage.date),
@@ -218,7 +220,7 @@ class UsageViewModel(
             _uiState.update { currentState ->
                 currentState.copy(
                     cycleTotals = DailyUsageData(
-                        title = "This cycle",
+                        title = strings.get(R.string.usage_this_cycle),
                         mobileUsage = NetworkUtils.formatBytes(totals.mobileUsage),
                         wifiUsage = NetworkUtils.formatBytes(totals.wifiUsage),
                         totalUsage = NetworkUtils.formatBytes(totals.totalUsage)
@@ -311,7 +313,7 @@ class UsageViewModel(
     )
 
     private fun UsageData.toRow(isToday: Boolean = false) = DailyUsageData(
-        title = if (isToday) "Today" else formatDisplayDate(date),
+        title = if (isToday) strings.get(R.string.usage_today) else formatDisplayDate(date),
         mobileUsage = NetworkUtils.formatBytes(mobileUsage),
         wifiUsage = NetworkUtils.formatBytes(wifiUsage),
         totalUsage = NetworkUtils.formatBytes(totalUsage),
@@ -343,7 +345,7 @@ class UsageViewModel(
         dayDetailJob?.cancel()
         dayDetailJob = viewModelScope.launch {
             val label = if (dateKey == UsagePeriods.dayKey()) {
-                "Today"
+                strings.get(R.string.usage_today)
             } else {
                 formatDisplayDate(dateKey)
             }
@@ -401,39 +403,43 @@ class UsageViewModel(
     /** Fallback path: pads the current month's stored rows out to one row per elapsed day. */
     private fun fillMissingDaysOfMonth(existing: List<UsageData>): List<UsageData> {
         val byDate = existing.associateBy { it.date }
-        val calendar = Calendar.getInstance()
-        val today = calendar.get(Calendar.DAY_OF_MONTH)
-        val month = calendar.get(Calendar.MONTH)
-        val year = calendar.get(Calendar.YEAR)
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        // LocalDate rather than Calendar: Calendar.getInstance() is locale-sensitive and returns
+        // a Buddhist calendar on th-TH, whose YEAR is 543 higher -- which produced keys no stored
+        // row could ever match.
+        val today = LocalDate.now()
 
-        return (1..today).map { day ->
-            calendar.set(year, month, day)
-            val key = formatter.format(calendar.time)
+        return (1..today.dayOfMonth).map { day ->
+            val key = today.withDayOfMonth(day).format(DateTimeFormatter.ISO_LOCAL_DATE)
             byDate[key] ?: UsageData(date = key)
         }
     }
 
-    /** Weekday initial-ish label for a chart column, e.g. "Mon". */
-    private fun shortDayLabel(dateString: String): String {
-        return try {
-            val input = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val output = SimpleDateFormat("EEE", Locale.getDefault())
-            output.format(input.parse(dateString) ?: Date())
-        } catch (e: Exception) {
-            dateString.takeLast(2)
-        }
+    /**
+     * Renders a stored key in the reader's own language.
+     *
+     * The key itself is ISO and never localised; only its presentation is. The pattern comes from
+     * [android.text.format.DateFormat.getBestDateTimePattern] rather than a literal "MMM d",
+     * because field order differs by language -- Russian writes the day first, Japanese appends
+     * 月 and 日 -- and a fixed pattern would read as broken in half the locales we ship.
+     *
+     * Resolved per call rather than cached: Android 13's per-app language changes the locale
+     * without restarting the process, so a formatter built once would go stale.
+     */
+    private fun localisedDate(dateKey: String, skeleton: String): String = try {
+        val locale = Locale.getDefault()
+        val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
+        LocalDate.parse(dateKey, DateTimeFormatter.ISO_LOCAL_DATE)
+            .format(DateTimeFormatter.ofPattern(pattern, locale))
+    } catch (e: Exception) {
+        dateKey
     }
 
-    private fun formatDisplayDate(dateString: String): String {
-        return try {
-            val input = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val output = SimpleDateFormat("MMM d", Locale.getDefault())
-            output.format(input.parse(dateString) ?: Date())
-        } catch (e: Exception) {
-            dateString
-        }
-    }
+    /** Weekday initial-ish label for a chart column, e.g. "Mon". */
+    private fun shortDayLabel(dateString: String): String =
+        localisedDate(dateString, "EEE")
+
+    private fun formatDisplayDate(dateString: String): String =
+        localisedDate(dateString, "MMMd")
 
     private companion object {
         const val HISTORY_DAYS = 30

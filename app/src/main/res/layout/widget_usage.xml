@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
+        android:ellipsize="end"
         android:text="@string/widget_usage_title"
         android:textColor="#99FFFFFF"
         android:textSize="11sp" />
@@ -22,6 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
+        android:ellipsize="end"
         android:text="@string/widget_placeholder_speed"
         android:textColor="#FFFFFFFF"
         android:textSize="20sp"
@@ -43,6 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
         android:maxLines="1"
+        android:ellipsize="end"
         android:text="@string/widget_placeholder_speed"
         android:textColor="#B3FFFFFF"
         android:textSize="11sp" />

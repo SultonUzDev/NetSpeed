@@ -1,6 +1,7 @@
 package com.sultonuzdev.netspeed.utils
 
 import android.content.Context
+import com.sultonuzdev.netspeed.R
 import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.NetworkCapabilities
@@ -21,10 +22,12 @@ import java.net.Inet6Address
  * as blanks: SSID and BSSID need location, and the mobile data generation (LTE/5G) needs
  * READ_PHONE_STATE.
  */
-private const val CONNECTION = "Connection"
-private const val ADDRESSES = "Addresses"
-private const val RADIO = "Radio"
-private const val CARRIER = "Carrier"
+// Group headings. Held as ids and resolved per item, because the sheet groups by the
+// rendered heading and that has to be the translated one.
+private val CONNECTION = R.string.details_section_connection
+private val ADDRESSES = R.string.details_section_addresses
+private val RADIO = R.string.details_section_radio
+private val CARRIER = R.string.details_section_carrier
 
 class NetworkDetailsReader(
     private val context: Context,
@@ -51,18 +54,20 @@ class NetworkDetailsReader(
         }
 
         return NetworkDetails(
-            title = when {
-                isWifi -> "Wi-Fi"
-                isCellular -> "Mobile data"
-                else -> "Network"
-            },
+            title = context.getString(
+                when {
+                    isWifi -> R.string.transport_wifi
+                    isCellular -> R.string.connection_mobile_data
+                    else -> R.string.details_network
+                }
+            ),
             items = items
         )
     }
 
     private fun offline() = NetworkDetails(
-        title = "No connection",
-        subtitle = "Nothing is connected right now",
+        title = context.getString(R.string.connection_none),
+        subtitle = context.getString(R.string.details_nothing_connected),
         items = emptyList()
     )
 
@@ -71,34 +76,34 @@ class NetworkDetailsReader(
         linkProperties: LinkProperties?
     ): List<NetworkDetail> = buildList {
         val validated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-        add(NetworkDetail("Internet", if (validated) "Reachable" else "Connected, not verified", CONNECTION))
+        add(NetworkDetail(context.getString(R.string.details_internet), context.getString(if (validated) R.string.details_reachable else R.string.details_not_verified), context.getString(CONNECTION)))
         val metered = !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-        add(NetworkDetail("Metered", if (metered) "Yes" else "No", CONNECTION))
+        add(NetworkDetail(context.getString(R.string.details_metered), context.getString(if (metered) R.string.details_yes else R.string.details_no), context.getString(CONNECTION)))
         if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)) {
-            add(NetworkDetail("Roaming", "Yes", CONNECTION))
+            add(NetworkDetail(context.getString(R.string.details_roaming), context.getString(R.string.details_yes), context.getString(CONNECTION)))
         }
 
         // The platform's own estimate for the link, not a measurement.
-        add(NetworkDetail("Estimated downlink", formatKbps(capabilities.linkDownstreamBandwidthKbps), CONNECTION))
-        add(NetworkDetail("Estimated uplink", formatKbps(capabilities.linkUpstreamBandwidthKbps), CONNECTION))
+        add(NetworkDetail(context.getString(R.string.details_estimated_downlink), formatKbps(capabilities.linkDownstreamBandwidthKbps), context.getString(CONNECTION)))
+        add(NetworkDetail(context.getString(R.string.details_estimated_uplink), formatKbps(capabilities.linkUpstreamBandwidthKbps), context.getString(CONNECTION)))
 
-        linkProperties?.interfaceName?.let { add(NetworkDetail("Interface", it, CONNECTION)) }
+        linkProperties?.interfaceName?.let { add(NetworkDetail(context.getString(R.string.details_interface), it, context.getString(CONNECTION))) }
 
         linkProperties?.linkAddresses
             ?.map { it.address }
             ?.let { addresses ->
                 addresses.filterIsInstance<Inet4Address>().firstOrNull()?.hostAddress
-                    ?.let { add(NetworkDetail("IPv4 address", it, ADDRESSES)) }
+                    ?.let { add(NetworkDetail(context.getString(R.string.details_ipv4), it, context.getString(ADDRESSES))) }
                 addresses.filterIsInstance<Inet6Address>().firstOrNull()?.hostAddress
                     ?.substringBefore('%')
-                    ?.let { add(NetworkDetail("IPv6 address", it, ADDRESSES)) }
+                    ?.let { add(NetworkDetail(context.getString(R.string.details_ipv6), it, context.getString(ADDRESSES))) }
             }
 
         linkProperties?.dnsServers
             ?.mapNotNull { it.hostAddress }
             ?.take(2)
             ?.takeIf { it.isNotEmpty() }
-            ?.let { add(NetworkDetail("DNS", it.joinToString(", "), ADDRESSES)) }
+            ?.let { add(NetworkDetail(context.getString(R.string.details_dns), it.joinToString(", "), context.getString(ADDRESSES))) }
     }
 
     private fun wifiItems(
@@ -110,22 +115,22 @@ class NetworkDetailsReader(
         return buildList {
             // SSID and BSSID are intentionally absent: both are redacted without location.
             wifiInfo.linkSpeed.takeIf { it > 0 }
-                ?.let { add(NetworkDetail("Link speed", "$it Mbps", RADIO)) }
+                ?.let { add(NetworkDetail(context.getString(R.string.details_link_speed), context.getString(R.string.measure_megabits_per_second, it), context.getString(RADIO))) }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 wifiInfo.txLinkSpeedMbps.takeIf { it > 0 }
-                    ?.let { add(NetworkDetail("Tx link speed", "$it Mbps", RADIO)) }
+                    ?.let { add(NetworkDetail(context.getString(R.string.details_tx_link_speed), context.getString(R.string.measure_megabits_per_second, it), context.getString(RADIO))) }
                 wifiInfo.rxLinkSpeedMbps.takeIf { it > 0 }
-                    ?.let { add(NetworkDetail("Rx link speed", "$it Mbps", RADIO)) }
+                    ?.let { add(NetworkDetail(context.getString(R.string.details_rx_link_speed), context.getString(R.string.measure_megabits_per_second, it), context.getString(RADIO))) }
             }
 
             wifiInfo.frequency.takeIf { it > 0 }?.let { frequency ->
-                add(NetworkDetail("Frequency", "$frequency MHz", RADIO))
-                bandOf(frequency)?.let { add(NetworkDetail("Band", it, RADIO)) }
+                add(NetworkDetail(context.getString(R.string.details_frequency), context.getString(R.string.measure_mhz, frequency), context.getString(RADIO)))
+                bandOf(frequency)?.let { add(NetworkDetail(context.getString(R.string.details_band), it, context.getString(RADIO))) }
             }
 
             wifiInfo.rssi.takeIf { it != 0 && it > -127 }
-                ?.let { add(NetworkDetail("Signal", "$it dBm", RADIO)) }
+                ?.let { add(NetworkDetail(context.getString(R.string.details_signal), context.getString(R.string.measure_dbm, it), context.getString(RADIO))) }
         }
     }
 
@@ -156,24 +161,24 @@ class NetworkDetailsReader(
             // networkOperatorName and simOperatorName carry no permission requirement; the data
             // network generation would, so it is not reported here.
             telephonyManager.networkOperatorName?.takeIf { it.isNotBlank() }
-                ?.let { add(NetworkDetail("Operator", it, CARRIER)) }
+                ?.let { add(NetworkDetail(context.getString(R.string.details_operator), it, context.getString(CARRIER))) }
             telephonyManager.simOperatorName?.takeIf { it.isNotBlank() }
-                ?.let { add(NetworkDetail("SIM operator", it, CARRIER)) }
+                ?.let { add(NetworkDetail(context.getString(R.string.details_sim_operator), it, context.getString(CARRIER))) }
         } catch (e: Exception) {
             // Nothing reportable on this device.
         }
     }
 
     private fun bandOf(frequencyMhz: Int): String? = when {
-        frequencyMhz >= 5925 -> "6 GHz"
-        frequencyMhz >= 4900 -> "5 GHz"
-        frequencyMhz >= 2400 -> "2.4 GHz"
+        frequencyMhz >= 5925 -> context.getString(R.string.band_6_ghz)
+        frequencyMhz >= 4900 -> context.getString(R.string.band_5_ghz)
+        frequencyMhz >= 2400 -> context.getString(R.string.band_2_4_ghz)
         else -> null
     }
 
     private fun formatKbps(kbps: Int): String = when {
-        kbps <= 0 -> "Unknown"
-        kbps >= 1000 -> "${kbps / 1000} Mbps"
-        else -> "$kbps Kbps"
+        kbps <= 0 -> context.getString(R.string.value_unknown)
+        kbps >= 1000 -> context.getString(R.string.measure_megabits_per_second, kbps / 1000)
+        else -> context.getString(R.string.measure_kilobits_per_second, kbps)
     }
 }

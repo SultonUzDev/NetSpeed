@@ -18,6 +18,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,7 +47,7 @@ data class UsageBar(
 fun UsageBarChart(
     bars: List<UsageBar>,
     modifier: Modifier = Modifier,
-    title: String = "Last 7 days"
+    title: String = stringResource(R.string.usage_last_7_days)
 ) {
     val maxBytes = bars.maxOfOrNull { it.totalBytes } ?: 0L
 
@@ -70,7 +72,10 @@ fun UsageBarChart(
                 )
                 if (maxBytes > 0L) {
                     Text(
-                        text = "peak ${NetworkUtils.formatBytes(maxBytes)}",
+                        text = stringResource(
+                            R.string.usage_chart_peak,
+                            NetworkUtils.formatBytes(maxBytes)
+                        ),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -89,7 +94,7 @@ fun UsageBarChart(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No usage recorded yet",
+                        text = stringResource(R.string.usage_empty_chart),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

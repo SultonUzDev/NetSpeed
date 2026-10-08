@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">Неизвестно</string>
+
+    <!-- ===== Навигация ======================================================================= -->
+    <string name="nav_speed">Скорость</string>
+    <string name="nav_usage">Трафик</string>
+    <string name="nav_history">История</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- ===== Подключение ===================================================================== -->
+    <string name="connection_mobile_data">Мобильные данные</string>
+    <string name="connection_mobile_short">Моб. данные</string>
+    <string name="connection_offline">Нет сети</string>
+    <string name="connection_none">Нет подключения</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Экран скорости ================================================================== -->
+    <string name="speed_download">Загрузка</string>
+    <string name="speed_upload">Выгрузка</string>
+    <string name="speed_network_details">Сведения о сети</string>
+    <string name="speed_dial_idle_caption">Тест скорости</string>
+    <string name="speed_dial_latency_caption">Задержка</string>
+    <string name="speed_dial_failed_caption">Сбой теста</string>
+
+    <string name="speed_notification_offer_title">Скорость в строке состояния</string>
+    <string name="speed_notification_offer_body">Видно без открытия приложения</string>
+    <string name="speed_notification_offer_action">Включить</string>
+    <string name="speed_notification_offer_dismiss">Скрыть</string>
+
+    <!-- ===== Тест скорости =================================================================== -->
+    <string name="speed_test_run">Запустить тест скорости</string>
+    <string name="speed_test_again">Повторить тест</string>
+    <string name="speed_test_cancel">Отмена</string>
+    <string name="speed_test_phase_latency">Задержка</string>
+    <string name="speed_test_phase_download">Загрузка</string>
+    <string name="speed_test_phase_upload">Выгрузка</string>
+    <string name="speed_test_result_ping">Пинг</string>
+    <string name="speed_test_result_jitter">Джиттер</string>
+    <string name="speed_test_footer">Тест через Cloudflare · результаты остаются на устройстве</string>
+    <string name="speed_test_error_generic">Не удалось выполнить тест скорости.</string>
+    <string name="speed_test_error_no_internet">Нет подключения к интернету. Тестовый сервер недоступен.</string>
+    <string name="speed_test_error_interrupted">Подключение прервано. Проверьте сеть и повторите попытку.</string>
+
+    <!-- ===== Экран трафика =================================================================== -->
+    <string name="usage_by_app">По приложениям</string>
+    <string name="usage_today">Сегодня</string>
+    <string name="usage_billing_cycle">Расчётный период</string>
+    <string name="usage_this_cycle">Текущий период</string>
+    <string name="usage_last_7_days">За 7 дней</string>
+    <string name="usage_last_30_days">За 30 дней</string>
+    <string name="usage_total">Всего</string>
+    <string name="usage_exact">Точно</string>
+    <string name="usage_estimated">Примерно</string>
+    <string name="usage_empty_period">За этот период трафик приложений ещё не зафиксирован.</string>
+    <string name="usage_empty_chart">Данных о трафике пока нет</string>
+    <string name="usage_chart_peak">пик %1$s</string>
+    <string name="usage_app_split">Моб. %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Не удалось открыть настройки доступа к статистике на этом устройстве</string>
+
+    <string name="usage_access_title">Включите доступ к статистике</string>
+    <string name="usage_access_body">Показывает, какие приложения расходуют трафик, и приводит итоги к значениям настроек Android. Данные не покидают устройство.</string>
+    <string name="usage_access_action">Открыть настройки</string>
+
+    <!-- ===== История ========================================================================= -->
+    <string name="history_column_date">Дата</string>
+    <string name="history_empty">Данных о трафике пока нет.\nИстория пополняется во время мониторинга.</string>
+
+    <!-- ===== Лимит трафика =================================================================== -->
+    <string name="limit_card_title">Моб. данные за период</string>
+    <string name="limit_forecast_within">Прогноз: %1$s · в пределах лимита</string>
+    <string name="limit_forecast_over_by">Прогноз: %1$s · превышение на %2$s</string>
+    <string name="limit_forecast_over_when">Прогноз: %1$s · превышение %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s из %2$s · осталось %3$s</string>
+    <string name="limit_used_of_total_reached">%1$s из %2$s — лимит достигнут</string>
+    <string name="limit_forecast_when_tomorrow">завтра</string>
+    <string name="limit_forecast_in_days">через %1$d дн.</string>
+    <string name="threshold_percent_of_limit">%1$d%% лимита</string>
+    <string name="limit_none_set">Лимит не задан</string>
+    <string name="limit_percent_of_total">%1$d%% от %2$s</string>
+
+    <!-- ===== Сведения о приложении =========================================================== -->
+    <string name="app_detail_total">Всего</string>
+    <string name="app_detail_mobile">Моб. данные</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">На переднем плане</string>
+    <string name="app_detail_background">В фоне</string>
+    <string name="app_detail_no_split">На этом устройстве нет разделения на передний план и фон.</string>
+    <string name="app_detail_share_of_period">Доля за период</string>
+    <string name="app_detail_limit_this_cycle">Лимит на период</string>
+    <string name="app_detail_limit_none">Без лимита</string>
+    <string name="app_detail_limit_set">Задать лимит</string>
+    <string name="app_detail_limit_title">Лимит для %1$s</string>
+    <string name="app_detail_app_info">О приложении</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Сведения за день ================================================================ -->
+    <string name="day_detail_top_apps">Основные приложения</string>
+    <string name="day_detail_empty">Нет данных по приложениям за этот день.</string>
+    <string name="day_detail_share_of_limit">Дневная доля лимита · %1$s</string>
+    <string name="day_detail_total_suffix">всего %1$s</string>
+
+    <!-- ===== Сведения о сети ================================================================= -->
+    <string name="details_empty">Для этого подключения нет сведений.</string>
+    <string name="details_section_connection">Подключение</string>
+    <string name="details_section_addresses">Адреса</string>
+    <string name="details_section_radio">Радиомодуль</string>
+    <string name="details_section_carrier">Оператор</string>
+    <string name="details_network">Сеть</string>
+    <string name="details_nothing_connected">Сейчас нет активных подключений</string>
+    <string name="details_internet">Интернет</string>
+    <string name="details_reachable">Доступен</string>
+    <string name="details_not_verified">Подключено, не проверено</string>
+    <string name="details_metered">С тарификацией</string>
+    <string name="details_roaming">Роуминг</string>
+    <string name="details_yes">Да</string>
+    <string name="details_no">Нет</string>
+    <string name="details_estimated_downlink">Расчётный приём</string>
+    <string name="details_estimated_uplink">Расчётная передача</string>
+    <string name="details_interface">Интерфейс</string>
+    <string name="details_ipv4">IPv4-адрес</string>
+    <string name="details_ipv6">IPv6-адрес</string>
+    <string name="details_link_speed">Скорость соединения</string>
+    <string name="details_tx_link_speed">Скорость Tx</string>
+    <string name="details_rx_link_speed">Скорость Rx</string>
+    <string name="details_frequency">Частота</string>
+    <string name="details_band">Диапазон</string>
+    <string name="details_signal">Сигнал</string>
+    <string name="details_operator">Оператор</string>
+    <string name="details_sim_operator">Оператор SIM</string>
+
+    <!-- ===== Источники трафика =============================================================== -->
+    <string name="traffic_tethering">Режим модема</string>
+    <string name="traffic_removed_apps">Удалённые приложения</string>
+    <string name="traffic_all">Весь трафик</string>
+    <string name="traffic_android_os">ОС Android</string>
+    <string name="traffic_root">Аккаунт Root</string>
+    <string name="traffic_telephony">Телефония</string>
+    <string name="traffic_media_server">Медиасервер</string>
+    <string name="traffic_drm_service">Служба DRM</string>
+    <string name="traffic_network_stack">Сетевой стек</string>
+    <string name="traffic_nobody">Аккаунт Nobody</string>
+    <string name="traffic_system_service">Системная служба (uid %1$d)</string>
+
+    <!-- ===== Настройки: разделы ============================================================== -->
+    <string name="settings_section_notification">Уведомление</string>
+    <string name="settings_section_monitoring">Мониторинг</string>
+    <string name="settings_section_overlay">Плавающее окно</string>
+    <string name="settings_section_data_limit">Лимит трафика</string>
+    <string name="settings_section_alerts">Оповещения</string>
+    <string name="settings_section_device">Устройство</string>
+    <string name="settings_section_appearance">Оформление</string>
+
+    <!-- ===== Настройки: строки =============================================================== -->
+    <string name="settings_monitor_speed">Отслеживать скорость сети</string>
+    <string name="settings_update_frequency">Частота обновления</string>
+    <string name="settings_notification_style">Стиль уведомления</string>
+    <string name="settings_status_bar_shows">В строке состояния</string>
+    <string name="settings_speed_units">Единицы скорости</string>
+    <string name="settings_monitor_wifi">Отслеживать Wi-Fi</string>
+    <string name="settings_monitor_mobile">Отслеживать моб. данные</string>
+    <string name="settings_background_monitoring">Мониторинг в фоновом режиме</string>
+    <string name="settings_start_on_boot">Запуск после перезагрузки</string>
+    <string name="settings_show_overlay">Показывать плавающее окно</string>
+    <string name="settings_overlay_size">Размер текста в окне</string>
+    <string name="settings_overlay_colour">Цвет текста в окне</string>
+    <string name="settings_overlay_opacity">Прозрачность фона окна</string>
+    <string name="settings_billing_cycle_start">Начало расчётного периода</string>
+    <string name="settings_mobile_data_limit">Лимит моб. данных</string>
+    <string name="settings_warn_before_limit">Предупреждать о лимите</string>
+    <string name="settings_warn_at">Предупреждать при</string>
+    <string name="settings_warn_roaming">Предупреждать в роуминге</string>
+    <string name="settings_warn_background_data">Предупреждать о фоновом трафике</string>
+    <string name="settings_warn_above">Предупреждать свыше</string>
+    <string name="settings_autostart">Разрешить автозапуск</string>
+    <string name="settings_battery_unrestricted">Без ограничений батареи</string>
+    <string name="settings_language">Язык</string>
+    <string name="dialog_language">Язык</string>
+    <string name="language_system_default">Язык системы</string>
+    <string name="settings_dark_theme">Тёмная тема</string>
+    <string name="settings_dynamic_colour">Цвета из обоев</string>
+    <string name="settings_more_apps">Другие приложения</string>
+    <string name="settings_more_apps_subtitle">Остальные приложения Sulton UzDev</string>
+    <string name="settings_value_open">Настройки</string>
+    <string name="settings_value_none">Нет</string>
+
+    <string name="settings_notifications_off">Уведомления отключены, поэтому скорость не появится в строке состояния. Нажмите, чтобы включить.</string>
+
+    <!-- ===== Настройки: заголовки диалогов =================================================== -->
+    <string name="dialog_update_frequency">Частота обновления</string>
+    <string name="dialog_notification_style">Стиль уведомления</string>
+    <string name="dialog_speed_display">Отображение скорости</string>
+    <string name="dialog_speed_units">Единицы скорости</string>
+    <string name="dialog_monthly_reset_date">День сброса счётчика</string>
+    <string name="dialog_mobile_data_limit">Лимит моб. данных</string>
+    <string name="dialog_warn_at">Предупреждать при</string>
+    <string name="dialog_background_threshold">Порог фонового трафика</string>
+    <string name="dialog_overlay_size">Размер окна</string>
+    <string name="dialog_overlay_colour">Цвет окна</string>
+    <string name="dialog_overlay_opacity">Прозрачность окна</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_close">Закрыть</string>
+
+    <!-- ===== Значения ======================================================================== -->
+    <string name="option_auto">Авто</string>
+    <string name="option_compact">Компактно</string>
+    <string name="option_detailed">Подробно</string>
+    <string name="option_custom">Другое</string>
+    <string name="display_download_only">Только загрузка</string>
+    <string name="display_upload_only">Только выгрузка</string>
+    <string name="display_combined_total">Суммарно</string>
+    <string name="display_download_and_upload">Загрузка и выгрузка</string>
+
+    <string name="colour_white">Белый</string>
+    <string name="colour_black">Чёрный</string>
+    <string name="colour_cyan">Голубой</string>
+    <string name="colour_green">Зелёный</string>
+    <string name="colour_amber">Янтарный</string>
+    <string name="colour_red">Красный</string>
+
+    <!-- В русском языке порядковый суффикс один для всех чисел. -->
+    <string name="ordinal_day_st">%1$d-е</string>
+    <string name="ordinal_day_nd">%1$d-е</string>
+    <string name="ordinal_day_rd">%1$d-е</string>
+    <string name="ordinal_day_th">%1$d-е</string>
+
+    <!-- ===== Разрешения ====================================================================== -->
+    <string name="perm_continue">Продолжить</string>
+    <string name="perm_not_now">Не сейчас</string>
+    <string name="perm_notification_title">Скорость в строке состояния</string>
+    <string name="perm_notification_body_speed">NetSpeed показывает одно постоянное уведомление с текущей скоростью, чтобы её было видно без открытия приложения. Для этого Android требует разрешение.</string>
+    <string name="perm_notification_body_settings">NetSpeed показывает одно постоянное уведомление с текущей скоростью. Для этого Android требует разрешение. При отказе все остальные функции продолжат работать.</string>
+    <string name="perm_phone_state_title">Доступ к данным о сигнале</string>
+    <string name="perm_phone_state_body">Уровень сигнала мобильной сети считывается с радиомодуля телефона, а для этого Android требует разрешение. Остальные сведения о сети показываются в любом случае.</string>
+
+    <!-- ===== Уведомление мониторинга ========================================================= -->
+    <string name="notif_channel_name">Монитор Net Speed</string>
+    <string name="notif_channel_description">Показывает текущую скорость интернета и расход трафика</string>
+    <string name="notif_summary">Монитор Net Speed</string>
+    <string name="notif_total">всего %1$s</string>
+    <string name="notif_with_signal">%1$s | Сигнал: %2$s</string>
+    <string name="notif_line_total">Всего: %1$s</string>
+    <string name="notif_line_download">Загрузка: %1$s</string>
+    <string name="notif_line_upload">Выгрузка: %1$s</string>
+    <string name="notif_line_signal">Сигнал: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Моб. данные: %1$s</string>
+    <string name="notif_line_wifi_data">Данные Wi-Fi: %1$s</string>
+
+    <!-- ===== Оповещения о лимите ============================================================= -->
+    <string name="alert_channel_name">Оповещения о лимите</string>
+    <string name="alert_channel_description">Предупреждает о приближении к лимиту моб. данных и о его превышении</string>
+    <string name="alert_limit_reached_title">Лимит моб. данных достигнут</string>
+    <string name="alert_limit_reached_body">За период использовано %1$s из %2$s.</string>
+    <string name="alert_approaching_title">Использовано %1$d%% моб. данных</string>
+    <string name="alert_approaching_body">Использовано %1$s из %2$s. До конца периода осталось %3$s.</string>
+    <string name="alert_roaming_title">Роуминг — моб. данные могут стоить дороже</string>
+    <string name="alert_roaming_body">Вы в роуминговой сети. За период использовано %1$s моб. данных.</string>
+    <string name="alert_app_limit_one_title">%1$s превысило лимит трафика</string>
+    <string name="alert_background_one_title">%1$s расходовало трафик в фоне</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s из %3$s</string>
+
+    <!-- ===== Виджеты ========================================================================= -->
+    <string name="widget_speed_description">Текущая скорость загрузки и выгрузки</string>
+    <string name="widget_usage_title">Моб. данные за период</string>
+    <string name="widget_usage_description">Израсходованный трафик и лимит</string>
+    <string name="widget_today_total">Сегодня %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · прогноз: превышение</string>
+
+    <!-- ===== Множественные формы ============================================================= -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d секунда</item>
+        <item quantity="few">%1$d секунды</item>
+        <item quantity="many">%1$d секунд</item>
+        <item quantity="other">%1$d секунды</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d приложение превысило лимит трафика</item>
+        <item quantity="few">%1$d приложения превысили лимиты трафика</item>
+        <item quantity="many">%1$d приложений превысили лимиты трафика</item>
+        <item quantity="other">%1$d приложения превысили лимиты трафика</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d приложение расходовало трафик в фоне</item>
+        <item quantity="few">%1$d приложения расходовали трафик в фоне</item>
+        <item quantity="many">%1$d приложений расходовали трафик в фоне</item>
+        <item quantity="other">%1$d приложения расходовали трафик в фоне</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">остался %1$d день</item>
+        <item quantity="few">осталось %1$d дня</item>
+        <item quantity="many">осталось %1$d дней</item>
+        <item quantity="other">осталось %1$d дня</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">лимит через %1$d день</item>
+        <item quantity="few">лимит через %1$d дня</item>
+        <item quantity="many">лимит через %1$d дней</item>
+        <item quantity="other">лимит через %1$d дня</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="few">+%1$d</item>
+        <item quantity="many">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

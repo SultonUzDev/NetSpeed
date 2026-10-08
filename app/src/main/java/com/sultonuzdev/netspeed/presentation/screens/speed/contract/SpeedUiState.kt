@@ -9,7 +9,7 @@ data class SpeedUiState(
     val uploadUnit: String = "MB/s",
     val isConnected: Boolean = false,
     val networkType: String = "NONE",
-    val networkName: String = "No Connection",
+    val networkName: String = "",
     val signalStrength: Int = 0,
 
     /** Recent download samples in bytes/sec, oldest first. */

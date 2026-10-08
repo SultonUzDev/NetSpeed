@@ -9,6 +9,8 @@ import com.sultonuzdev.netspeed.data.repository.NetworkRepository
 import com.sultonuzdev.netspeed.data.repository.SpeedTestRepository
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedTestUiState
 import com.sultonuzdev.netspeed.presentation.screens.speed.contract.SpeedUiState
+import com.sultonuzdev.netspeed.R
+import com.sultonuzdev.netspeed.utils.StringProvider
 import com.sultonuzdev.netspeed.utils.NetworkDetailsReader
 import com.sultonuzdev.netspeed.utils.SpeedFormatter
 import com.sultonuzdev.netspeed.utils.SpeedUnit
@@ -30,7 +32,8 @@ class SpeedViewModel(
     private val networkRepository: NetworkRepository,
     private val preferencesManager: PreferencesManager,
     private val speedTestRepository: SpeedTestRepository,
-    private val networkDetailsReader: NetworkDetailsReader
+    private val networkDetailsReader: NetworkDetailsReader,
+    private val strings: StringProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SpeedUiState())
@@ -129,7 +132,11 @@ class SpeedViewModel(
                             liveValue = formatted.value,
                             liveUnit = formatted.unit,
                             downloadResult = if (leftDownload) {
-                                "${current.liveValue} ${current.liveUnit}"
+                                strings.get(
+                                    R.string.value_with_unit,
+                                    current.liveValue,
+                                    current.liveUnit
+                                )
                             } else {
                                 current.downloadResult
                             }
@@ -148,8 +155,8 @@ class SpeedViewModel(
                         liveUnit = download.unit,
                         downloadResult = download.toString(),
                         uploadResult = upload.toString(),
-                        pingResult = "${result.pingMillis} ms",
-                        jitterResult = "${result.jitterMillis} ms"
+                        pingResult = strings.get(R.string.measure_milliseconds, result.pingMillis),
+                        jitterResult = strings.get(R.string.measure_milliseconds, result.jitterMillis)
                     )
                 }
 
@@ -187,13 +194,11 @@ class SpeedViewModel(
      * has no working connection -- there is nothing to resolve against.
      */
     private fun describeFailure(e: Exception): String = when (e) {
-        is UnknownHostException ->
-            "No internet connection. The test server could not be reached."
-
-        is IOException ->
-            "Connection interrupted. Check your network and try again."
-
-        else -> e.message ?: "Speed test failed."
+        is UnknownHostException -> strings.get(R.string.speed_test_error_no_internet)
+        is IOException -> strings.get(R.string.speed_test_error_interrupted)
+        // Deliberately not e.message: a platform exception message is untranslated, often in
+        // English regardless of locale, and occasionally leaks a URL or a stack frame.
+        else -> strings.get(R.string.speed_test_error_generic)
     }
 
 

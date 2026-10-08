@@ -20,6 +20,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -144,7 +146,11 @@ fun AppUsageListItem(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Mobile ${row.mobileUsage}  ·  Wi-Fi ${row.wifiUsage}",
+                    text = stringResource(
+                        R.string.usage_app_split,
+                        row.mobileUsage,
+                        row.wifiUsage
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -204,19 +210,18 @@ fun UsageAccessCard(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = "Turn on usage access",
+                text = stringResource(R.string.usage_access_title),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Text(
-                text = "Shows which apps use your data, and makes totals match Android " +
-                        "Settings. Nothing leaves your device.",
+                text = stringResource(R.string.usage_access_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Button(onClick = onGrantClick) {
-                Text("Open settings")
+                Text(stringResource(R.string.usage_access_action))
             }
         }
     }

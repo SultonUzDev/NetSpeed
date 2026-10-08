@@ -1,5 +1,8 @@
 package com.sultonuzdev.netspeed.utils
 
+import androidx.annotation.StringRes
+import com.sultonuzdev.netspeed.R
+
 object Constants {
     const val DB_NAME = "net_speed_db"
 
@@ -40,8 +43,7 @@ object Constants {
      */
     const val PLAY_PUBLISHER = "Sulton UzDev"
 }
-enum class NotificationStyle(val styleName: String) {
-    COMPACT("Compact"),
-    DETAILED("Detailed")
-
+enum class NotificationStyle(val styleName: String, @param:StringRes val labelRes: Int) {
+    COMPACT("Compact", R.string.option_compact),
+    DETAILED("Detailed", R.string.option_detailed)
 }

@@ -5,12 +5,14 @@ import com.sultonuzdev.netspeed.domain.models.AppUsageDetail
 import com.sultonuzdev.netspeed.domain.models.DataLimitStatus
 import com.sultonuzdev.netspeed.domain.models.DayUsageDetail
 import com.sultonuzdev.netspeed.domain.models.UsageForecast
+import androidx.annotation.StringRes
+import com.sultonuzdev.netspeed.R
 import com.sultonuzdev.netspeed.presentation.components.UsageBar
 
 /** Window the per-app breakdown covers. */
-enum class AppUsagePeriod(val label: String) {
-    TODAY("Today"),
-    CYCLE("Billing cycle")
+enum class AppUsagePeriod(@param:StringRes val labelRes: Int) {
+    TODAY(R.string.usage_today),
+    CYCLE(R.string.usage_billing_cycle)
 }
 
 /** One app's share of usage over the selected window, pre-formatted for display. */
@@ -33,11 +35,11 @@ data class UsageUiState(
     /** Per-day columns for the History chart, oldest first. */
     val dailyChart: List<UsageBar> = emptyList(),
     val dailyUsageHistory: List<DailyUsageData> = emptyList(),
-    val last7DaysUsage: DailyUsageData = DailyUsageData("Last 7 days"),
-    val last30DaysUsage: DailyUsageData = DailyUsageData("Last 30 days"),
+    val last7DaysUsage: DailyUsageData = DailyUsageData(""),
+    val last30DaysUsage: DailyUsageData = DailyUsageData(""),
 
     /** Totals for the current billing cycle, shown in the pinned bottom row. */
-    val cycleTotals: DailyUsageData = DailyUsageData("This cycle"),
+    val cycleTotals: DailyUsageData = DailyUsageData(""),
 
     /** Mobile usage measured against the cap; null while unknown. */
     val dataLimitStatus: DataLimitStatus? = null,

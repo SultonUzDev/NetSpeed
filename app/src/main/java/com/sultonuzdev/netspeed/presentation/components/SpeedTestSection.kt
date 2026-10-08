@@ -19,6 +19,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,14 +57,18 @@ fun SpeedTestSection(
                 onClick =onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.speed_test_cancel))
             }
         } else {
             Button(
                 onClick =onStart,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (hasRun) "Test again" else "Run speed test")
+                Text(
+                    stringResource(
+                        if (hasRun) R.string.speed_test_again else R.string.speed_test_run
+                    )
+                )
             }
         }
 
@@ -80,13 +86,17 @@ fun SpeedTestSection(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ResultPairCard(
-                        first = "Download" to speedTestUiState.downloadResult,
-                        second = "Upload" to speedTestUiState.uploadResult,
+                        first = stringResource(R.string.speed_download) to
+                                speedTestUiState.downloadResult,
+                        second = stringResource(R.string.speed_upload) to
+                                speedTestUiState.uploadResult,
                         modifier = Modifier.weight(1f)
                     )
                     ResultPairCard(
-                        first = "Ping" to speedTestUiState.pingResult,
-                        second = "Jitter" to speedTestUiState.jitterResult,
+                        first = stringResource(R.string.speed_test_result_ping) to
+                                speedTestUiState.pingResult,
+                        second = stringResource(R.string.speed_test_result_jitter) to
+                                speedTestUiState.jitterResult,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -104,7 +114,7 @@ fun SpeedTestSection(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Tested via Cloudflare · results stay on your device",
+                    text = stringResource(R.string.speed_test_footer),
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -167,9 +177,9 @@ private fun ResultLine(label: String, value: String) {
 @Composable
 private fun PhaseIndicator(phase: SpeedTestPhase) {
     val stages = listOf(
-        SpeedTestPhase.PINGING to "Latency",
-        SpeedTestPhase.DOWNLOADING to "Download",
-        SpeedTestPhase.UPLOADING to "Upload"
+        SpeedTestPhase.PINGING to R.string.speed_test_phase_latency,
+        SpeedTestPhase.DOWNLOADING to R.string.speed_test_phase_download,
+        SpeedTestPhase.UPLOADING to R.string.speed_test_phase_upload
     )
     val currentIndex = stages.indexOfFirst { it.first == phase }
     val finished = phase == SpeedTestPhase.DONE
@@ -197,7 +207,7 @@ private fun PhaseIndicator(phase: SpeedTestPhase) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = label,
+                text = stringResource(label),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
                 color = if (isActive || isDone) {

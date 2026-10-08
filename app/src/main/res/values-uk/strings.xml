@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">Невідомо</string>
+
+    <!-- ===== Navigation ====================================================================== -->
+    <string name="nav_speed">Швидкість</string>
+    <string name="nav_usage">Трафік</string>
+    <string name="nav_history">Історія</string>
+    <string name="nav_settings">Налаштування</string>
+
+    <!-- ===== Connection naming =============================================================== -->
+    <string name="connection_mobile_data">Мобільні дані</string>
+    <string name="connection_mobile_short">Мобільні</string>
+    <string name="connection_offline">Офлайн</string>
+    <string name="connection_none">Немає з\'єднання</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Speed screen ==================================================================== -->
+    <string name="speed_download">Завантаження</string>
+    <string name="speed_upload">Вивантаження</string>
+    <string name="speed_network_details">Відомості про мережу</string>
+    <string name="speed_dial_idle_caption">Тест швидкості</string>
+    <string name="speed_dial_latency_caption">Затримка</string>
+    <string name="speed_dial_failed_caption">Тест не вдався</string>
+
+    <string name="speed_notification_offer_title">Показувати швидкість у рядку стану</string>
+    <string name="speed_notification_offer_body">Бачити її, не відкриваючи застосунок</string>
+    <string name="speed_notification_offer_action">Увімкнути</string>
+    <string name="speed_notification_offer_dismiss">Закрити</string>
+
+    <!-- ===== Speed test ====================================================================== -->
+    <string name="speed_test_run">Запустити тест швидкості</string>
+    <string name="speed_test_again">Повторити тест</string>
+    <string name="speed_test_cancel">Скасувати</string>
+    <string name="speed_test_phase_latency">Затримка</string>
+    <string name="speed_test_phase_download">Завантаження</string>
+    <string name="speed_test_phase_upload">Вивантаження</string>
+    <string name="speed_test_result_ping">Пінг</string>
+    <string name="speed_test_result_jitter">Джитер</string>
+    <string name="speed_test_footer">Перевірка через Cloudflare · результати залишаються на пристрої</string>
+    <string name="speed_test_error_generic">Не вдалося виконати тест швидкості.</string>
+    <string name="speed_test_error_no_internet">Немає підключення до інтернету. Не вдалося зв\'язатися з тестовим сервером.</string>
+    <string name="speed_test_error_interrupted">З\'єднання перервано. Перевірте мережу й спробуйте ще раз.</string>
+
+    <!-- ===== Usage screen ==================================================================== -->
+    <string name="usage_by_app">За застосунками</string>
+    <string name="usage_today">Сьогодні</string>
+    <string name="usage_billing_cycle">Платіжний цикл</string>
+    <string name="usage_this_cycle">Цей цикл</string>
+    <string name="usage_last_7_days">Останні 7 днів</string>
+    <string name="usage_last_30_days">Останні 30 днів</string>
+    <string name="usage_total">Усього</string>
+    <string name="usage_exact">Точні</string>
+    <string name="usage_estimated">Приблизні</string>
+    <string name="usage_empty_period">За цей період трафік застосунків ще не зафіксовано.</string>
+    <string name="usage_empty_chart">Витрату даних ще не зафіксовано</string>
+    <string name="usage_chart_peak">пік %1$s</string>
+    <string name="usage_app_split">Мобільні %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Не вдалося відкрити налаштування доступу до даних використання на цьому пристрої</string>
+
+    <!-- Usage-access primer -->
+    <string name="usage_access_title">Увімкніть доступ до даних використання</string>
+    <string name="usage_access_body">Показує, які застосунки витрачають дані, і узгоджує підсумки з налаштуваннями Android. Ніщо не покидає ваш пристрій.</string>
+    <string name="usage_access_action">Відкрити налаштування</string>
+
+    <!-- ===== History screen ================================================================== -->
+    <string name="history_column_date">Дата</string>
+    <string name="history_empty">Витрату даних ще не зафіксовано.\nІсторія накопичується, поки працює моніторинг.</string>
+
+    <!-- ===== Data limit card ================================================================= -->
+    <string name="limit_card_title">Мобільні дані за цикл</string>
+    <string name="limit_forecast_within">Прогноз %1$s · у межах ліміту</string>
+    <string name="limit_forecast_over_by">Прогноз %1$s · перевищення на %2$s</string>
+    <string name="limit_forecast_over_when">Прогноз %1$s · перевищення %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s з %2$s · залишилося %3$s</string>
+    <string name="limit_used_of_total_reached">%1$s з %2$s — ліміт досягнуто</string>
+    <string name="limit_forecast_when_tomorrow">завтра</string>
+    <string name="limit_forecast_in_days">через %1$dд</string>
+    <string name="threshold_percent_of_limit">%1$d%% ліміту</string>
+    <string name="limit_none_set">Ліміт не задано</string>
+    <string name="limit_percent_of_total">%1$d%% від %2$s</string>
+
+    <!-- ===== App usage detail dialog ========================================================= -->
+    <string name="app_detail_total">Усього</string>
+    <string name="app_detail_mobile">Мобільні</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Активно</string>
+    <string name="app_detail_background">У фоні</string>
+    <string name="app_detail_no_split">Цей пристрій не розділяє активне та фонове використання.</string>
+    <string name="app_detail_share_of_period">Частка за період</string>
+    <string name="app_detail_limit_this_cycle">Ліміт на цикл</string>
+    <string name="app_detail_limit_none">Без ліміту</string>
+    <string name="app_detail_limit_set">Задати ліміт</string>
+    <string name="app_detail_limit_title">Ліміт для %1$s</string>
+    <string name="app_detail_app_info">Про застосунок</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Day usage detail dialog ========================================================= -->
+    <string name="day_detail_top_apps">Основні застосунки</string>
+    <string name="day_detail_empty">Немає даних за застосунками за цей день.</string>
+    <string name="day_detail_share_of_limit">Денна частка ліміту · %1$s</string>
+    <string name="day_detail_total_suffix">усього %1$s</string>
+
+    <!-- ===== Network details sheet =========================================================== -->
+    <string name="details_empty">Немає відомостей про це з\'єднання.</string>
+    <string name="details_section_connection">З\'єднання</string>
+    <string name="details_section_addresses">Адреси</string>
+    <string name="details_section_radio">Радіомодуль</string>
+    <string name="details_section_carrier">Оператор</string>
+    <string name="details_network">Мережа</string>
+    <string name="details_nothing_connected">Зараз немає підключення</string>
+    <string name="details_internet">Інтернет</string>
+    <string name="details_reachable">Доступний</string>
+    <string name="details_not_verified">Підключено, не перевірено</string>
+    <string name="details_metered">З тарифікацією</string>
+    <string name="details_roaming">Роумінг</string>
+    <string name="details_yes">Так</string>
+    <string name="details_no">Ні</string>
+    <string name="details_estimated_downlink">Приблизний вхідний канал</string>
+    <string name="details_estimated_uplink">Приблизний вихідний канал</string>
+    <string name="details_interface">Інтерфейс</string>
+    <string name="details_ipv4">IPv4-адреса</string>
+    <string name="details_ipv6">IPv6-адреса</string>
+    <string name="details_link_speed">Швидкість зв\'язку</string>
+    <string name="details_tx_link_speed">Швидкість Tx</string>
+    <string name="details_rx_link_speed">Швидкість Rx</string>
+    <string name="details_frequency">Частота</string>
+    <string name="details_band">Діапазон</string>
+    <string name="details_signal">Сигнал</string>
+    <string name="details_operator">Оператор</string>
+    <string name="details_sim_operator">Оператор SIM</string>
+
+    <!-- ===== Synthetic app names in the per-app breakdown ===================================== -->
+    <string name="traffic_tethering">Режим модема</string>
+    <string name="traffic_removed_apps">Видалені застосунки</string>
+    <string name="traffic_all">Весь трафік</string>
+    <string name="traffic_android_os">ОС Android</string>
+    <string name="traffic_root">Обліковий запис Root</string>
+    <string name="traffic_telephony">Телефонія</string>
+    <string name="traffic_media_server">Медіасервер</string>
+    <string name="traffic_drm_service">Служба DRM</string>
+    <string name="traffic_network_stack">Мережевий стек</string>
+    <string name="traffic_nobody">Обліковий запис Nobody</string>
+    <string name="traffic_system_service">Системна служба (uid %1$d)</string>
+
+    <!-- ===== Settings: sections ============================================================== -->
+    <string name="settings_section_notification">Сповіщення</string>
+    <string name="settings_section_monitoring">Моніторинг</string>
+    <string name="settings_section_overlay">Плаваюче вікно</string>
+    <string name="settings_section_data_limit">Ліміт даних</string>
+    <string name="settings_section_alerts">Попередження</string>
+    <string name="settings_section_device">Пристрій</string>
+    <string name="settings_section_appearance">Вигляд</string>
+
+    <!-- ===== Settings: rows ================================================================== -->
+    <string name="settings_monitor_speed">Відстежувати швидкість мережі</string>
+    <string name="settings_update_frequency">Частота оновлення</string>
+    <string name="settings_notification_style">Стиль сповіщення</string>
+    <string name="settings_status_bar_shows">У рядку стану</string>
+    <string name="settings_speed_units">Одиниці швидкості</string>
+    <string name="settings_monitor_wifi">Відстежувати Wi-Fi</string>
+    <string name="settings_monitor_mobile">Відстежувати мобільні дані</string>
+    <string name="settings_background_monitoring">Відстежувати у фоні</string>
+    <string name="settings_start_on_boot">Запускати після перезавантаження</string>
+    <string name="settings_show_overlay">Показувати плаваюче вікно</string>
+    <string name="settings_overlay_size">Розмір тексту вікна</string>
+    <string name="settings_overlay_colour">Колір тексту вікна</string>
+    <string name="settings_overlay_opacity">Непрозорість тла вікна</string>
+    <string name="settings_billing_cycle_start">Початок платіжного циклу</string>
+    <string name="settings_mobile_data_limit">Ліміт мобільних даних</string>
+    <string name="settings_warn_before_limit">Попереджати перед лімітом</string>
+    <string name="settings_warn_at">Попереджати на рівні</string>
+    <string name="settings_warn_roaming">Попереджати в роумінгу</string>
+    <string name="settings_warn_background_data">Попереджати про фонові дані</string>
+    <string name="settings_warn_above">Попереджати понад</string>
+    <string name="settings_autostart">Дозволити автозапуск</string>
+    <string name="settings_battery_unrestricted">Дозволити роботу без обмежень батареї</string>
+    <string name="settings_language">Мова</string>
+    <string name="dialog_language">Мова</string>
+    <string name="language_system_default">Як у системі</string>
+    <string name="settings_dark_theme">Темна тема</string>
+    <string name="settings_dynamic_colour">Кольори як на шпалерах</string>
+    <string name="settings_more_apps">Інші застосунки</string>
+    <string name="settings_more_apps_subtitle">Решта застосунків від Sulton UzDev</string>
+    <string name="settings_value_open">Налаштування</string>
+    <string name="settings_value_none">Немає</string>
+
+    <string name="settings_notifications_off">Сповіщення вимкнено, тому швидкість не може відображатися в рядку стану. Торкніться, щоб увімкнути їх.</string>
+
+    <!-- ===== Settings: dialog titles ========================================================= -->
+    <string name="dialog_update_frequency">Частота оновлення</string>
+    <string name="dialog_notification_style">Стиль сповіщення</string>
+    <string name="dialog_speed_display">Відображення швидкості</string>
+    <string name="dialog_speed_units">Одиниці швидкості</string>
+    <string name="dialog_monthly_reset_date">Дата щомісячного скидання</string>
+    <string name="dialog_mobile_data_limit">Ліміт мобільних даних</string>
+    <string name="dialog_warn_at">Попереджати на рівні</string>
+    <string name="dialog_background_threshold">Поріг фонових даних</string>
+    <string name="dialog_overlay_size">Розмір вікна</string>
+    <string name="dialog_overlay_colour">Колір вікна</string>
+    <string name="dialog_overlay_opacity">Прозорість вікна</string>
+    <string name="dialog_cancel">Скасувати</string>
+    <string name="dialog_close">Закрити</string>
+
+    <!-- ===== Option values ==================================================================== -->
+    <string name="option_auto">Авто</string>
+    <string name="option_compact">Компактний</string>
+    <string name="option_detailed">Детальний</string>
+    <string name="option_custom">Власний</string>
+    <string name="display_download_only">Лише завантаження</string>
+    <string name="display_upload_only">Лише вивантаження</string>
+    <string name="display_combined_total">Спільна сума</string>
+    <string name="display_download_and_upload">Завантаження та вивантаження</string>
+
+    <string name="colour_white">Білий</string>
+    <string name="colour_black">Чорний</string>
+    <string name="colour_cyan">Блакитний</string>
+    <string name="colour_green">Зелений</string>
+    <string name="colour_amber">Бурштиновий</string>
+    <string name="colour_red">Червоний</string>
+
+    <!-- Ukrainian needs no ordinal suffix for a day of the month. -->
+    <string name="ordinal_day_st">%1$d</string>
+    <string name="ordinal_day_nd">%1$d</string>
+    <string name="ordinal_day_rd">%1$d</string>
+    <string name="ordinal_day_th">%1$d</string>
+
+    <!-- ===== Permission rationales =========================================================== -->
+    <string name="perm_continue">Продовжити</string>
+    <string name="perm_not_now">Не зараз</string>
+    <string name="perm_notification_title">Показувати швидкість у рядку стану</string>
+    <string name="perm_notification_body_speed">NetSpeed показує одне постійне сповіщення з поточною швидкістю, щоб ви бачили її, не відкриваючи застосунок. Android потребує вашого дозволу, щоб показувати його.</string>
+    <string name="perm_notification_body_settings">NetSpeed показує одне постійне сповіщення з поточною швидкістю. Android потребує вашого дозволу, щоб показувати його. Якщо ви відмовите, решта застосунку працюватиме як раніше.</string>
+    <string name="perm_phone_state_title">Читати рівень мобільного сигналу</string>
+    <string name="perm_phone_state_body">Рівень сигналу мобільного з\'єднання надає радіомодуль телефона, і Android закриває його дозволом. Решта відомостей про мережу показується в будь-якому разі.</string>
+
+    <!-- ===== Monitoring notification ========================================================= -->
+    <string name="notif_channel_name">Монітор Net Speed</string>
+    <string name="notif_channel_description">Показує швидкість інтернету та витрату даних у реальному часі</string>
+    <string name="notif_summary">Монітор Net Speed</string>
+    <string name="notif_total">усього %1$s</string>
+    <string name="notif_with_signal">%1$s | Сигнал: %2$s</string>
+    <string name="notif_line_total">Усього: %1$s</string>
+    <string name="notif_line_download">Завантаження: %1$s</string>
+    <string name="notif_line_upload">Вивантаження: %1$s</string>
+    <string name="notif_line_signal">Сигнал: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Мобільні дані: %1$s</string>
+    <string name="notif_line_wifi_data">Дані Wi-Fi: %1$s</string>
+
+    <!-- ===== Data-limit alerts =============================================================== -->
+    <string name="alert_channel_name">Попередження про ліміт даних</string>
+    <string name="alert_channel_description">Попереджає, коли мобільні дані наближаються до ліміту або перевищують його</string>
+    <string name="alert_limit_reached_title">Ліміт мобільних даних досягнуто</string>
+    <string name="alert_limit_reached_body">За цей цикл використано %1$s з %2$s.</string>
+    <string name="alert_approaching_title">Використано %1$d%% мобільних даних</string>
+    <string name="alert_approaching_body">Використано %1$s з %2$s. До кінця циклу залишилося %3$s.</string>
+    <string name="alert_roaming_title">Роумінг — мобільні дані можуть коштувати дорожче</string>
+    <string name="alert_roaming_body">Ви в мережі роумінгу. За цей цикл уже використано %1$s мобільних даних.</string>
+    <string name="alert_app_limit_one_title">%1$s перевищив свій ліміт даних</string>
+    <string name="alert_background_one_title">%1$s витрачав дані у фоні</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s з %3$s</string>
+
+    <!-- ===== Widgets and tile ================================================================ -->
+    <string name="widget_speed_description">Поточна швидкість завантаження та вивантаження</string>
+    <string name="widget_usage_title">Мобільні дані за цикл</string>
+    <string name="widget_usage_description">Витрачені дані відносно ліміту</string>
+    <string name="widget_today_total">Сьогодні %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · прогноз перевищення</string>
+
+    <!-- ===== Plurals ========================================================================= -->
+    <plurals name="frequency_seconds">
+        <item quantity="one">%1$d секунда</item>
+        <item quantity="few">%1$d секунди</item>
+        <item quantity="many">%1$d секунд</item>
+        <item quantity="other">%1$d секунди</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="one">%1$d застосунок перевищив свій ліміт даних</item>
+        <item quantity="few">%1$d застосунки перевищили свої ліміти даних</item>
+        <item quantity="many">%1$d застосунків перевищили свої ліміти даних</item>
+        <item quantity="other">%1$d застосунка перевищили свої ліміти даних</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="one">%1$d застосунок витрачав дані у фоні</item>
+        <item quantity="few">%1$d застосунки витрачали дані у фоні</item>
+        <item quantity="many">%1$d застосунків витрачали дані у фоні</item>
+        <item quantity="other">%1$d застосунка витрачали дані у фоні</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="one">залишився %1$d день</item>
+        <item quantity="few">залишилося %1$d дні</item>
+        <item quantity="many">залишилося %1$d днів</item>
+        <item quantity="other">залишилося %1$d дня</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="one">ліміт через %1$d день</item>
+        <item quantity="few">ліміт через %1$d дні</item>
+        <item quantity="many">ліміт через %1$d днів</item>
+        <item quantity="other">ліміт через %1$d дня</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="one">+%1$d</item>
+        <item quantity="few">+%1$d</item>
+        <item quantity="many">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

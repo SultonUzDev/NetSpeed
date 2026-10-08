@@ -21,6 +21,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,15 +61,24 @@ fun DayUsageDetailDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = NetworkUtils.formatBytes(detail.totalBytes) + " total",
+                    text = stringResource(
+                        R.string.day_detail_total_suffix,
+                        NetworkUtils.formatBytes(detail.totalBytes)
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                SummaryRow("Mobile", NetworkUtils.formatBytes(detail.mobileBytes))
-                SummaryRow("Wi-Fi", NetworkUtils.formatBytes(detail.wifiBytes))
+                SummaryRow(
+                    stringResource(R.string.app_detail_mobile),
+                    NetworkUtils.formatBytes(detail.mobileBytes)
+                )
+                SummaryRow(
+                    stringResource(R.string.app_detail_wifi),
+                    NetworkUtils.formatBytes(detail.wifiBytes)
+                )
 
                 if (detail.budgetBytes > 0L) {
                     Spacer(modifier = Modifier.height(10.dp))
@@ -77,7 +88,7 @@ fun DayUsageDetailDialog(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "Top apps",
+                    text = stringResource(R.string.day_detail_top_apps),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -95,7 +106,7 @@ fun DayUsageDetailDialog(
                     }
 
                     detail.topApps.isEmpty() -> Text(
-                        text = "No per-app data for this day.",
+                        text = stringResource(R.string.day_detail_empty),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 12.dp),
@@ -178,7 +189,7 @@ fun DayUsageDetailDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Close")
+                        Text(stringResource(R.string.dialog_close))
                     }
                 }
             }
@@ -236,7 +247,10 @@ private fun DailyBudgetBar(detail: DayUsageDetail) {
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             // The cap is monthly, so the meaningful per-day comparison is its daily share.
-            text = "Daily share of limit · ${NetworkUtils.formatBytes(detail.budgetBytes)}",
+            text = stringResource(
+                R.string.day_detail_share_of_limit,
+                NetworkUtils.formatBytes(detail.budgetBytes)
+            ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

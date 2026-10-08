@@ -1,5 +1,7 @@
 package com.sultonuzdev.netspeed.presentation.components
 
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -84,7 +86,7 @@ fun NetworkDetailsSheet(
 
             if (details.isEmpty) {
                 Text(
-                    text = "No details available for this connection.",
+                    text = stringResource(R.string.details_empty),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
@@ -147,7 +149,7 @@ fun NetworkDetailsSheet(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = dismiss) {
-                    Text("Close")
+                    Text(stringResource(R.string.dialog_close))
                 }
             }
         }

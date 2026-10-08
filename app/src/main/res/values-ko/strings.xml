@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">알 수 없음</string>
+
+    <!-- ===== Navigation ====================================================================== -->
+    <string name="nav_speed">속도</string>
+    <string name="nav_usage">사용량</string>
+    <string name="nav_history">기록</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- ===== Connection naming =============================================================== -->
+    <string name="connection_mobile_data">모바일 데이터</string>
+    <string name="connection_mobile_short">모바일</string>
+    <string name="connection_offline">오프라인</string>
+    <string name="connection_none">연결 없음</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Speed screen ==================================================================== -->
+    <string name="speed_download">다운로드</string>
+    <string name="speed_upload">업로드</string>
+    <string name="speed_network_details">네트워크 세부정보</string>
+    <string name="speed_dial_idle_caption">속도 측정</string>
+    <string name="speed_dial_latency_caption">지연 시간</string>
+    <string name="speed_dial_failed_caption">측정 실패</string>
+
+    <string name="speed_notification_offer_title">상태 표시줄에 속도 표시</string>
+    <string name="speed_notification_offer_body">앱을 열지 않고 바로 확인</string>
+    <string name="speed_notification_offer_action">사용</string>
+    <string name="speed_notification_offer_dismiss">닫기</string>
+
+    <!-- ===== Speed test ====================================================================== -->
+    <string name="speed_test_run">속도 측정 시작</string>
+    <string name="speed_test_again">다시 측정</string>
+    <string name="speed_test_cancel">취소</string>
+    <string name="speed_test_phase_latency">지연 시간</string>
+    <string name="speed_test_phase_download">다운로드</string>
+    <string name="speed_test_phase_upload">업로드</string>
+    <string name="speed_test_result_ping">핑</string>
+    <string name="speed_test_result_jitter">지터</string>
+    <string name="speed_test_footer">Cloudflare로 측정 · 결과는 기기에만 저장됩니다</string>
+    <string name="speed_test_error_generic">속도 측정에 실패했습니다.</string>
+    <string name="speed_test_error_no_internet">인터넷에 연결되어 있지 않습니다. 측정 서버에 연결할 수 없습니다.</string>
+    <string name="speed_test_error_interrupted">연결이 중단되었습니다. 네트워크를 확인한 후 다시 시도하세요.</string>
+
+    <!-- ===== Usage screen ==================================================================== -->
+    <string name="usage_by_app">앱별</string>
+    <string name="usage_today">오늘</string>
+    <string name="usage_billing_cycle">청구 주기</string>
+    <string name="usage_this_cycle">현재 주기</string>
+    <string name="usage_last_7_days">최근 7일</string>
+    <string name="usage_last_30_days">최근 30일</string>
+    <string name="usage_total">합계</string>
+    <string name="usage_exact">정확한 값</string>
+    <string name="usage_estimated">예상 값</string>
+    <string name="usage_empty_period">이 기간에 기록된 앱 트래픽이 아직 없습니다.</string>
+    <string name="usage_empty_chart">기록된 사용량 없음</string>
+    <string name="usage_chart_peak">최대 %1$s</string>
+    <string name="usage_app_split">모바일 %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">이 기기에서는 사용 정보 접근 설정을 열 수 없습니다</string>
+
+    <string name="usage_access_title">사용 정보 접근 허용</string>
+    <string name="usage_access_body">어떤 앱이 데이터를 사용하는지 보여 주고, 합계를 Android 설정과 일치시킵니다. 기기 외부로 전송되는 정보는 없습니다.</string>
+    <string name="usage_access_action">설정 열기</string>
+
+    <!-- ===== History screen ================================================================== -->
+    <string name="history_column_date">날짜</string>
+    <string name="history_empty">기록된 사용량이 아직 없습니다.\n모니터링이 실행되면서 기록이 쌓입니다.</string>
+
+    <!-- ===== Data limit card ================================================================= -->
+    <string name="limit_card_title">현재 주기 모바일 데이터</string>
+    <string name="limit_forecast_within">%1$s 예상 · 한도 내</string>
+    <string name="limit_forecast_over_by">%1$s 예상 · %2$s 초과</string>
+    <string name="limit_forecast_over_when">%1$s 예상 · %2$s 한도 초과</string>
+    <string name="limit_used_of_total_remaining">%2$s 중 %1$s · %3$s 남음</string>
+    <string name="limit_used_of_total_reached">%2$s 중 %1$s — 한도 도달</string>
+    <string name="limit_forecast_when_tomorrow">내일</string>
+    <string name="limit_forecast_in_days">%1$d일 후</string>
+    <string name="threshold_percent_of_limit">한도의 %1$d%%</string>
+    <string name="limit_none_set">설정된 한도 없음</string>
+    <string name="limit_percent_of_total">%2$s의 %1$d%%</string>
+
+    <!-- ===== App usage detail dialog ========================================================= -->
+    <string name="app_detail_total">합계</string>
+    <string name="app_detail_mobile">모바일</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">포그라운드</string>
+    <string name="app_detail_background">백그라운드</string>
+    <string name="app_detail_no_split">이 기기에서는 포그라운드/백그라운드 구분을 지원하지 않습니다.</string>
+    <string name="app_detail_share_of_period">기간 내 비중</string>
+    <string name="app_detail_limit_this_cycle">현재 주기 한도</string>
+    <string name="app_detail_limit_none">한도 없음</string>
+    <string name="app_detail_limit_set">한도 설정</string>
+    <string name="app_detail_limit_title">%1$s 한도</string>
+    <string name="app_detail_app_info">앱 정보</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Day usage detail dialog ========================================================= -->
+    <string name="day_detail_top_apps">상위 앱</string>
+    <string name="day_detail_empty">이 날짜의 앱별 데이터가 없습니다.</string>
+    <string name="day_detail_share_of_limit">한도 대비 일일 비중 · %1$s</string>
+    <string name="day_detail_total_suffix">합계 %1$s</string>
+
+    <!-- ===== Network details sheet =========================================================== -->
+    <string name="details_empty">이 연결에 대한 세부정보가 없습니다.</string>
+    <string name="details_section_connection">연결</string>
+    <string name="details_section_addresses">주소</string>
+    <string name="details_section_radio">무선 모듈</string>
+    <string name="details_section_carrier">이동통신사</string>
+    <string name="details_network">네트워크</string>
+    <string name="details_nothing_connected">현재 연결된 네트워크가 없음</string>
+    <string name="details_internet">인터넷</string>
+    <string name="details_reachable">연결 가능</string>
+    <string name="details_not_verified">연결됨, 확인되지 않음</string>
+    <string name="details_metered">종량제</string>
+    <string name="details_roaming">로밍</string>
+    <string name="details_yes">예</string>
+    <string name="details_no">아니요</string>
+    <string name="details_estimated_downlink">예상 다운링크</string>
+    <string name="details_estimated_uplink">예상 업링크</string>
+    <string name="details_interface">인터페이스</string>
+    <string name="details_ipv4">IPv4 주소</string>
+    <string name="details_ipv6">IPv6 주소</string>
+    <string name="details_link_speed">링크 속도</string>
+    <string name="details_tx_link_speed">Tx 링크 속도</string>
+    <string name="details_rx_link_speed">Rx 링크 속도</string>
+    <string name="details_frequency">주파수</string>
+    <string name="details_band">주파수 대역</string>
+    <string name="details_signal">신호</string>
+    <string name="details_operator">이동통신사</string>
+    <string name="details_sim_operator">SIM 이동통신사</string>
+
+    <!-- ===== Synthetic app names in the per-app breakdown ===================================== -->
+    <string name="traffic_tethering">테더링</string>
+    <string name="traffic_removed_apps">삭제된 앱</string>
+    <string name="traffic_all">전체 트래픽</string>
+    <string name="traffic_android_os">Android OS</string>
+    <string name="traffic_root">Root 계정</string>
+    <string name="traffic_telephony">전화 서비스</string>
+    <string name="traffic_media_server">미디어 서버</string>
+    <string name="traffic_drm_service">DRM 서비스</string>
+    <string name="traffic_network_stack">네트워크 스택</string>
+    <string name="traffic_nobody">Nobody 계정</string>
+    <string name="traffic_system_service">시스템 서비스(uid %1$d)</string>
+
+    <!-- ===== Settings: sections ============================================================== -->
+    <string name="settings_section_notification">알림</string>
+    <string name="settings_section_monitoring">모니터링</string>
+    <string name="settings_section_overlay">플로팅 오버레이</string>
+    <string name="settings_section_data_limit">데이터 한도</string>
+    <string name="settings_section_alerts">경고</string>
+    <string name="settings_section_device">기기</string>
+    <string name="settings_section_appearance">모양</string>
+
+    <!-- ===== Settings: rows ================================================================== -->
+    <string name="settings_monitor_speed">네트워크 속도 모니터링</string>
+    <string name="settings_update_frequency">업데이트 주기</string>
+    <string name="settings_notification_style">알림 스타일</string>
+    <string name="settings_status_bar_shows">상태 표시줄 표시 항목</string>
+    <string name="settings_speed_units">속도 단위</string>
+    <string name="settings_monitor_wifi">Wi-Fi 모니터링</string>
+    <string name="settings_monitor_mobile">모바일 데이터 모니터링</string>
+    <string name="settings_background_monitoring">백그라운드에서 모니터링 유지</string>
+    <string name="settings_start_on_boot">기기 재시작 후 자동 시작</string>
+    <string name="settings_show_overlay">플로팅 오버레이 표시</string>
+    <string name="settings_overlay_size">오버레이 글자 크기</string>
+    <string name="settings_overlay_colour">오버레이 글자 색상</string>
+    <string name="settings_overlay_opacity">오버레이 배경 불투명도</string>
+    <string name="settings_billing_cycle_start">청구 주기 시작일</string>
+    <string name="settings_mobile_data_limit">모바일 데이터 한도</string>
+    <string name="settings_warn_before_limit">데이터 한도 도달 전 경고</string>
+    <string name="settings_warn_at">경고 시점</string>
+    <string name="settings_warn_roaming">로밍 시 경고</string>
+    <string name="settings_warn_background_data">백그라운드 데이터 경고</string>
+    <string name="settings_warn_above">경고 기준량</string>
+    <string name="settings_autostart">자동 시작 허용</string>
+    <string name="settings_battery_unrestricted">배터리 사용 제한 없음</string>
+    <string name="settings_language">언어</string>
+    <string name="dialog_language">언어</string>
+    <string name="language_system_default">시스템 기본값</string>
+    <string name="settings_dark_theme">어두운 테마</string>
+    <string name="settings_dynamic_colour">배경화면 색상에 맞추기</string>
+    <string name="settings_more_apps">다른 앱 더 보기</string>
+    <string name="settings_more_apps_subtitle">Sulton UzDev의 다른 앱 모두</string>
+    <string name="settings_value_open">시스템 설정</string>
+    <string name="settings_value_none">없음</string>
+
+    <string name="settings_notifications_off">알림이 꺼져 있어 상태 표시줄에 속도를 표시할 수 없습니다. 탭하여 사용 설정하세요.</string>
+
+    <!-- ===== Settings: dialog titles ========================================================= -->
+    <string name="dialog_update_frequency">업데이트 주기</string>
+    <string name="dialog_notification_style">알림 스타일</string>
+    <string name="dialog_speed_display">속도 표시</string>
+    <string name="dialog_speed_units">속도 단위</string>
+    <string name="dialog_monthly_reset_date">월별 초기화 날짜</string>
+    <string name="dialog_mobile_data_limit">모바일 데이터 한도</string>
+    <string name="dialog_warn_at">경고 시점</string>
+    <string name="dialog_background_threshold">백그라운드 데이터 기준값</string>
+    <string name="dialog_overlay_size">오버레이 크기</string>
+    <string name="dialog_overlay_colour">오버레이 색상</string>
+    <string name="dialog_overlay_opacity">오버레이 투명도</string>
+    <string name="dialog_cancel">취소</string>
+    <string name="dialog_close">닫기</string>
+
+    <!-- ===== Option values ==================================================================== -->
+    <string name="option_auto">자동</string>
+    <string name="option_compact">간단히</string>
+    <string name="option_detailed">자세히</string>
+    <string name="option_custom">사용자 지정</string>
+    <string name="display_download_only">다운로드만</string>
+    <string name="display_upload_only">업로드만</string>
+    <string name="display_combined_total">합산 총량</string>
+    <string name="display_download_and_upload">다운로드 및 업로드</string>
+
+    <string name="colour_white">흰색</string>
+    <string name="colour_black">검정</string>
+    <string name="colour_cyan">청록</string>
+    <string name="colour_green">초록</string>
+    <string name="colour_amber">황색</string>
+    <string name="colour_red">빨강</string>
+
+    <string name="ordinal_day_st">%1$d일</string>
+    <string name="ordinal_day_nd">%1$d일</string>
+    <string name="ordinal_day_rd">%1$d일</string>
+    <string name="ordinal_day_th">%1$d일</string>
+
+    <!-- ===== Permission rationales =========================================================== -->
+    <string name="perm_continue">계속</string>
+    <string name="perm_not_now">나중에</string>
+    <string name="perm_notification_title">상태 표시줄에 속도 표시</string>
+    <string name="perm_notification_body_speed">NetSpeed는 실시간 수치를 담은 고정 알림 하나만 표시하므로 앱을 열지 않고도 속도를 확인할 수 있습니다. 이를 표시하려면 Android 권한이 필요합니다.</string>
+    <string name="perm_notification_body_settings">NetSpeed는 실시간 수치를 담은 고정 알림 하나만 표시합니다. 이를 표시하려면 Android 권한이 필요합니다. 거부해도 앱의 모든 기능은 그대로 작동합니다.</string>
+    <string name="perm_phone_state_title">모바일 신호 정보 읽기</string>
+    <string name="perm_phone_state_body">모바일 연결의 신호 강도는 휴대전화의 무선 모듈에서 가져오며, Android는 이를 권한으로 보호합니다. 나머지 네트워크 세부정보는 권한과 상관없이 표시됩니다.</string>
+
+    <!-- ===== Monitoring notification ========================================================= -->
+    <string name="notif_channel_name">Net Speed 모니터</string>
+    <string name="notif_channel_description">실시간 인터넷 속도와 데이터 사용량 표시</string>
+    <string name="notif_summary">Net Speed 모니터</string>
+    <string name="notif_total">합계 %1$s</string>
+    <string name="notif_with_signal">%1$s | 신호: %2$s</string>
+    <string name="notif_line_total">합계: %1$s</string>
+    <string name="notif_line_download">다운로드: %1$s</string>
+    <string name="notif_line_upload">업로드: %1$s</string>
+    <string name="notif_line_signal">신호: %1$s(%2$s)</string>
+    <string name="notif_line_mobile_data">모바일 데이터: %1$s</string>
+    <string name="notif_line_wifi_data">Wi-Fi 데이터: %1$s</string>
+
+    <!-- ===== Data-limit alerts =============================================================== -->
+    <string name="alert_channel_name">데이터 한도 경고</string>
+    <string name="alert_channel_description">모바일 데이터가 한도에 가까워지거나 한도를 넘으면 경고</string>
+    <string name="alert_limit_reached_title">모바일 데이터 한도 도달</string>
+    <string name="alert_limit_reached_body">현재 주기에 %2$s 중 %1$s 사용.</string>
+    <string name="alert_approaching_title">모바일 데이터 %1$d%% 사용</string>
+    <string name="alert_approaching_body">%2$s 중 %1$s 사용. 현재 주기에 %3$s 남음.</string>
+    <string name="alert_roaming_title">로밍 — 모바일 데이터에 추가 요금이 부과될 수 있음</string>
+    <string name="alert_roaming_body">로밍 네트워크에 연결되어 있습니다. 현재 주기에 지금까지 모바일 데이터 %1$s를 사용했습니다.</string>
+    <string name="alert_app_limit_one_title">%1$s이(가) 데이터 한도를 넘었습니다</string>
+    <string name="alert_background_one_title">%1$s이(가) 백그라운드에서 데이터를 사용했습니다</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %3$s 중 %2$s</string>
+
+    <!-- ===== Widgets and tile ================================================================ -->
+    <string name="widget_speed_description">실시간 다운로드 및 업로드 속도</string>
+    <string name="widget_usage_title">현재 주기 모바일 데이터</string>
+    <string name="widget_usage_description">한도 대비 사용한 데이터</string>
+    <string name="widget_today_total">오늘 %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · 초과 예상</string>
+
+    <!-- ===== Plurals ========================================================================= -->
+    <plurals name="frequency_seconds">
+        <item quantity="other">%1$d초</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="other">앱 %1$d개가 데이터 한도를 넘었습니다</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="other">앱 %1$d개가 백그라운드에서 데이터를 사용했습니다</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="other">%1$d일 남음</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="other">%1$d일 후 한도 도달</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

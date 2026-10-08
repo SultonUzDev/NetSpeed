@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">Không rõ</string>
+
+    <!-- ===== Điều hướng ====================================================================== -->
+    <string name="nav_speed">Tốc độ</string>
+    <string name="nav_usage">Sử dụng</string>
+    <string name="nav_history">Lịch sử</string>
+    <string name="nav_settings">Cài đặt</string>
+
+    <!-- ===== Tên kết nối ===================================================================== -->
+    <string name="connection_mobile_data">Dữ liệu di động</string>
+    <string name="connection_mobile_short">Di động</string>
+    <string name="connection_offline">Ngoại tuyến</string>
+    <string name="connection_none">Không có kết nối</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== Màn hình tốc độ ================================================================= -->
+    <string name="speed_download">Tải xuống</string>
+    <string name="speed_upload">Tải lên</string>
+    <string name="speed_network_details">Chi tiết mạng</string>
+    <string name="speed_dial_idle_caption">Kiểm tra tốc độ</string>
+    <string name="speed_dial_latency_caption">Độ trễ</string>
+    <string name="speed_dial_failed_caption">Kiểm tra thất bại</string>
+
+    <string name="speed_notification_offer_title">Giữ tốc độ này trên thanh trạng thái</string>
+    <string name="speed_notification_offer_body">Xem mà không cần mở ứng dụng</string>
+    <string name="speed_notification_offer_action">Bật</string>
+    <string name="speed_notification_offer_dismiss">Bỏ qua</string>
+
+    <!-- ===== Kiểm tra tốc độ ================================================================= -->
+    <string name="speed_test_run">Kiểm tra tốc độ</string>
+    <string name="speed_test_again">Kiểm tra lại</string>
+    <string name="speed_test_cancel">Hủy</string>
+    <string name="speed_test_phase_latency">Độ trễ</string>
+    <string name="speed_test_phase_download">Tải xuống</string>
+    <string name="speed_test_phase_upload">Tải lên</string>
+    <string name="speed_test_result_ping">Ping</string>
+    <string name="speed_test_result_jitter">Jitter</string>
+    <string name="speed_test_footer">Kiểm tra qua Cloudflare · kết quả chỉ lưu trên thiết bị của bạn</string>
+    <string name="speed_test_error_generic">Kiểm tra tốc độ thất bại.</string>
+    <string name="speed_test_error_no_internet">Không có kết nối internet. Không thể kết nối tới máy chủ kiểm tra.</string>
+    <string name="speed_test_error_interrupted">Kết nối bị ngắt. Hãy kiểm tra mạng của bạn và thử lại.</string>
+
+    <!-- ===== Màn hình mức sử dụng ============================================================ -->
+    <string name="usage_by_app">Theo ứng dụng</string>
+    <string name="usage_today">Hôm nay</string>
+    <string name="usage_billing_cycle">Chu kỳ thanh toán</string>
+    <string name="usage_this_cycle">Chu kỳ này</string>
+    <string name="usage_last_7_days">7 ngày qua</string>
+    <string name="usage_last_30_days">30 ngày qua</string>
+    <string name="usage_total">Tổng</string>
+    <string name="usage_exact">Chính xác</string>
+    <string name="usage_estimated">Ước tính</string>
+    <string name="usage_empty_period">Chưa ghi nhận lưu lượng ứng dụng nào trong khoảng thời gian này.</string>
+    <string name="usage_empty_chart">Chưa ghi nhận mức sử dụng</string>
+    <string name="usage_chart_peak">cao nhất %1$s</string>
+    <string name="usage_app_split">Di động %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">Không thể mở cài đặt quyền truy cập mức sử dụng trên thiết bị này</string>
+
+    <string name="usage_access_title">Bật quyền truy cập mức sử dụng</string>
+    <string name="usage_access_body">Cho biết ứng dụng nào dùng dữ liệu của bạn và giúp tổng số khớp với Cài đặt Android. Không có dữ liệu nào rời khỏi thiết bị.</string>
+    <string name="usage_access_action">Mở cài đặt</string>
+
+    <!-- ===== Màn hình lịch sử ================================================================ -->
+    <string name="history_column_date">Ngày</string>
+    <string name="history_empty">Chưa ghi nhận mức sử dụng.\nLịch sử được tích lũy dần khi giám sát chạy.</string>
+
+    <!-- ===== Thẻ giới hạn dữ liệu ============================================================ -->
+    <string name="limit_card_title">Dữ liệu di động chu kỳ này</string>
+    <string name="limit_forecast_within">Dự kiến %1$s · trong giới hạn</string>
+    <string name="limit_forecast_over_by">Dự kiến %1$s · vượt %2$s</string>
+    <string name="limit_forecast_over_when">Dự kiến %1$s · vượt hạn mức %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s / %2$s · còn %3$s</string>
+    <string name="limit_used_of_total_reached">%1$s / %2$s — đã đạt giới hạn</string>
+    <string name="limit_forecast_when_tomorrow">ngày mai</string>
+    <string name="limit_forecast_in_days">sau %1$d ngày</string>
+    <string name="threshold_percent_of_limit">%1$d%% hạn mức</string>
+    <string name="limit_none_set">Chưa đặt giới hạn</string>
+    <string name="limit_percent_of_total">%1$d%% của %2$s</string>
+
+    <!-- ===== Hộp thoại chi tiết ứng dụng ===================================================== -->
+    <string name="app_detail_total">Tổng</string>
+    <string name="app_detail_mobile">Di động</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">Nền trước</string>
+    <string name="app_detail_background">Chạy nền</string>
+    <string name="app_detail_no_split">Thiết bị này không tách riêng dữ liệu nền trước/chạy nền.</string>
+    <string name="app_detail_share_of_period">Tỷ lệ trong kỳ</string>
+    <string name="app_detail_limit_this_cycle">Giới hạn chu kỳ này</string>
+    <string name="app_detail_limit_none">Không giới hạn</string>
+    <string name="app_detail_limit_set">Đặt giới hạn</string>
+    <string name="app_detail_limit_title">Giới hạn cho %1$s</string>
+    <string name="app_detail_app_info">Thông tin ứng dụng</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== Hộp thoại chi tiết theo ngày ==================================================== -->
+    <string name="day_detail_top_apps">Dùng nhiều nhất</string>
+    <string name="day_detail_empty">Không có dữ liệu theo ứng dụng cho ngày này.</string>
+    <string name="day_detail_share_of_limit">Tỷ lệ hạn mức mỗi ngày · %1$s</string>
+    <string name="day_detail_total_suffix">tổng %1$s</string>
+
+    <!-- ===== Bảng chi tiết mạng ============================================================== -->
+    <string name="details_empty">Không có chi tiết nào cho kết nối này.</string>
+    <string name="details_section_connection">Kết nối</string>
+    <string name="details_section_addresses">Địa chỉ</string>
+    <string name="details_section_radio">Bộ thu phát</string>
+    <string name="details_section_carrier">Nhà mạng</string>
+    <string name="details_network">Mạng</string>
+    <string name="details_nothing_connected">Hiện không có kết nối nào</string>
+    <string name="details_internet">Internet</string>
+    <string name="details_reachable">Có thể truy cập</string>
+    <string name="details_not_verified">Đã kết nối, chưa xác minh</string>
+    <string name="details_metered">Có đo lượng dữ liệu</string>
+    <string name="details_roaming">Chuyển vùng</string>
+    <string name="details_yes">Có</string>
+    <string name="details_no">Không</string>
+    <string name="details_estimated_downlink">Băng thông xuống ước tính</string>
+    <string name="details_estimated_uplink">Băng thông lên ước tính</string>
+    <string name="details_interface">Giao diện mạng</string>
+    <string name="details_ipv4">Địa chỉ IPv4</string>
+    <string name="details_ipv6">Địa chỉ IPv6</string>
+    <string name="details_link_speed">Tốc độ liên kết</string>
+    <string name="details_tx_link_speed">Tốc độ liên kết Tx</string>
+    <string name="details_rx_link_speed">Tốc độ liên kết Rx</string>
+    <string name="details_frequency">Tần số</string>
+    <string name="details_band">Băng tần</string>
+    <string name="details_signal">Tín hiệu</string>
+    <string name="details_operator">Nhà mạng</string>
+    <string name="details_sim_operator">Nhà mạng của SIM</string>
+
+    <!-- ===== Nguồn lưu lượng trong danh sách theo ứng dụng ==================================== -->
+    <string name="traffic_tethering">Chia sẻ kết nối</string>
+    <string name="traffic_removed_apps">Ứng dụng đã xóa</string>
+    <string name="traffic_all">Toàn bộ lưu lượng</string>
+    <string name="traffic_android_os">Hệ điều hành Android</string>
+    <string name="traffic_root">Root</string>
+    <string name="traffic_telephony">Dịch vụ điện thoại</string>
+    <string name="traffic_media_server">Dịch vụ đa phương tiện</string>
+    <string name="traffic_drm_service">Dịch vụ DRM</string>
+    <string name="traffic_network_stack">Ngăn xếp mạng</string>
+    <string name="traffic_nobody">Nobody</string>
+    <string name="traffic_system_service">Dịch vụ hệ thống (uid %1$d)</string>
+
+    <!-- ===== Cài đặt: mục ==================================================================== -->
+    <string name="settings_section_notification">Thông báo</string>
+    <string name="settings_section_monitoring">Giám sát</string>
+    <string name="settings_section_overlay">Lớp nổi</string>
+    <string name="settings_section_data_limit">Giới hạn dữ liệu</string>
+    <string name="settings_section_alerts">Cảnh báo</string>
+    <string name="settings_section_device">Thiết bị</string>
+    <string name="settings_section_appearance">Giao diện</string>
+
+    <!-- ===== Cài đặt: hàng =================================================================== -->
+    <string name="settings_monitor_speed">Giám sát tốc độ mạng</string>
+    <string name="settings_update_frequency">Tần suất cập nhật</string>
+    <string name="settings_notification_style">Kiểu thông báo</string>
+    <string name="settings_status_bar_shows">Thanh trạng thái hiển thị</string>
+    <string name="settings_speed_units">Đơn vị tốc độ</string>
+    <string name="settings_monitor_wifi">Giám sát Wi-Fi</string>
+    <string name="settings_monitor_mobile">Giám sát dữ liệu di động</string>
+    <string name="settings_background_monitoring">Tiếp tục giám sát khi chạy nền</string>
+    <string name="settings_start_on_boot">Chạy sau khi khởi động lại thiết bị</string>
+    <string name="settings_show_overlay">Hiển thị lớp nổi</string>
+    <string name="settings_overlay_size">Cỡ chữ lớp nổi</string>
+    <string name="settings_overlay_colour">Màu chữ lớp nổi</string>
+    <string name="settings_overlay_opacity">Độ mờ nền lớp nổi</string>
+    <string name="settings_billing_cycle_start">Chu kỳ thanh toán bắt đầu vào</string>
+    <string name="settings_mobile_data_limit">Giới hạn dữ liệu di động</string>
+    <string name="settings_warn_before_limit">Cảnh báo trước khi đạt giới hạn</string>
+    <string name="settings_warn_at">Cảnh báo ở mức</string>
+    <string name="settings_warn_roaming">Cảnh báo khi chuyển vùng</string>
+    <string name="settings_warn_background_data">Cảnh báo về dữ liệu chạy nền</string>
+    <string name="settings_warn_above">Cảnh báo khi vượt</string>
+    <string name="settings_autostart">Cho phép tự khởi động</string>
+    <string name="settings_battery_unrestricted">Cho phép dùng pin không giới hạn</string>
+    <string name="settings_language">Ngôn ngữ</string>
+    <string name="dialog_language">Ngôn ngữ</string>
+    <string name="language_system_default">Mặc định hệ thống</string>
+    <string name="settings_dark_theme">Giao diện tối</string>
+    <string name="settings_dynamic_colour">Khớp màu với hình nền</string>
+    <string name="settings_more_apps">Ứng dụng khác</string>
+    <string name="settings_more_apps_subtitle">Các ứng dụng khác của Sulton UzDev</string>
+    <string name="settings_value_open">Cài đặt</string>
+    <string name="settings_value_none">Không có</string>
+
+    <string name="settings_notifications_off">Thông báo đang tắt nên tốc độ không thể xuất hiện trên thanh trạng thái. Nhấn để bật.</string>
+
+    <!-- ===== Cài đặt: tiêu đề hộp thoại ====================================================== -->
+    <string name="dialog_update_frequency">Tần suất cập nhật</string>
+    <string name="dialog_notification_style">Kiểu thông báo</string>
+    <string name="dialog_speed_display">Hiển thị tốc độ</string>
+    <string name="dialog_speed_units">Đơn vị tốc độ</string>
+    <string name="dialog_monthly_reset_date">Ngày đặt lại hằng tháng</string>
+    <string name="dialog_mobile_data_limit">Giới hạn dữ liệu di động</string>
+    <string name="dialog_warn_at">Cảnh báo ở mức</string>
+    <string name="dialog_background_threshold">Ngưỡng dữ liệu chạy nền</string>
+    <string name="dialog_overlay_size">Cỡ lớp nổi</string>
+    <string name="dialog_overlay_colour">Màu lớp nổi</string>
+    <string name="dialog_overlay_opacity">Độ trong suốt của lớp nổi</string>
+    <string name="dialog_cancel">Hủy</string>
+    <string name="dialog_close">Đóng</string>
+
+    <!-- ===== Giá trị lựa chọn ================================================================ -->
+    <string name="option_auto">Tự động</string>
+    <string name="option_compact">Gọn</string>
+    <string name="option_detailed">Chi tiết</string>
+    <string name="option_custom">Tùy chỉnh</string>
+    <string name="display_download_only">Chỉ tải xuống</string>
+    <string name="display_upload_only">Chỉ tải lên</string>
+    <string name="display_combined_total">Tổng cộng</string>
+    <string name="display_download_and_upload">Tải xuống và tải lên</string>
+
+    <string name="colour_white">Trắng</string>
+    <string name="colour_black">Đen</string>
+    <string name="colour_cyan">Xanh lơ</string>
+    <string name="colour_green">Xanh lá</string>
+    <string name="colour_amber">Hổ phách</string>
+    <string name="colour_red">Đỏ</string>
+
+    <!-- Tiếng Việt chỉ cần một dạng cho ngày trong tháng. -->
+    <string name="ordinal_day_st">ngày %1$d</string>
+    <string name="ordinal_day_nd">ngày %1$d</string>
+    <string name="ordinal_day_rd">ngày %1$d</string>
+    <string name="ordinal_day_th">ngày %1$d</string>
+
+    <!-- ===== Giải thích quyền ================================================================ -->
+    <string name="perm_continue">Tiếp tục</string>
+    <string name="perm_not_now">Để sau</string>
+    <string name="perm_notification_title">Hiển thị tốc độ trên thanh trạng thái</string>
+    <string name="perm_notification_body_speed">NetSpeed đăng một thông báo liên tục chứa số liệu trực tiếp, nhờ đó bạn xem được tốc độ mà không cần mở ứng dụng. Android cần bạn cấp quyền để hiển thị thông báo này.</string>
+    <string name="perm_notification_body_settings">NetSpeed đăng một thông báo liên tục chứa số liệu trực tiếp. Android cần bạn cấp quyền để hiển thị thông báo này. Mọi thứ trong ứng dụng vẫn hoạt động nếu bạn từ chối.</string>
+    <string name="perm_phone_state_title">Đọc tín hiệu di động của bạn</string>
+    <string name="perm_phone_state_body">Cường độ tín hiệu của kết nối di động lấy từ bộ thu phát của điện thoại, phần mà Android đặt sau một quyền. Các chi tiết mạng còn lại vẫn được hiển thị trong cả hai trường hợp.</string>
+
+    <!-- ===== Thông báo giám sát ============================================================== -->
+    <string name="notif_channel_name">Giám sát Net Speed</string>
+    <string name="notif_channel_description">Hiển thị tốc độ internet và mức sử dụng dữ liệu theo thời gian thực</string>
+    <string name="notif_summary">Giám sát Net Speed</string>
+    <string name="notif_total">Tổng %1$s</string>
+    <string name="notif_with_signal">%1$s | Tín hiệu: %2$s</string>
+    <string name="notif_line_total">Tổng: %1$s</string>
+    <string name="notif_line_download">Tải xuống: %1$s</string>
+    <string name="notif_line_upload">Tải lên: %1$s</string>
+    <string name="notif_line_signal">Tín hiệu: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">Dữ liệu di động: %1$s</string>
+    <string name="notif_line_wifi_data">Dữ liệu Wi-Fi: %1$s</string>
+
+    <!-- ===== Cảnh báo giới hạn dữ liệu ======================================================= -->
+    <string name="alert_channel_name">Cảnh báo giới hạn dữ liệu</string>
+    <string name="alert_channel_description">Cảnh báo khi dữ liệu di động gần đạt hoặc vượt giới hạn của bạn</string>
+    <string name="alert_limit_reached_title">Đã đạt giới hạn dữ liệu di động</string>
+    <string name="alert_limit_reached_body">Đã dùng %1$s / %2$s trong chu kỳ này.</string>
+    <string name="alert_approaching_title">Đã dùng %1$d%% dữ liệu di động</string>
+    <string name="alert_approaching_body">Đã dùng %1$s / %2$s. Còn %3$s trong chu kỳ này.</string>
+    <string name="alert_roaming_title">Chuyển vùng — dữ liệu di động có thể bị tính thêm phí</string>
+    <string name="alert_roaming_body">Bạn đang ở mạng chuyển vùng. Đã dùng %1$s dữ liệu di động trong chu kỳ này.</string>
+    <string name="alert_app_limit_one_title">%1$s đã vượt giới hạn dữ liệu</string>
+    <string name="alert_background_one_title">%1$s đã dùng dữ liệu khi chạy nền</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s / %3$s</string>
+
+    <!-- ===== Tiện ích và ô cài đặt nhanh ====================================================== -->
+    <string name="widget_speed_description">Tốc độ tải xuống và tải lên trực tiếp</string>
+    <string name="widget_usage_title">Dữ liệu di động chu kỳ này</string>
+    <string name="widget_usage_description">Dữ liệu đã dùng so với giới hạn</string>
+    <string name="widget_today_total">Hôm nay %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · dự kiến vượt</string>
+
+    <!-- ===== Dạng số nhiều: tiếng Việt chỉ có "other" ========================================= -->
+    <plurals name="frequency_seconds">
+        <item quantity="other">%1$d giây</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="other">%1$d ứng dụng đã vượt giới hạn dữ liệu</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="other">%1$d ứng dụng đã dùng dữ liệu khi chạy nền</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="other">còn %1$d ngày</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="other">đạt giới hạn sau %1$d ngày</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

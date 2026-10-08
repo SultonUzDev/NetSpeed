@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="value_unknown">غير معروف</string>
+
+    <!-- ===== التنقل ===== -->
+    <string name="nav_speed">السرعة</string>
+    <string name="nav_usage">الاستخدام</string>
+    <string name="nav_history">السجل</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <!-- ===== تسمية الاتصال ===== -->
+    <string name="connection_mobile_data">بيانات الجوال</string>
+    <string name="connection_mobile_short">الجوال</string>
+    <string name="connection_offline">غير متصل</string>
+    <string name="connection_none">لا يوجد اتصال</string>
+    <string name="connection_name_with_transport">%1$s · %2$s</string>
+
+    <!-- ===== شاشة السرعة ===== -->
+    <string name="speed_download">التنزيل</string>
+    <string name="speed_upload">الرفع</string>
+    <string name="speed_network_details">تفاصيل الشبكة</string>
+    <string name="speed_dial_idle_caption">اختبار السرعة</string>
+    <string name="speed_dial_latency_caption">زمن الاستجابة</string>
+    <string name="speed_dial_failed_caption">فشل الاختبار</string>
+
+    <string name="speed_notification_offer_title">إظهار هذه السرعة في شريط الحالة</string>
+    <string name="speed_notification_offer_body">اطّلع عليها دون فتح التطبيق</string>
+    <string name="speed_notification_offer_action">تشغيل</string>
+    <string name="speed_notification_offer_dismiss">تجاهل</string>
+
+    <!-- ===== اختبار السرعة ===== -->
+    <string name="speed_test_run">بدء اختبار السرعة</string>
+    <string name="speed_test_again">إعادة الاختبار</string>
+    <string name="speed_test_cancel">إلغاء</string>
+    <string name="speed_test_phase_latency">زمن الاستجابة</string>
+    <string name="speed_test_phase_download">التنزيل</string>
+    <string name="speed_test_phase_upload">الرفع</string>
+    <string name="speed_test_result_ping">زمن الوصول</string>
+    <string name="speed_test_result_jitter">التقلّب</string>
+    <string name="speed_test_footer">تم الاختبار عبر Cloudflare · تبقى النتائج على جهازك</string>
+    <string name="speed_test_error_generic">فشل اختبار السرعة.</string>
+    <string name="speed_test_error_no_internet">لا يوجد اتصال بالإنترنت. تعذّر الوصول إلى خادم الاختبار.</string>
+    <string name="speed_test_error_interrupted">انقطع الاتصال. تحقّق من الشبكة وحاول مرة أخرى.</string>
+
+    <!-- ===== شاشة الاستخدام ===== -->
+    <string name="usage_by_app">حسب التطبيق</string>
+    <string name="usage_today">اليوم</string>
+    <string name="usage_billing_cycle">دورة الفوترة</string>
+    <string name="usage_this_cycle">هذه الدورة</string>
+    <string name="usage_last_7_days">آخر 7 أيام</string>
+    <string name="usage_last_30_days">آخر 30 يومًا</string>
+    <string name="usage_total">الإجمالي</string>
+    <string name="usage_exact">دقيق</string>
+    <string name="usage_estimated">تقديري</string>
+    <string name="usage_empty_period">لم يُسجَّل أي استخدام للتطبيقات في هذه الفترة بعد.</string>
+    <string name="usage_empty_chart">لم يُسجَّل أي استخدام بعد</string>
+    <string name="usage_chart_peak">الذروة %1$s</string>
+    <string name="usage_app_split">الجوال %1$s  ·  Wi-Fi %2$s</string>
+    <string name="usage_settings_unavailable">تعذّر فتح إعدادات الوصول إلى بيانات الاستخدام على هذا الجهاز</string>
+
+    <string name="usage_access_title">تشغيل الوصول إلى بيانات الاستخدام</string>
+    <string name="usage_access_body">يُظهر التطبيقات التي تستهلك بياناتك، ويجعل الإجماليات مطابقة لإعدادات Android. لا يخرج أي شيء من جهازك.</string>
+    <string name="usage_access_action">فتح الإعدادات</string>
+
+    <!-- ===== شاشة السجل ===== -->
+    <string name="history_column_date">التاريخ</string>
+    <string name="history_empty">لم يُسجَّل أي استخدام بعد.\nيتكوّن السجل أثناء عمل المراقبة.</string>
+
+    <!-- ===== بطاقة حد البيانات ===== -->
+    <string name="limit_card_title">بيانات الجوال في هذه الدورة</string>
+    <string name="limit_forecast_within">متوقَّع %1$s · داخل الحد</string>
+    <string name="limit_forecast_over_by">متوقَّع %1$s · تجاوز بمقدار %2$s</string>
+    <string name="limit_forecast_over_when">متوقَّع %1$s · تجاوز الحد %2$s</string>
+    <string name="limit_used_of_total_remaining">%1$s من %2$s · بقي %3$s</string>
+    <string name="limit_used_of_total_reached">%1$s من %2$s — تم الوصول إلى الحد</string>
+    <string name="limit_forecast_when_tomorrow">غدًا</string>
+    <string name="limit_forecast_in_days">بعد %1$d ي</string>
+    <string name="threshold_percent_of_limit">%1$d%% من الحد</string>
+    <string name="limit_none_set">لم يُحدَّد حد</string>
+    <string name="limit_percent_of_total">%1$d%% من %2$s</string>
+
+    <!-- ===== تفاصيل استخدام التطبيق ===== -->
+    <string name="app_detail_total">الإجمالي</string>
+    <string name="app_detail_mobile">الجوال</string>
+    <string name="app_detail_wifi">Wi-Fi</string>
+    <string name="app_detail_foreground">أثناء الاستخدام</string>
+    <string name="app_detail_background">في الخلفية</string>
+    <string name="app_detail_no_split">لا يتوفّر تقسيم بين الاستخدام النشط والخلفية على هذا الجهاز.</string>
+    <string name="app_detail_share_of_period">النسبة من الفترة</string>
+    <string name="app_detail_limit_this_cycle">حد هذه الدورة</string>
+    <string name="app_detail_limit_none">بلا حد</string>
+    <string name="app_detail_limit_set">تحديد حد</string>
+    <string name="app_detail_limit_title">حد %1$s</string>
+    <string name="app_detail_app_info">معلومات التطبيق</string>
+    <string name="app_detail_of_total">%1$s / %2$s</string>
+
+    <!-- ===== تفاصيل استخدام اليوم ===== -->
+    <string name="day_detail_top_apps">أكثر التطبيقات استخدامًا</string>
+    <string name="day_detail_empty">لا توجد بيانات لكل تطبيق في هذا اليوم.</string>
+    <string name="day_detail_share_of_limit">النسبة اليومية من الحد · %1$s</string>
+    <string name="day_detail_total_suffix">%1$s إجمالاً</string>
+
+    <!-- ===== ورقة تفاصيل الشبكة ===== -->
+    <string name="details_empty">لا تتوفّر تفاصيل لهذا الاتصال.</string>
+    <string name="details_section_connection">الاتصال</string>
+    <string name="details_section_addresses">العناوين</string>
+    <string name="details_section_radio">وحدة الراديو</string>
+    <string name="details_section_carrier">مشغّل الشبكة</string>
+    <string name="details_network">الشبكة</string>
+    <string name="details_nothing_connected">لا يوجد اتصال في الوقت الحالي</string>
+    <string name="details_internet">الإنترنت</string>
+    <string name="details_reachable">يمكن الوصول إليه</string>
+    <string name="details_not_verified">متصل، غير مُتحقَّق منه</string>
+    <string name="details_metered">محدود البيانات</string>
+    <string name="details_roaming">التجوال</string>
+    <string name="details_yes">نعم</string>
+    <string name="details_no">لا</string>
+    <string name="details_estimated_downlink">سرعة التنزيل التقديرية</string>
+    <string name="details_estimated_uplink">سرعة الرفع التقديرية</string>
+    <string name="details_interface">واجهة الشبكة</string>
+    <string name="details_ipv4">عنوان IPv4</string>
+    <string name="details_ipv6">عنوان IPv6</string>
+    <string name="details_link_speed">سرعة الوصلة</string>
+    <string name="details_tx_link_speed">سرعة الوصلة Tx</string>
+    <string name="details_rx_link_speed">سرعة الوصلة Rx</string>
+    <string name="details_frequency">التردد</string>
+    <string name="details_band">النطاق الترددي</string>
+    <string name="details_signal">الإشارة</string>
+    <string name="details_operator">المشغّل</string>
+    <string name="details_sim_operator">مشغّل SIM</string>
+
+    <!-- ===== أسماء مصادر حركة البيانات ===== -->
+    <string name="traffic_tethering">مشاركة الاتصال</string>
+    <string name="traffic_removed_apps">تطبيقات محذوفة</string>
+    <string name="traffic_all">كل حركة البيانات</string>
+    <string name="traffic_android_os">نظام Android</string>
+    <string name="traffic_root">حساب Root</string>
+    <string name="traffic_telephony">خدمة الهاتف</string>
+    <string name="traffic_media_server">خادم الوسائط</string>
+    <string name="traffic_drm_service">خدمة DRM</string>
+    <string name="traffic_network_stack">حزمة الشبكة</string>
+    <string name="traffic_nobody">حساب Nobody</string>
+    <string name="traffic_system_service">خدمة نظام (uid %1$d)</string>
+
+    <!-- ===== الإعدادات: الأقسام ===== -->
+    <string name="settings_section_notification">الإشعار</string>
+    <string name="settings_section_monitoring">المراقبة</string>
+    <string name="settings_section_overlay">الطبقة العائمة</string>
+    <string name="settings_section_data_limit">حد البيانات</string>
+    <string name="settings_section_alerts">التنبيهات</string>
+    <string name="settings_section_device">الجهاز</string>
+    <string name="settings_section_appearance">المظهر</string>
+
+    <!-- ===== الإعدادات: الصفوف ===== -->
+    <string name="settings_monitor_speed">مراقبة سرعة الشبكة</string>
+    <string name="settings_update_frequency">معدّل التحديث</string>
+    <string name="settings_notification_style">نمط الإشعار</string>
+    <string name="settings_status_bar_shows">شريط الحالة يُظهر</string>
+    <string name="settings_speed_units">وحدات السرعة</string>
+    <string name="settings_monitor_wifi">مراقبة Wi-Fi</string>
+    <string name="settings_monitor_mobile">مراقبة بيانات الجوال</string>
+    <string name="settings_background_monitoring">متابعة المراقبة في الخلفية</string>
+    <string name="settings_start_on_boot">البدء بعد إعادة تشغيل الجهاز</string>
+    <string name="settings_show_overlay">إظهار الطبقة العائمة</string>
+    <string name="settings_overlay_size">حجم نص الطبقة</string>
+    <string name="settings_overlay_colour">لون نص الطبقة</string>
+    <string name="settings_overlay_opacity">عتامة خلفية الطبقة</string>
+    <string name="settings_billing_cycle_start">تبدأ دورة الفوترة في</string>
+    <string name="settings_mobile_data_limit">حد بيانات الجوال</string>
+    <string name="settings_warn_before_limit">التحذير قبل حد البيانات</string>
+    <string name="settings_warn_at">التحذير عند</string>
+    <string name="settings_warn_roaming">التحذير عند التجوال</string>
+    <string name="settings_warn_background_data">التحذير من بيانات الخلفية</string>
+    <string name="settings_warn_above">التحذير فوق</string>
+    <string name="settings_autostart">السماح بالتشغيل التلقائي</string>
+    <string name="settings_battery_unrestricted">السماح باستخدام البطارية بلا قيود</string>
+    <string name="settings_language">اللغة</string>
+    <string name="dialog_language">اللغة</string>
+    <string name="language_system_default">إعداد النظام الافتراضي</string>
+    <string name="settings_dark_theme">المظهر الداكن</string>
+    <string name="settings_dynamic_colour">مطابقة ألوان الخلفية</string>
+    <string name="settings_more_apps">تطبيقات أخرى</string>
+    <string name="settings_more_apps_subtitle">بقية تطبيقات Sulton UzDev</string>
+    <string name="settings_value_open">الإعدادات</string>
+    <string name="settings_value_none">بلا</string>
+
+    <string name="settings_notifications_off">الإشعارات متوقفة، لذا لا يمكن إظهار السرعة في شريط الحالة. انقر لتشغيلها.</string>
+
+    <!-- ===== الإعدادات: عناوين النوافذ ===== -->
+    <string name="dialog_update_frequency">معدّل التحديث</string>
+    <string name="dialog_notification_style">نمط الإشعار</string>
+    <string name="dialog_speed_display">عرض السرعة</string>
+    <string name="dialog_speed_units">وحدات السرعة</string>
+    <string name="dialog_monthly_reset_date">تاريخ إعادة التعيين الشهري</string>
+    <string name="dialog_mobile_data_limit">حد بيانات الجوال</string>
+    <string name="dialog_warn_at">التحذير عند</string>
+    <string name="dialog_background_threshold">حد بيانات الخلفية</string>
+    <string name="dialog_overlay_size">حجم الطبقة</string>
+    <string name="dialog_overlay_colour">لون الطبقة</string>
+    <string name="dialog_overlay_opacity">شفافية الطبقة</string>
+    <string name="dialog_cancel">إلغاء</string>
+    <string name="dialog_close">إغلاق</string>
+
+    <!-- ===== القيم ===== -->
+    <string name="option_auto">تلقائي</string>
+    <string name="option_compact">مُصغَّر</string>
+    <string name="option_detailed">مُفصَّل</string>
+    <string name="option_custom">مخصّص</string>
+    <string name="display_download_only">التنزيل فقط</string>
+    <string name="display_upload_only">الرفع فقط</string>
+    <string name="display_combined_total">الإجمالي المجمَّع</string>
+    <string name="display_download_and_upload">التنزيل والرفع</string>
+
+    <string name="colour_white">أبيض</string>
+    <string name="colour_black">أسود</string>
+    <string name="colour_cyan">سماوي</string>
+    <string name="colour_green">أخضر</string>
+    <string name="colour_amber">كهرماني</string>
+    <string name="colour_red">أحمر</string>
+
+    <string name="ordinal_day_st">%1$d</string>
+    <string name="ordinal_day_nd">%1$d</string>
+    <string name="ordinal_day_rd">%1$d</string>
+    <string name="ordinal_day_th">%1$d</string>
+
+    <!-- ===== مبرّرات الأذونات ===== -->
+    <string name="perm_continue">متابعة</string>
+    <string name="perm_not_now">ليس الآن</string>
+    <string name="perm_notification_title">إظهار السرعة في شريط الحالة</string>
+    <string name="perm_notification_body_speed">يعرض NetSpeed إشعارًا مستمرًا واحدًا يحمل القيمة الحالية، لترى سرعتك دون فتح التطبيق. ويحتاج Android إلى إذنك لإظهاره.</string>
+    <string name="perm_notification_body_settings">يعرض NetSpeed إشعارًا مستمرًا واحدًا يحمل القيمة الحالية. ويحتاج Android إلى إذنك لإظهاره. ويظل كل شيء في التطبيق يعمل إذا رفضت.</string>
+    <string name="perm_phone_state_title">قراءة إشارة شبكة الجوال</string>
+    <string name="perm_phone_state_body">تأتي قوة إشارة اتصال الجوال من وحدة الراديو في الهاتف، وهي محمية بإذن في Android. وتظهر بقية تفاصيل الشبكة في كل الحالات.</string>
+
+    <!-- ===== إشعار المراقبة ===== -->
+    <string name="notif_channel_name">مراقب Net Speed</string>
+    <string name="notif_channel_description">يُظهر سرعة الإنترنت واستخدام البيانات في الوقت الفعلي</string>
+    <string name="notif_summary">مراقب Net Speed</string>
+    <string name="notif_total">%1$s إجمالاً</string>
+    <string name="notif_with_signal">%1$s | الإشارة: %2$s</string>
+    <string name="notif_line_total">الإجمالي: %1$s</string>
+    <string name="notif_line_download">التنزيل: %1$s</string>
+    <string name="notif_line_upload">الرفع: %1$s</string>
+    <string name="notif_line_signal">الإشارة: %1$s (%2$s)</string>
+    <string name="notif_line_mobile_data">بيانات الجوال: %1$s</string>
+    <string name="notif_line_wifi_data">بيانات Wi-Fi: %1$s</string>
+
+    <!-- ===== تنبيهات حد البيانات ===== -->
+    <string name="alert_channel_name">تنبيهات حد البيانات</string>
+    <string name="alert_channel_description">ينبّهك عند اقتراب بيانات الجوال من حدك أو تجاوزه</string>
+    <string name="alert_limit_reached_title">تم الوصول إلى حد بيانات الجوال</string>
+    <string name="alert_limit_reached_body">تم استخدام %1$s من %2$s في هذه الدورة.</string>
+    <string name="alert_approaching_title">تم استخدام %1$d%% من بيانات الجوال</string>
+    <string name="alert_approaching_body">تم استخدام %1$s من %2$s. بقي %3$s في هذه الدورة.</string>
+    <string name="alert_roaming_title">التجوال — قد تترتب تكاليف إضافية على بيانات الجوال</string>
+    <string name="alert_roaming_body">أنت على شبكة تجوال. تم استخدام %1$s من بيانات الجوال في هذه الدورة حتى الآن.</string>
+    <string name="alert_app_limit_one_title">تجاوز %1$s حد بياناته</string>
+    <string name="alert_background_one_title">استخدم %1$s بيانات في الخلفية</string>
+    <string name="alert_app_line">%1$s — %2$s</string>
+    <string name="alert_app_line_of_limit">%1$s — %2$s من %3$s</string>
+
+    <!-- ===== الأدوات ===== -->
+    <string name="widget_speed_description">سرعة التنزيل والرفع الحالية</string>
+    <string name="widget_usage_title">بيانات الجوال في هذه الدورة</string>
+    <string name="widget_usage_description">البيانات المستخدمة مقابل حدك</string>
+    <string name="widget_today_total">اليوم %1$s</string>
+    <string name="widget_forecast_days_left">%1$s · %2$s</string>
+    <string name="widget_forecast_heading_over">%1$s · متوقَّع التجاوز</string>
+
+    <!-- ===== الجمع ===== -->
+    <plurals name="frequency_seconds">
+        <item quantity="zero">%1$d ثانية</item>
+        <item quantity="one">ثانية واحدة</item>
+        <item quantity="two">ثانيتان</item>
+        <item quantity="few">%1$d ثوانٍ</item>
+        <item quantity="many">%1$d ثانية</item>
+        <item quantity="other">%1$d ثانية</item>
+    </plurals>
+
+    <plurals name="alert_app_limit_title">
+        <item quantity="zero">%1$d تطبيق تجاوز حد بياناته</item>
+        <item quantity="one">تطبيق واحد تجاوز حد بياناته</item>
+        <item quantity="two">تطبيقان تجاوزا حد بياناتهما</item>
+        <item quantity="few">%1$d تطبيقات تجاوزت حد بياناتها</item>
+        <item quantity="many">%1$d تطبيقًا تجاوز حد بياناته</item>
+        <item quantity="other">%1$d تطبيق تجاوز حد بياناته</item>
+    </plurals>
+
+    <plurals name="alert_background_title">
+        <item quantity="zero">%1$d تطبيق استخدم بيانات في الخلفية</item>
+        <item quantity="one">تطبيق واحد استخدم بيانات في الخلفية</item>
+        <item quantity="two">تطبيقان استخدما بيانات في الخلفية</item>
+        <item quantity="few">%1$d تطبيقات استخدمت بيانات في الخلفية</item>
+        <item quantity="many">%1$d تطبيقًا استخدم بيانات في الخلفية</item>
+        <item quantity="other">%1$d تطبيق استخدم بيانات في الخلفية</item>
+    </plurals>
+
+    <plurals name="days_remaining">
+        <item quantity="zero">بقي %1$d يوم</item>
+        <item quantity="one">بقي يوم واحد</item>
+        <item quantity="two">بقي يومان</item>
+        <item quantity="few">بقيت %1$d أيام</item>
+        <item quantity="many">بقي %1$d يومًا</item>
+        <item quantity="other">بقي %1$d يوم</item>
+    </plurals>
+
+    <plurals name="days_until_limit">
+        <item quantity="zero">الحد بعد %1$d يوم</item>
+        <item quantity="one">الحد بعد يوم واحد</item>
+        <item quantity="two">الحد بعد يومين</item>
+        <item quantity="few">الحد بعد %1$d أيام</item>
+        <item quantity="many">الحد بعد %1$d يومًا</item>
+        <item quantity="other">الحد بعد %1$d يوم</item>
+    </plurals>
+
+    <plurals name="extra_packages">
+        <item quantity="zero">+%1$d</item>
+        <item quantity="one">+%1$d</item>
+        <item quantity="two">+%1$d</item>
+        <item quantity="few">+%1$d</item>
+        <item quantity="many">+%1$d</item>
+        <item quantity="other">+%1$d</item>
+    </plurals>
+</resources>

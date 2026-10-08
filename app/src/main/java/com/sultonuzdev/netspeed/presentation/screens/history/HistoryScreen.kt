@@ -24,6 +24,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -99,7 +101,7 @@ private fun HistoryScreenContent(
         // Labels the table beneath it. Floating at the top of the screen it described nothing in
         // particular, and sat oddly above a chart that covers a different range.
         Text(
-            text = "Last 30 days",
+            text = stringResource(R.string.usage_last_30_days),
             modifier = Modifier.padding(start = 14.dp, top = 10.dp, bottom = 2.dp),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
@@ -119,15 +121,15 @@ private fun HistoryScreenContent(
                     .padding(horizontal = 12.dp, vertical = 12.dp)
             ) {
                 TableHeaderCell(
-                    "Date",
+                    stringResource(R.string.history_column_date),
                     weight = 2f,
                     textAlign = TextAlign.Start,
                     // Rows lead with a 14dp limit-dot slot before the date; match it.
                     modifier = Modifier.padding(start = 14.dp)
                 )
-                TableHeaderCell("Mobile", weight = 1.5f)
-                TableHeaderCell("Wi-Fi", weight = 1.5f)
-                TableHeaderCell("Total", weight = 1.5f)
+                TableHeaderCell(stringResource(R.string.app_detail_mobile), weight = 1.5f)
+                TableHeaderCell(stringResource(R.string.app_detail_wifi), weight = 1.5f)
+                TableHeaderCell(stringResource(R.string.usage_total), weight = 1.5f)
             }
         }
 
@@ -143,7 +145,7 @@ private fun HistoryScreenContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No usage recorded yet.\nHistory builds up as monitoring runs.",
+                    text = stringResource(R.string.history_empty),
                     modifier = Modifier.padding(32.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

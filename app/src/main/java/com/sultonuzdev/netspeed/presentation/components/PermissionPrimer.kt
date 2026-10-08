@@ -10,6 +10,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.netspeed.R
 import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,7 +27,7 @@ import androidx.core.content.ContextCompat
 fun PermissionRationale(
     title: String,
     body: String,
-    confirmLabel: String = "Continue",
+    confirmLabel: String = stringResource(R.string.perm_continue),
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -34,7 +36,9 @@ fun PermissionRationale(
         title = { Text(text = title, style = MaterialTheme.typography.headlineSmall) },
         text = { Text(text = body, style = MaterialTheme.typography.bodyMedium) },
         confirmButton = { TextButton(onClick = onConfirm) { Text(confirmLabel) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Not now") } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.perm_not_now)) }
+        }
     )
 }
 
